@@ -12,7 +12,9 @@ app.use(cors());
 app.use(express.json());
 
 
-let accounts = [ ];
+let accounts = [];
+
+
 
 
 // Update the accounts initialization to include sample student data with all fields
@@ -21,22 +23,35 @@ async function initializeAccounts() {
 
   const users = [
     { email: "admin@gmail.com", password: "admin", role: "admin" },
-    { email: "coach@gmail.com", password: "coach", group: "A", role: "coach" },
-    { 
-      email: "student@gmail.com", 
-      password: "student", 
-      group: "A", 
-      role: "student",
+    { name: "Mehmet Cansız", email: "coach@gmail.com", password: "coach", group: "A", role: "coach" },
+    { name: "Ahmet Çetin", email: "coach2@gmail.com", password: "coach2", group: "B", role: "coach" },
+
+    {
+      email: "student@gmail.com", password: "student", group: "A", role: "student",
       firstName: "Mehmet",
       lastName: "Yılmaz",
       birthDate: "2010-05-15",
-      gender: "Erkek",
+      gender: "Male",
       parentName: "Ali Yılmaz",
       parentPhone: "5551234567",
       notes: "Örnek öğrenci",
       startDate: "2023-09-01",
       performanceNotes: []
+    },
+    //add another student
+    {
+      email: "student2@gmail.com", password: "student2", group: "B", role: "student",
+      firstName: "Ayşe",
+      lastName: "Demir",
+      birthDate: "2011-03-20",
+      gender: "Female",
+      parentName: "Fatma Demir",
+      parentPhone: "5559876543",
+      notes: "Örnek öğrenci 2",
+      startDate: "2025-12-25",
+      performanceNotes: []
     }
+
   ];
 
   for (let i = 0; i < users.length; i++) {
@@ -46,6 +61,7 @@ async function initializeAccounts() {
       email: users[i].email,
       password: hashedPassword,
       role: users[i].role,
+      passwordChangedAt: new Date(),
       ...(users[i].role === 'coach' && { group: users[i].group }),
       ...(users[i].role === 'student' && {
         firstName: users[i].firstName,
@@ -65,20 +81,58 @@ async function initializeAccounts() {
   console.log("Initial users created.");
 }
 
+function verifyToken(token, secret) {
+  if (!token) {
+    throw new Error('No token provided');
+  }
+  
+  if (!secret) {
+    throw new Error('JWT secret is not defined');
+  }
+
+  try {
+    const decoded = jwt.verify(token, secret);
+    
+    // Find the user
+    const user = accounts.find(u => u.email === decoded.email);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Check if token was issued before password was changed
+    if (decoded.iat && user.passwordChangedAt && 
+        (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
+          // debug
+          console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
+          console.log('Current time:', new Date().getTime());
+          // debug end
+      throw new Error('Password has been changed, please login again');
+    }
+    
+    return decoded;
+  } catch (error) {
+    // Handle specific JWT errors
+    if (error.name === 'TokenExpiredError') {
+      throw new Error('Token expired');
+    } else if (error.name === 'JsonWebTokenError') {
+      throw new Error('Invalid token');
+    }
+    throw new Error(error.message || 'Token verification failed');
+  }
+}
+
 
 
 // Register endpoint
 app.post('/register', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, firstName, lastName } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required.' });
+    return res.status(400).json({ message: 'Email and password are required' });
   }
 
-  // Check if user already exists
-  const existingUser = accounts.find(user => user.email === email);
-  if (existingUser) {
-    return res.status(409).json({ message: 'User already exists.' });
+  if (accounts.some(user => user.email === email)) {
+    return res.status(409).json({ message: 'Email already registered' });
   }
 
   try {
@@ -89,18 +143,22 @@ app.post('/register', async (req, res) => {
       id: accounts.length + 1,
       email,
       password: hashedPassword,
-      role: 'student' // or assign based on logic
+      role: 'student',
+      firstName: firstName || '',
+      lastName: lastName || '',
+      passwordChangedAt: new Date(),
+      active: false
     };
 
     accounts.push(newUser);
-    console.log('User saved:', newUser);
-
-    console.log(accounts);
-
-    res.status(201).json({ message: 'User registered successfully!' });
+    
+    const { password: _, ...userData } = newUser;
+    res.status(201).json({ 
+      message: 'Registration successful',
+      user: userData
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Registration failed' });
   }
 });
 
@@ -108,148 +166,108 @@ app.post('/register', async (req, res) => {
 
 // Login endpoint
 app.post('/login', async (req, res) => {
+
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password are required.' });
+    return res.status(400).json({ message: 'Email and password required' });
   }
 
   const user = accounts.find(u => u.email === email);
-
   if (!user) {
-    return res.status(400).json({ message: 'User not found.' });
+    return res.status(401).json({ message: 'Invalid credentials' });
   }
 
   try {
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (isPasswordValid) {
-      const token = jwt.sign({ email: user.email, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
-      res.status(200).json({ message: "Login successful", role: user.role, token });
-    } else {
-      res.status(401).json({ message: 'Invalid password.' });
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid credentials' });
     }
+
+    const token = jwt.sign(
+      { email: user.email, role: user.role, id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    const { password: _, ...userData } = user;
+    res.json({ 
+      message: 'Login successful',
+      token,
+      user: userData
+    });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Login failed' });
   }
 });
 
 
 
-
-
-// Middleware to check if user is authenticated
-app.use((req, res, next) => {
+const authenticate = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token.' });
-    }
+  
+  try {
+    const decoded = verifyToken(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
-  });
-});
+  } catch (error) {
+    return res.status(401).json({ message: error.message });
+  }
+};
+
 
 // Get all users (for admin use only)
-app.get('/users', (req, res) => {
-  const userRole = req.user.role;
-  if (userRole !== 'admin') {
-    return res.status(403).json({ message: 'Only admin can access this route.' });
-  }
-  res.json(accounts);
-});
+app.get('/users', authenticate, (req, res) => {
+  const { role } = req.user;
 
-// Get user profile from token (for all authenticated users)
-app.get('/profile',(req, req) => {
-
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
   }
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
-      return res.status(403).json({ message: 'Invalid token.' });
-    }
-    const user = accounts.find(u => u.email === decoded.email);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-    res.json(user);
+
+  const users = accounts.map(user => {
+    const { password, ...userData } = user;
+    return userData;
   });
 
+  res.json(users);
+});
+
+
+app.get('/profile', authenticate, (req, res) => {
+  const user = accounts.find(u => u.email === req.user.email); 
+  if (!user) {
+    return res.status(404).json({ message: 'User not found.' });
+  }
+  
+  const { password, ...userWithoutPassword } = user;
+  res.json(userWithoutPassword);
 });
 
 
 
 
 // Update the add-student endpoint to include all student fields
-app.post('/add-student', async (req, res) => {
-  const { 
-    studentEmail, 
-    targetGroup,
-    firstName,
-    lastName,
-    birthDate,
-    gender,
-    parentName,
-    parentPhone,
-    notes,
-    startDate
-  } = req.body;
+app.post('/add-student', authenticate, async (req, res) => {
+  const { role, email } = req.user;
+  const studentData = req.body;
 
-  if (!studentEmail || !firstName || !lastName || !birthDate || !gender || !parentName || !parentPhone || !startDate) {
+  if (role !== 'admin' && role !== 'coach') {
+    return res.status(403).json({ message: 'Unauthorized access' });
+  }
+
+  // Validate required fields
+  const requiredFields = ['email', 'firstName', 'lastName', 'birthDate', 'gender', 'parentName', 'parentPhone'];
+  const missingFields = requiredFields.filter(field => !studentData[field]);
+  if (missingFields.length > 0) {
     return res.status(400).json({ 
-      message: 'Student email, first name, last name, birth date, gender, parent name, parent phone and start date are required.' 
+      message: 'Missing required fields',
+      missing: missingFields
     });
   }
 
-  // Check authorization
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
-  }
-
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(403).json({ message: 'Invalid token.' });
-  }
-
-  const userRole = decodedToken.role;
-  const userEmail = decodedToken.email;
-
-  // Permission check
-  if (userRole !== 'admin' && userRole !== 'coach') {
-    return res.status(403).json({ message: 'Only admin or coach can add a student.' });
-  }
-
-  // Group assignment logic
-  let assignedGroup;
-  if (userRole === 'coach') {
-    const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
-    if (!coach) {
-      return res.status(404).json({ message: 'Coach not found.' });
-    }
-    if (!coach.group) {
-      return res.status(400).json({ message: 'Coach is not assigned to any group.' });
-    }
-    assignedGroup = coach.group;
-  } else {
-    if (!targetGroup) {
-      return res.status(400).json({ message: 'Target group is required for admin.' });
-    }
-    assignedGroup = targetGroup;
-  }
-
   // Check if student exists
-  if (accounts.some(user => user.email === studentEmail)) {
-    return res.status(409).json({ message: 'Student already exists.' });
+  if (accounts.some(user => user.email === studentData.email)) {
+    return res.status(409).json({ message: 'Student already exists' });
   }
 
   try {
@@ -257,41 +275,35 @@ app.post('/add-student', async (req, res) => {
     const randomPassword = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
 
+    // Determine group assignment
+    let assignedGroup = studentData.group;
+    if (role === 'coach') {
+      const coach = accounts.find(u => u.email === email);
+      assignedGroup = coach?.group;
+    }
+
     const newStudent = {
       id: accounts.length + 1,
-      email: studentEmail,
+      email: studentData.email,
       password: hashedPassword,
       role: 'student',
       group: assignedGroup,
-      firstName,
-      lastName,
-      birthDate,
-      gender,
-      parentName,
-      parentPhone,
-      notes: notes || '',
-      startDate,
+      ...studentData,
       performanceNotes: [],
-      needToChangePassword: true
+      active: false,
+      passwordChangedAt: new Date()
     };
 
     accounts.push(newStudent);
-    console.log('New student created:', newStudent);
-
-    res.status(201).json({ 
+    
+    const { password, ...studentResponse } = newStudent;
+    res.status(201).json({
       message: 'Student added successfully',
       temporaryPassword: randomPassword,
-      student: {
-        id: newStudent.id,
-        email: newStudent.email,
-        firstName: newStudent.firstName,
-        lastName: newStudent.lastName,
-        group: newStudent.group
-      }
+      student: studentResponse
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Failed to add student' });
   }
 });
 
@@ -306,9 +318,9 @@ app.put('/students/:id', async (req, res) => {
     return res.status(403).json({ message: 'No token provided.' });
   }
 
-  let decodedToken;
+
   try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    decodedToken = verifyToken(token, process.env.JWT_SECRET);
   } catch (error) {
     return res.status(403).json({ message: 'Invalid token.' });
   }
@@ -334,17 +346,17 @@ app.put('/students/:id', async (req, res) => {
 
   // Update student information
   const allowedFields = [
-    'firstName', 'lastName', 'birthDate', 'gender', 'group', 
+    'firstName', 'lastName', 'birthDate', 'gender', 'group',
     'parentName', 'parentPhone', 'notes', 'performanceNotes'
   ];
-  
+
   for (const field in updates) {
     if (allowedFields.includes(field)) {
       accounts[studentIndex][field] = updates[field];
     }
   }
 
-  res.status(200).json({ 
+  res.status(200).json({
     message: 'Student updated successfully',
     student: {
       id: accounts[studentIndex].id,
@@ -357,25 +369,15 @@ app.put('/students/:id', async (req, res) => {
 });
 
 // Update the students endpoint to return all student information
-app.get('/students', (req, res) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
-  }
+app.get('/students', authenticate, (req, res) => {
+  const userRole = req.user.role;
+  const userEmail = req.user.email;
   
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(403).json({ message: 'Invalid token.' });
-  }
-  
-  const userRole = decodedToken.role;
-  const userEmail = decodedToken.email;
-
   if (userRole === 'admin') {
     // Admin can see all students
-    const students = accounts.filter(user => user.role === 'student');
+    const students = accounts
+      .filter(user => user.role === 'student')
+      .map(({ password, ...student }) => student); // Exclude password
     return res.json(students);
   } else if (userRole === 'coach') {
     // Coach can only see students in their group
@@ -386,99 +388,148 @@ app.get('/students', (req, res) => {
     if (!coach.group) {
       return res.status(400).json({ message: 'Coach is not assigned to any group.' });
     }
-    const studentsInGroup = accounts.filter(user => user.group === coach.group && user.role === 'student');
+    const studentsInGroup = accounts
+      .filter(user => user.group === coach.group && user.role === 'student')
+      .map(({ password, ...student }) => student); // Exclude password
     return res.json(studentsInGroup);
   } else {
     return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
 });
 
-// Add a new endpoint to get a specific student's details
-app.get('/students/:id', (req, res) => {
+app.get('/students/:id', authenticate, (req, res) => {
   const { id } = req.params;
-  
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
-  }
-  
-  let decodedToken;
-  try {
-    decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(403).json({ message: 'Invalid token.' });
-  }
-  
-  const userRole = decodedToken.role;
-  const userEmail = decodedToken.email;
+  const { role, email } = req.user; // From authenticate middleware
 
+  // Find student (excluding password)
   const student = accounts.find(u => u.id === parseInt(id) && u.role === 'student');
   if (!student) {
     return res.status(404).json({ message: 'Student not found.' });
   }
 
   // Permission check
-  if (userRole === 'coach') {
-    const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
+  if (role === 'coach') {
+    const coach = accounts.find(u => u.email === email && u.role === 'coach');
     if (!coach || student.group !== coach.group) {
       return res.status(403).json({ message: 'You can only view students in your group.' });
     }
-  } else if (userRole !== 'admin') {
+  } else if (role !== 'admin') {
     return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
 
-  res.json(student);
+  // Return student data without password
+  const { password, ...studentData } = student;
+  res.json(studentData);
 });
 
 
-// Change password endpoint (for all authenticated users)
-app.post('/change-password', async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
+// list all coaches
+app.get('/coaches', authenticate, (req, res) => {
+  const { role } = req.user;
 
-  if (!oldPassword || !newPassword) {
-    return res.status(400).json({ message: 'Old and new passwords are required.' });
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
   }
 
-  // Get token from header
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(401).json({ message: 'Authorization token required' });
+  const coaches = accounts
+    .filter(user => user.role === 'coach')
+    .map(({ password, ...coach }) => coach);
+
+  res.json(coaches);
+});
+
+
+
+// add new coach with name group mail and return random password
+app.post('/add-coach', authenticate, async (req, res) => {
+  const { email, group, name } = req.body;
+  const { role } = req.user;
+
+  if (!email || !group) {
+    return res.status(400).json({ message: 'Email and group are required.' });
+  }
+
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Only admin can add coaches' });
+  }
+
+  if (accounts.some(user => user.email === email)) {
+    return res.status(409).json({ message: 'Coach already exists.' });
   }
 
   try {
-    // Verify token and get user email
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const userEmail = decoded.email;
-
-    // Find user by email
-    const user = accounts.find(u => u.email === userEmail);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found.' });
-    }
-
-    // Verify old password
-    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
-    if (!isOldPasswordValid) {
-      return res.status(401).json({ message: 'Invalid old password.' });
-    }
-
-    // Update password
     const saltRounds = 10;
-    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
-    user.password = hashedNewPassword;
-    user.needToChangePassword = false;
+    const randomPassword = Math.random().toString(36).slice(-8);
+    const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
 
-    return res.status(200).json({ message: 'Password changed successfully!' });
+    const newCoach = {
+      id: accounts.length + 1,
+      email,
+      name: name || email.split('@')[0],
+      password: hashedPassword,
+      role: 'coach',
+      group,
+      passwordChangedAt: new Date()
+    };
+
+    accounts.push(newCoach);
     
+    const { password, ...coachData } = newCoach;
+    res.status(201).json({ 
+      message: 'Coach added successfully',
+      temporaryPassword: randomPassword,
+      coach: coachData
+    });
   } catch (error) {
-    console.error(error);
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(403).json({ message: 'Invalid token' });
-    }
-    return res.status(500).json({ message: 'Internal server error.' });
+    res.status(500).json({ message: 'Internal server error' });
   }
 });
 
+
+
+// Change password endpoint (for all authenticated users)
+app.post('/change-password', authenticate, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const { email } = req.user;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Both passwords are required' });
+  }
+
+  const user = accounts.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  try {
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.password = hashedPassword;
+    user.active = true;
+    
+    // Generate new token with updated timestamp
+    const token = jwt.sign(
+      { email: user.email, role: user.role, id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    
+    user.passwordChangedAt = new Date();
+
+
+    res.json({ 
+      message: 'Password changed successfully',
+      token 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
 
 
 
