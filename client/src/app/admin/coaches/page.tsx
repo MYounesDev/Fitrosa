@@ -8,7 +8,8 @@ interface Coach {
     id: string;
     name: string;
     email: string;
-    group: string;
+    session: string;
+    section: string;
 }
 
 const CoachesPage = () => {
@@ -16,7 +17,8 @@ const CoachesPage = () => {
     const [newCoach, setNewCoach] = useState({
         name: '',
         email: '',
-        group: ''
+        session: '',
+        section: '',
     });
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [temporaryPassword, setTemporaryPassword] = useState('');
@@ -52,7 +54,8 @@ const CoachesPage = () => {
             setNewCoach({
                 name: '',
                 email: '',
-                group: ''
+                session: '',
+                section: '',
             });
             setIsFormOpen(false);
         } catch (error) {
@@ -123,11 +126,22 @@ const CoachesPage = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Session</label>
                                 <input
                                     type="text"
-                                    name="group"
-                                    value={newCoach.group}
+                                    name="session"
+                                    value={newCoach.session}
+                                    onChange={handleInputChange}
+                                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">Section</label>
+                                <input
+                                    type="text"
+                                    name="section"
+                                    value={newCoach.section}
                                     onChange={handleInputChange}
                                     className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                                     required
@@ -153,7 +167,8 @@ const CoachesPage = () => {
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Group</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Session</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Section</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
@@ -171,7 +186,10 @@ const CoachesPage = () => {
                                                 <div className="text-sm text-gray-500">{coach.email}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-500">{coach.group}</div>
+                                                <div className="text-sm text-gray-500">{coach.session}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-500">{coach.section}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                 <button className="text-blue-600 hover:text-blue-900 mr-3">

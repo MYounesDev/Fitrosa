@@ -16,7 +16,8 @@ interface Student {
     notes: string;
     startDate: string;
     performanceNotes: string;
-    group: string;
+    session: string;
+    section: string;
 }
 
 const StudentsPage = () => {
@@ -32,7 +33,8 @@ const StudentsPage = () => {
         notes: '',
         startDate: '',
         performanceNotes: '',
-        group: ''
+        session: '',
+        section: ''
     });
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [temporaryPassword, setTemporaryPassword] = useState('');
@@ -76,7 +78,8 @@ const StudentsPage = () => {
                 notes: '',
                 startDate: '',
                 performanceNotes: '',
-                group: ''
+                session: '',
+                section: ''
             });
             setIsFormOpen(false);
         } catch (error) {
@@ -163,17 +166,9 @@ const StudentsPage = () => {
                                     required
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Group</label>
-                                <input
-                                    type="text"
-                                    name="group"
-                                    value={newStudent.group}
-                                    onChange={handleInputChange}
-                                    className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    required
-                                />
-                            </div>
+
+                            {/* NO session and section for coach because the students are already assigned coach's to a session and section*/}
+                            
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Birth Date</label>
                                 <input
@@ -270,7 +265,8 @@ const StudentsPage = () => {
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Group</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Session</th>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Section</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Birth Date</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gender</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Parent</th>
@@ -293,7 +289,10 @@ const StudentsPage = () => {
                                                 <div className="text-sm text-gray-500">{student.email}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-500">{student.group}</div>
+                                                <div className="text-sm text-gray-500">{student.session}</div>
+                                            </td>
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm text-gray-500">{student.section}</div>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm text-gray-500">{formatDate(student.birthDate)}</div>
