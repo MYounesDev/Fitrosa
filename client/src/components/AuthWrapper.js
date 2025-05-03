@@ -4,9 +4,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { authService } from '@/services/api';
 
+
+
+
 // A component to protect routes that require authentication
 export default function AuthWrapper({ 
-  children, 
+  children, // Children components to render if authenticated
   allowedRoles = [], // Array of roles that can access this route (empty means any authenticated user)
   redirectTo = '/login' // Where to redirect unauthenticated users
 }) {

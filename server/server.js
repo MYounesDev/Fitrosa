@@ -56,10 +56,13 @@ async function initializeAccounts() {
 
   const users = [
     { email: "admin@gmail.com", password: "admin", role: "admin" },
-    { name: "Mehmet Cansız", email: "coach@gmail.com", password: "coach", group: "A", role: "coach" },
-    { name: "Ahmet Çetin", email: "coach2@gmail.com", password: "coach2", group: "B", role: "coach" },
+    { name: "Mehmet Cansız", email: "mehmet@gmail.com", password: "123", session: "Football", section: "A", role: "coach" },
+    { name: "Ahmet Çetin", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach" },
+    { name: "Mustafa Öztürk", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach" },
+    { name: "Hüseyin Polat", email: "huseyin@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach" },
+    
     {
-      email: "student@gmail.com", password: "student", group: "A", role: "student",
+      email: "student@gmail.com", password: "123", session: "Football", section: "A", role: "student",
       firstName: "Mehmet",
       lastName: "Yılmaz",
       birthDate: "2010-05-15",
@@ -71,7 +74,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student2@gmail.com", password: "student2", group: "B", role: "student",
+      email: "student2@gmail.com", password: "123", session: "Football", section: "B", role: "student",
       firstName: "Ayşe",
       lastName: "Demir",
       birthDate: "2011-03-20",
@@ -83,7 +86,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student3@gmail.com", password: "student3", group: "A", role: "student",
+      email: "student3@gmail.com", password: "123", session: "Basketbol", section: "A", role: "student",
       firstName: "Ali",
       lastName: "Kaya",
       birthDate: "2012-07-10",
@@ -95,7 +98,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student4@gmail.com", password: "student4", group: "A", role: "student",
+      email: "student4@gmail.com", password: "123", session: "Volleyball", section: "A", role: "student",
       firstName: "Fatma",
       lastName: "Çelik",
       birthDate: "2013-02-18",
@@ -107,7 +110,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student5@gmail.com", password: "student5", group: "B", role: "student",
+      email: "student5@gmail.com", password: "123", session: "Football", section: "B", role: "student",
       firstName: "Emre",
       lastName: "Öztürk",
       birthDate: "2014-06-25",
@@ -119,7 +122,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student6@gmail.com", password: "student6", group: "A", role: "student",
+      email: "student6@gmail.com", password: "123", session: "Basketbol", section: "A", role: "student",
       firstName: "Zeynep",
       lastName: "Kara",
       birthDate: "2015-09-12",
@@ -131,7 +134,7 @@ async function initializeAccounts() {
       performanceNotes: []
     },
     {
-      email: "student7@gmail.com", password: "student7", group: "B", role: "student",
+      email: "student7@gmail.com", password: "123", session: "Volleyball", section: "A", role: "student",
       firstName: "Burak",
       lastName: "Yıldız",
       birthDate: "2012-11-30",
@@ -155,14 +158,16 @@ async function initializeAccounts() {
       passwordChangedAt: new Date(),
       ...(users[i].role === 'coach' && { 
         name: users[i].name,
-        group: users[i].group 
+        session: users[i].session,
+        section: users[i].section 
       }),
       ...(users[i].role === 'student' && {
         firstName: users[i].firstName,
         lastName: users[i].lastName,
         birthDate: users[i].birthDate,
         gender: users[i].gender,
-        group: users[i].group,
+        session: users[i].session,
+        section: users[i].section,
         parentName: users[i].parentName,
         parentPhone: users[i].parentPhone,
         notes: users[i].notes,
@@ -526,7 +531,7 @@ app.get('/profile', authenticate, (req, res) => {
  *       404:
  *         description: Coach not found
  *       400:
- *         description: Coach is not assigned to any group
+ *         description: Coach is not assigned to any session or section
  */
 app.get('/students', authenticate, (req, res) => {
   const userRole = req.user.role;
@@ -542,13 +547,13 @@ app.get('/students', authenticate, (req, res) => {
     if (!coach) {
       return res.status(404).json({ message: 'Coach not found.' });
     }
-    if (!coach.group) {
-      return res.status(400).json({ message: 'Coach is not assigned to any group.' });
+    if (!coach.section || !coach.session) {
+      return res.status(400).json({ message: 'Coach is not assigned to any section or session' });
     }
-    const studentsInGroup = accounts
-      .filter(user => user.group === coach.group && user.role === 'student')
+    const studentsInSession = accounts
+      .filter(user => user.section === coach.section && user.session === coach.session && user.role === 'student')
       .map(({ password, ...student }) => student);
-    return res.json(studentsInGroup);
+    return res.json(studentsInSession);
   } else {
     return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
@@ -587,8 +592,8 @@ app.get('/students/:id', authenticate, (req, res) => {
 
   if (role === 'coach') {
     const coach = accounts.find(u => u.email === email && u.role === 'coach');
-    if (!coach || student.group !== coach.group) {
-      return res.status(403).json({ message: 'You can only view students in your group.' });
+    if (!coach || student.section !== coach.section || student.session !== coach.session) {
+      return res.status(403).json({ message: 'You can only view students in your session.' });
     }
   } else if (role !== 'admin') {
     return res.status(403).json({ message: 'Only admin or coach can access this route.' });
@@ -630,8 +635,10 @@ app.get('/students/:id', authenticate, (req, res) => {
  *                 type: string
  *               notes:
  *                 type: string
- *               group:
+ *               section:
  *                 type: string
+ *              session:
+ *                type: string
  *             required:
  *               - email
  *               - firstName
@@ -653,16 +660,20 @@ app.get('/students/:id', authenticate, (req, res) => {
  *         description: Failed to add student
  */
 app.post('/add-student', authenticate, async (req, res) => {
-  const { role, email } = req.user;
+  const { role, id } = req.user;
   const studentData = req.body;
 
+  
   if (role !== 'admin' && role !== 'coach') {
     return res.status(403).json({ message: 'Unauthorized access' });
   }
 
+  // Check if the user is an admin or coach
+  
+  
   const requiredFields = ['email', 'firstName', 'lastName', 'birthDate', 'gender', 'parentName', 'parentPhone'];
   const missingFields = requiredFields.filter(field => !studentData[field]);
-  if (missingFields.length > 0) {
+  if (missingFields.length > 0 && (role === 'coach' && (!studentData.section || !studentData.session))) {
     return res.status(400).json({ 
       message: 'Missing required fields',
       missing: missingFields
@@ -670,7 +681,7 @@ app.post('/add-student', authenticate, async (req, res) => {
   }
 
   if (accounts.some(user => user.email === studentData.email)) {
-    return res.status(409).json({ message: 'Student already exists' });
+    return res.status(409).json({ message: 'Student email already exists' });
   }
 
   try {
@@ -678,27 +689,46 @@ app.post('/add-student', authenticate, async (req, res) => {
     const randomPassword = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
 
-    let assignedGroup = studentData.group;
-    if (role === 'coach') {
-      const coach = accounts.find(u => u.email === email);
-      assignedGroup = coach?.group;
-    }
+    let assignedSection = studentData.section;
+    let assignedSession = studentData.session;
 
+
+    if (role === 'coach') {
+      const coach = accounts.find(u => u.id === id);
+      if (coach) {
+        assignedSection = coach.section;
+        assignedSession = coach.session;
+      }
+      
+      if (!assignedSection || !assignedSession) {
+        return res.status(403).json({ message: 'Coach is not assigned to any section or session' });
+      }
+    }
+    
     const newStudent = {
       id: accounts.length + 1,
       email: studentData.email,
       password: hashedPassword,
+      firstName: studentData.firstName,
+      lastName: studentData.lastName,
+      birthDate: studentData.birthDate,
+      gender: studentData.gender,
       role: 'student',
-      group: assignedGroup,
-      ...studentData,
+      parentName: studentData.parentName,
+      parentPhone: studentData.parentPhone,
+      session: assignedSession,  
+      section: assignedSection, 
       performanceNotes: [],
+      startDate: studentData.startDate || new Date(),
       active: false,
       passwordChangedAt: new Date()
     };
 
+    
     accounts.push(newStudent);
     
     const { password, ...studentResponse } = newStudent;
+
     res.status(201).json({
       message: 'Student added successfully',
       temporaryPassword: randomPassword,
@@ -739,8 +769,10 @@ app.post('/add-student', authenticate, async (req, res) => {
  *                 format: date
  *               gender:
  *                 type: string
- *               group:
+ *               section:
  *                 type: string
+ *              session:
+ *                type: string
  *               parentName:
  *                 type: string
  *               parentPhone:
@@ -785,15 +817,16 @@ app.put('/students/:id', async (req, res) => {
 
   if (userRole === 'coach') {
     const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
-    if (!coach || accounts[studentIndex].group !== coach.group) {
-      return res.status(403).json({ message: 'You can only update students in your group.' });
+    if (!coach || accounts[studentIndex].section !== coach.section || accounts[studentIndex].session !== coach.session) {
+      return res.status(403).json({ message: 'You can only update students in your session.' });
     }
   } else if (userRole !== 'admin') {
     return res.status(403).json({ message: 'Only admin or coach can update student information.' });
   }
 
   const allowedFields = [
-    'firstName', 'lastName', 'birthDate', 'gender', 'group',
+    'firstName', 'lastName', 'birthDate', 'gender', 'section', 'session',
+    'startDate', 'session', 'email',
     'parentName', 'parentPhone', 'notes', 'performanceNotes'
   ];
 
@@ -810,7 +843,11 @@ app.put('/students/:id', async (req, res) => {
       email: accounts[studentIndex].email,
       firstName: accounts[studentIndex].firstName,
       lastName: accounts[studentIndex].lastName,
-      group: accounts[studentIndex].group
+      section: accounts[studentIndex].section,
+      session: accounts[studentIndex].session,
+      birthDate: accounts[studentIndex].birthDate,
+
+
     }
   });
 });
@@ -841,7 +878,9 @@ app.put('/students/:id', async (req, res) => {
  *                 type: string
  *               email:
  *                 type: string
- *               group:
+ *               section:
+ *                 type: string
+ *               session:
  *                 type: string
  *     responses:
  *       200:
@@ -867,7 +906,7 @@ app.put('/coaches/:id', authenticate, async (req, res) => {
     return res.status(404).json({ message: 'Coach not found' });
   }
 
-  const allowedFields = ['name', 'email', 'group'];
+  const allowedFields = ['name', 'email', 'section', 'session'];
   let hasUpdates = false;
 
   for (const field in updates) {
@@ -887,7 +926,8 @@ app.put('/coaches/:id', authenticate, async (req, res) => {
       id: accounts[coachIndex].id,
       name: accounts[coachIndex].name,
       email: accounts[coachIndex].email,
-      group: accounts[coachIndex].group
+      section: accounts[coachIndex].section,
+      session: accounts[coachIndex].session
     }
   });
 });
@@ -973,8 +1013,11 @@ app.delete('/coaches/:id', authenticate, (req, res) => {
     return res.status(404).json({ message: 'Coach not found' });
   }
 
-  const coachGroup = accounts[coachIndex].group;
-  const hasStudents = accounts.some(u => u.role === 'student' && u.group === coachGroup);
+  const hasStudents = accounts.some(
+      u => u.role === 'student' 
+      && u.section === accounts[coachIndex].section 
+      && u.session === accounts[coachIndex].session
+  );
   
   if (hasStudents) {
     return res.status(400).json({ 
@@ -1043,18 +1086,20 @@ app.get('/coaches', authenticate, (req, res) => {
  *             properties:
  *               email:
  *                 type: string
- *               group:
+ *               section:
  *                 type: string
+ *               session:
+ *                type: string
  *               name:
  *                 type: string
  *             required:
  *               - email
- *               - group
+ *               - section
  *     responses:
  *       201:
  *         description: Coach added successfully
  *       400:
- *         description: Email and group are required
+ *         description: Email, section and session are required
  *       403:
  *         description: Only admin can add coaches
  *       409:
@@ -1063,11 +1108,11 @@ app.get('/coaches', authenticate, (req, res) => {
  *         description: Internal server error
  */
 app.post('/add-coach', authenticate, async (req, res) => {
-  const { email, group, name } = req.body;
+  const { email, section, session, name } = req.body;
   const { role } = req.user;
 
-  if (!email || !group) {
-    return res.status(400).json({ message: 'Email and group are required.' });
+  if (!email || !section || !session || !name) {
+    return res.status(400).json({ message: 'Email, section and session are required.' });
   }
 
   if (role !== 'admin') {
@@ -1086,10 +1131,12 @@ app.post('/add-coach', authenticate, async (req, res) => {
     const newCoach = {
       id: accounts.length + 1,
       email,
-      name: name || email.split('@')[0],
+      name: name,
       password: hashedPassword,
       role: 'coach',
-      group,
+      section,
+      session: session,
+      active: false,
       passwordChangedAt: new Date()
     };
 
