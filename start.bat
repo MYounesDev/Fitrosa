@@ -1,0 +1,1 @@
+cls && cd server && start npm run dev && cd .. && cd client && npm run dev

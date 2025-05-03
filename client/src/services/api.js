@@ -1,7 +1,9 @@
 // client/src/services/api.js
 import axios from 'axios';
 
-const API_URL = 'http://localhost:' + (process.env.NEXT_PUBLIC_API_URL || '5001');
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || `http://localhost:5001`;
+
 
 // Create an axios instance with default config
 const api = axios.create({

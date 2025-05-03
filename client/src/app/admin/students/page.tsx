@@ -268,6 +268,7 @@ const StudentsPage = () => {
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-100">
                                 <tr>
+                                    <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Group</th>
@@ -283,6 +284,9 @@ const StudentsPage = () => {
                                 {students.length > 0 ? (
                                     students.map((student) => (
                                         <tr key={student.id} className="hover:bg-gray-50">
+                                            <td className="px-6 py-4 whitespace-nowrap">
+                                                <div className="text-sm font-mono text-gray-500">{student.id}</div>
+                                            </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="text-sm font-medium text-gray-900">{student.firstName} {student.lastName}</div>
                                             </td>
@@ -319,7 +323,7 @@ const StudentsPage = () => {
                                     ))
                                 ) : (
                                     <tr>
-                                        <td colSpan={9} className="px-6 py-4 text-center text-sm text-gray-500">
+                                        <td colSpan={10} className="px-6 py-4 text-center text-sm text-gray-500">
                                             No students found. Add your first student to get started.
                                         </td>
                                     </tr>

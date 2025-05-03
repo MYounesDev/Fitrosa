@@ -3,21 +3,54 @@ const express = require("express");
 const cors = require("cors");
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
+const swaggerJsdoc = require("swagger-jsdoc");
+const swaggerUi = require("swagger-ui-express");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Swagger configuration
+const swaggerOptions = {
+  definition: {
+    openapi: "3.0.0",
+    info: {
+      title: "Swimming School API",
+      version: "1.0.0",
+      description: "API for managing a swimming school with admin, coaches, and students",
+    },
+    servers: [
+      {
+        url: `http://localhost:${PORT}`,
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
+  },
+  apis: ["./server.js"],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 let accounts = [];
 
-
-
-
-// Update the accounts initialization to include sample student data with all fields
+// Initialize sample accounts
 async function initializeAccounts() {
   const saltRounds = 10;
 
@@ -25,7 +58,6 @@ async function initializeAccounts() {
     { email: "admin@gmail.com", password: "admin", role: "admin" },
     { name: "Mehmet Cansız", email: "coach@gmail.com", password: "coach", group: "A", role: "coach" },
     { name: "Ahmet Çetin", email: "coach2@gmail.com", password: "coach2", group: "B", role: "coach" },
-
     {
       email: "student@gmail.com", password: "student", group: "A", role: "student",
       firstName: "Mehmet",
@@ -38,7 +70,6 @@ async function initializeAccounts() {
       startDate: "2023-09-01",
       performanceNotes: []
     },
-    //add another student
     {
       email: "student2@gmail.com", password: "student2", group: "B", role: "student",
       firstName: "Ayşe",
@@ -50,8 +81,68 @@ async function initializeAccounts() {
       notes: "Örnek öğrenci 2",
       startDate: "2025-12-25",
       performanceNotes: []
+    },
+    {
+      email: "student3@gmail.com", password: "student3", group: "A", role: "student",
+      firstName: "Ali",
+      lastName: "Kaya",
+      birthDate: "2012-07-10",
+      gender: "Male",
+      parentName: "Veli Kaya",
+      parentPhone: "5556543210",
+      notes: "Örnek öğrenci 3",
+      startDate: "2024-01-15",
+      performanceNotes: []
+    },
+    {
+      email: "student4@gmail.com", password: "student4", group: "A", role: "student",
+      firstName: "Fatma",
+      lastName: "Çelik",
+      birthDate: "2013-02-18",
+      gender: "Female",
+      parentName: "Hasan Çelik",
+      parentPhone: "5551112233",
+      notes: "Örnek öğrenci 4",
+      startDate: "2023-10-01",
+      performanceNotes: []
+    },
+    {
+      email: "student5@gmail.com", password: "student5", group: "B", role: "student",
+      firstName: "Emre",
+      lastName: "Öztürk",
+      birthDate: "2014-06-25",
+      gender: "Male",
+      parentName: "Ayşe Öztürk",
+      parentPhone: "5552223344",
+      notes: "Örnek öğrenci 5",
+      startDate: "2024-02-15",
+      performanceNotes: []
+    },
+    {
+      email: "student6@gmail.com", password: "student6", group: "A", role: "student",
+      firstName: "Zeynep",
+      lastName: "Kara",
+      birthDate: "2015-09-12",
+      gender: "Female",
+      parentName: "Mehmet Kara",
+      parentPhone: "5553334455",
+      notes: "Örnek öğrenci 6",
+      startDate: "2024-05-20",
+      performanceNotes: []
+    },
+    {
+      email: "student7@gmail.com", password: "student7", group: "B", role: "student",
+      firstName: "Burak",
+      lastName: "Yıldız",
+      birthDate: "2012-11-30",
+      gender: "Male",
+      parentName: "Selin Yıldız",
+      parentPhone: "5554445566",
+      notes: "Örnek öğrenci 7",
+      startDate: "2025-03-10",
+      performanceNotes: []
     }
-
+    
   ];
 
   for (let i = 0; i < users.length; i++) {
@@ -62,7 +153,10 @@ async function initializeAccounts() {
       password: hashedPassword,
       role: users[i].role,
       passwordChangedAt: new Date(),
-      ...(users[i].role === 'coach' && { group: users[i].group }),
+      ...(users[i].role === 'coach' && { 
+        name: users[i].name,
+        group: users[i].group 
+      }),
       ...(users[i].role === 'student' && {
         firstName: users[i].firstName,
         lastName: users[i].lastName,
@@ -81,6 +175,7 @@ async function initializeAccounts() {
   console.log("Initial users created.");
 }
 
+// Token verification function
 function verifyToken(token, secret) {
   if (!token) {
     throw new Error('No token provided');
@@ -93,25 +188,20 @@ function verifyToken(token, secret) {
   try {
     const decoded = jwt.verify(token, secret);
     
-    // Find the user
     const user = accounts.find(u => u.email === decoded.email);
     if (!user) {
       throw new Error('User not found');
     }
     
-    // Check if token was issued before password was changed
     if (decoded.iat && user.passwordChangedAt && 
         (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
-          // debug
-          console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
-          console.log('Current time:', new Date().getTime());
-          // debug end
+      console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
+      console.log('Current time:', new Date().getTime());
       throw new Error('Password has been changed, please login again');
     }
     
     return decoded;
   } catch (error) {
-    // Handle specific JWT errors
     if (error.name === 'TokenExpiredError') {
       throw new Error('Token expired');
     } else if (error.name === 'JsonWebTokenError') {
@@ -121,9 +211,60 @@ function verifyToken(token, secret) {
   }
 }
 
+// Authentication middleware
+const authenticate = (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  
+  try {
+    const decoded = verifyToken(token, process.env.JWT_SECRET);
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: error.message });
+  }
+};
 
+/**
+ * @swagger
+ * tags:
+ *   name: Auth
+ *   description: Authentication endpoints
+ */
 
-// Register endpoint
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Register a new student
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       201:
+ *         description: Registration successful
+ *       400:
+ *         description: Email and password are required
+ *       409:
+ *         description: Email already registered
+ *       500:
+ *         description: Registration failed
+ */
 app.post('/register', async (req, res) => {
   const { email, password, firstName, lastName } = req.body;
 
@@ -162,11 +303,37 @@ app.post('/register', async (req, res) => {
   }
 });
 
-
-
-// Login endpoint
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Login to the system
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - password
+ *     responses:
+ *       200:
+ *         description: Login successful
+ *       400:
+ *         description: Email and password required
+ *       401:
+ *         description: Invalid credentials
+ *       500:
+ *         description: Login failed
+ */
 app.post('/login', async (req, res) => {
-
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -201,22 +368,102 @@ app.post('/login', async (req, res) => {
   }
 });
 
+/**
+ * @swagger
+ * /change-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Change user password
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Both passwords are required
+ *       401:
+ *         description: Current password is incorrect
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Internal server error
+ */
+app.post('/change-password', authenticate, async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const { email } = req.user;
 
-
-const authenticate = (req, res, next) => {
-  const token = req.headers['authorization']?.split(' ')[1];
-  
-  try {
-    const decoded = verifyToken(token, process.env.JWT_SECRET);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    return res.status(401).json({ message: error.message });
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({ message: 'Both passwords are required' });
   }
-};
 
+  const user = accounts.find(u => u.email === email);
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
 
-// Get all users (for admin use only)
+  try {
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Current password is incorrect' });
+    }
+
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    user.password = hashedPassword;
+    user.active = true;
+    
+    const token = jwt.sign(
+      { email: user.email, role: user.role, id: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    
+    user.passwordChangedAt = new Date();
+
+    res.json({ 
+      message: 'Password changed successfully',
+      token 
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
+ * @swagger
+ * tags:
+ *   name: Users
+ *   description: User management endpoints
+ */
+
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get all users (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of all users
+ *       403:
+ *         description: Admin access required
+ */
 app.get('/users', authenticate, (req, res) => {
   const { role } = req.user;
 
@@ -232,7 +479,20 @@ app.get('/users', authenticate, (req, res) => {
   res.json(users);
 });
 
-
+/**
+ * @swagger
+ * /profile:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get current user profile
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile data
+ *       404:
+ *         description: User not found
+ */
 app.get('/profile', authenticate, (req, res) => {
   const user = accounts.find(u => u.email === req.user.email); 
   if (!user) {
@@ -243,10 +503,155 @@ app.get('/profile', authenticate, (req, res) => {
   res.json(userWithoutPassword);
 });
 
+/**
+ * @swagger
+ * tags:
+ *   name: Students
+ *   description: Student management endpoints
+ */
 
+/**
+ * @swagger
+ * /students:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get all students (admin/coach only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of students
+ *       403:
+ *         description: Only admin or coach can access this route
+ *       404:
+ *         description: Coach not found
+ *       400:
+ *         description: Coach is not assigned to any group
+ */
+app.get('/students', authenticate, (req, res) => {
+  const userRole = req.user.role;
+  const userEmail = req.user.email;
+  
+  if (userRole === 'admin') {
+    const students = accounts
+      .filter(user => user.role === 'student')
+      .map(({ password, ...student }) => student);
+    return res.json(students);
+  } else if (userRole === 'coach') {
+    const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
+    if (!coach) {
+      return res.status(404).json({ message: 'Coach not found.' });
+    }
+    if (!coach.group) {
+      return res.status(400).json({ message: 'Coach is not assigned to any group.' });
+    }
+    const studentsInGroup = accounts
+      .filter(user => user.group === coach.group && user.role === 'student')
+      .map(({ password, ...student }) => student);
+    return res.json(studentsInGroup);
+  } else {
+    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
+  }
+});
 
+/**
+ * @swagger
+ * /students/{id}:
+ *   get:
+ *     tags: [Students]
+ *     summary: Get student by ID (admin/coach only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Student data
+ *       403:
+ *         description: Access denied
+ *       404:
+ *         description: Student not found
+ */
+app.get('/students/:id', authenticate, (req, res) => {
+  const { id } = req.params;
+  const { role, email } = req.user;
 
-// Update the add-student endpoint to include all student fields
+  const student = accounts.find(u => u.id === parseInt(id) && u.role === 'student');
+  if (!student) {
+    return res.status(404).json({ message: 'Student not found.' });
+  }
+
+  if (role === 'coach') {
+    const coach = accounts.find(u => u.email === email && u.role === 'coach');
+    if (!coach || student.group !== coach.group) {
+      return res.status(403).json({ message: 'You can only view students in your group.' });
+    }
+  } else if (role !== 'admin') {
+    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
+  }
+
+  const { password, ...studentData } = student;
+  res.json(studentData);
+});
+
+/**
+ * @swagger
+ * /add-student:
+ *   post:
+ *     tags: [Students]
+ *     summary: Add a new student (admin/coach only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *               gender:
+ *                 type: string
+ *               parentName:
+ *                 type: string
+ *               parentPhone:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *               group:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - firstName
+ *               - lastName
+ *               - birthDate
+ *               - gender
+ *               - parentName
+ *               - parentPhone
+ *     responses:
+ *       201:
+ *         description: Student added successfully
+ *       400:
+ *         description: Missing required fields
+ *       403:
+ *         description: Unauthorized access
+ *       409:
+ *         description: Student already exists
+ *       500:
+ *         description: Failed to add student
+ */
 app.post('/add-student', authenticate, async (req, res) => {
   const { role, email } = req.user;
   const studentData = req.body;
@@ -255,7 +660,6 @@ app.post('/add-student', authenticate, async (req, res) => {
     return res.status(403).json({ message: 'Unauthorized access' });
   }
 
-  // Validate required fields
   const requiredFields = ['email', 'firstName', 'lastName', 'birthDate', 'gender', 'parentName', 'parentPhone'];
   const missingFields = requiredFields.filter(field => !studentData[field]);
   if (missingFields.length > 0) {
@@ -265,7 +669,6 @@ app.post('/add-student', authenticate, async (req, res) => {
     });
   }
 
-  // Check if student exists
   if (accounts.some(user => user.email === studentData.email)) {
     return res.status(409).json({ message: 'Student already exists' });
   }
@@ -275,7 +678,6 @@ app.post('/add-student', authenticate, async (req, res) => {
     const randomPassword = Math.random().toString(36).slice(-8);
     const hashedPassword = await bcrypt.hash(randomPassword, saltRounds);
 
-    // Determine group assignment
     let assignedGroup = studentData.group;
     if (role === 'coach') {
       const coach = accounts.find(u => u.email === email);
@@ -307,18 +709,66 @@ app.post('/add-student', authenticate, async (req, res) => {
   }
 });
 
-// Add a new endpoint to update student information
+/**
+ * @swagger
+ * /students/{id}:
+ *   put:
+ *     tags: [Students]
+ *     summary: Update student information (admin/coach only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *               gender:
+ *                 type: string
+ *               group:
+ *                 type: string
+ *               parentName:
+ *                 type: string
+ *               parentPhone:
+ *                 type: string
+ *               notes:
+ *                 type: string
+ *               performanceNotes:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *     responses:
+ *       200:
+ *         description: Student updated successfully
+ *       403:
+ *         description: Access denied
+ *       404:
+ *         description: Student not found
+ */
 app.put('/students/:id', async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
-  // Check authorization
   const token = req.headers['authorization']?.split(' ')[1];
   if (!token) {
     return res.status(403).json({ message: 'No token provided.' });
   }
 
-
+  let decodedToken;
   try {
     decodedToken = verifyToken(token, process.env.JWT_SECRET);
   } catch (error) {
@@ -328,13 +778,11 @@ app.put('/students/:id', async (req, res) => {
   const userRole = decodedToken.role;
   const userEmail = decodedToken.email;
 
-  // Find student
   const studentIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'student');
   if (studentIndex === -1) {
     return res.status(404).json({ message: 'Student not found.' });
   }
 
-  // Permission check
   if (userRole === 'coach') {
     const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
     if (!coach || accounts[studentIndex].group !== coach.group) {
@@ -344,7 +792,6 @@ app.put('/students/:id', async (req, res) => {
     return res.status(403).json({ message: 'Only admin or coach can update student information.' });
   }
 
-  // Update student information
   const allowedFields = [
     'firstName', 'lastName', 'birthDate', 'gender', 'group',
     'parentName', 'parentPhone', 'notes', 'performanceNotes'
@@ -368,62 +815,203 @@ app.put('/students/:id', async (req, res) => {
   });
 });
 
-// Update the students endpoint to return all student information
-app.get('/students', authenticate, (req, res) => {
-  const userRole = req.user.role;
-  const userEmail = req.user.email;
-  
-  if (userRole === 'admin') {
-    // Admin can see all students
-    const students = accounts
-      .filter(user => user.role === 'student')
-      .map(({ password, ...student }) => student); // Exclude password
-    return res.json(students);
-  } else if (userRole === 'coach') {
-    // Coach can only see students in their group
-    const coach = accounts.find(u => u.email === userEmail && u.role === 'coach');
-    if (!coach) {
-      return res.status(404).json({ message: 'Coach not found.' });
-    }
-    if (!coach.group) {
-      return res.status(400).json({ message: 'Coach is not assigned to any group.' });
-    }
-    const studentsInGroup = accounts
-      .filter(user => user.group === coach.group && user.role === 'student')
-      .map(({ password, ...student }) => student); // Exclude password
-    return res.json(studentsInGroup);
-  } else {
-    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
-  }
-});
 
-app.get('/students/:id', authenticate, (req, res) => {
+/**
+ * @swagger
+ * /coaches/{id}:
+ *   put:
+ *     tags: [Coaches]
+ *     summary: Update coach information (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               group:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Coach updated successfully
+ *       400:
+ *         description: Invalid request
+ *       403:
+ *         description: Admin access required
+ *       404:
+ *         description: Coach not found
+ */
+app.put('/coaches/:id', authenticate, async (req, res) => {
   const { id } = req.params;
-  const { role, email } = req.user; // From authenticate middleware
+  const updates = req.body;
+  const { role } = req.user;
 
-  // Find student (excluding password)
-  const student = accounts.find(u => u.id === parseInt(id) && u.role === 'student');
-  if (!student) {
-    return res.status(404).json({ message: 'Student not found.' });
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
   }
 
-  // Permission check
-  if (role === 'coach') {
-    const coach = accounts.find(u => u.email === email && u.role === 'coach');
-    if (!coach || student.group !== coach.group) {
-      return res.status(403).json({ message: 'You can only view students in your group.' });
+  const coachIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'coach');
+  if (coachIndex === -1) {
+    return res.status(404).json({ message: 'Coach not found' });
+  }
+
+  const allowedFields = ['name', 'email', 'group'];
+  let hasUpdates = false;
+
+  for (const field in updates) {
+    if (allowedFields.includes(field)) {
+      accounts[coachIndex][field] = updates[field];
+      hasUpdates = true;
     }
-  } else if (role !== 'admin') {
-    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
 
-  // Return student data without password
-  const { password, ...studentData } = student;
-  res.json(studentData);
+  if (!hasUpdates) {
+    return res.status(400).json({ message: 'No valid fields to update' });
+  }
+
+  res.status(200).json({
+    message: 'Coach updated successfully',
+    coach: {
+      id: accounts[coachIndex].id,
+      name: accounts[coachIndex].name,
+      email: accounts[coachIndex].email,
+      group: accounts[coachIndex].group
+    }
+  });
 });
 
+/**
+ * @swagger
+ * /students/{id}:
+ *   delete:
+ *     tags: [Students]
+ *     summary: Delete a student (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Student deleted successfully
+ *       403:
+ *         description: Admin access required
+ *       404:
+ *         description: Student not found
+ */
+app.delete('/students/:id', authenticate, (req, res) => {
+  const { id } = req.params;
+  const { role } = req.user;
 
-// list all coaches
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+
+  const studentIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'student');
+  if (studentIndex === -1) {
+    return res.status(404).json({ message: 'Student not found' });
+  }
+
+  const deletedStudent = accounts.splice(studentIndex, 1)[0];
+  const { password, ...studentData } = deletedStudent;
+
+  res.status(200).json({
+    message: 'Student deleted successfully',
+    student: studentData
+  });
+});
+
+/**
+ * @swagger
+ * /coaches/{id}:
+ *   delete:
+ *     tags: [Coaches]
+ *     summary: Delete a coach (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Coach deleted successfully
+ *       403:
+ *         description: Admin access required
+ *       404:
+ *         description: Coach not found
+ *       400:
+ *         description: Coach has assigned students
+ */
+app.delete('/coaches/:id', authenticate, (req, res) => {
+  const { id } = req.params;
+  const { role } = req.user;
+
+  if (role !== 'admin') {
+    return res.status(403).json({ message: 'Admin access required' });
+  }
+
+  const coachIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'coach');
+  if (coachIndex === -1) {
+    return res.status(404).json({ message: 'Coach not found' });
+  }
+
+  const coachGroup = accounts[coachIndex].group;
+  const hasStudents = accounts.some(u => u.role === 'student' && u.group === coachGroup);
+  
+  if (hasStudents) {
+    return res.status(400).json({ 
+      message: 'Cannot delete coach with assigned students. Reassign students first.' 
+    });
+  }
+
+  const deletedCoach = accounts.splice(coachIndex, 1)[0];
+  const { password, ...coachData } = deletedCoach;
+
+  res.status(200).json({
+    message: 'Coach deleted successfully',
+    coach: coachData
+  });
+});
+
+/**
+ * @swagger
+ * tags:
+ *   name: Coaches
+ *   description: Coach management endpoints
+ */
+
+/**
+ * @swagger
+ * /coaches:
+ *   get:
+ *     tags: [Coaches]
+ *     summary: Get all coaches (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of coaches
+ *       403:
+ *         description: Admin access required
+ */
 app.get('/coaches', authenticate, (req, res) => {
   const { role } = req.user;
 
@@ -438,9 +1026,42 @@ app.get('/coaches', authenticate, (req, res) => {
   res.json(coaches);
 });
 
-
-
-// add new coach with name group mail and return random password
+/**
+ * @swagger
+ * /add-coach:
+ *   post:
+ *     tags: [Coaches]
+ *     summary: Add a new coach (admin only)
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               group:
+ *                 type: string
+ *               name:
+ *                 type: string
+ *             required:
+ *               - email
+ *               - group
+ *     responses:
+ *       201:
+ *         description: Coach added successfully
+ *       400:
+ *         description: Email and group are required
+ *       403:
+ *         description: Only admin can add coaches
+ *       409:
+ *         description: Coach already exists
+ *       500:
+ *         description: Internal server error
+ */
 app.post('/add-coach', authenticate, async (req, res) => {
   const { email, group, name } = req.body;
   const { role } = req.user;
@@ -485,57 +1106,10 @@ app.post('/add-coach', authenticate, async (req, res) => {
   }
 });
 
-
-
-// Change password endpoint (for all authenticated users)
-app.post('/change-password', authenticate, async (req, res) => {
-  const { currentPassword, newPassword } = req.body;
-  const { email } = req.user;
-
-  if (!currentPassword || !newPassword) {
-    return res.status(400).json({ message: 'Both passwords are required' });
-  }
-
-  const user = accounts.find(u => u.email === email);
-  if (!user) {
-    return res.status(404).json({ message: 'User not found' });
-  }
-
-  try {
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Current password is incorrect' });
-    }
-
-    const saltRounds = 10;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
-    user.password = hashedPassword;
-    user.active = true;
-    
-    // Generate new token with updated timestamp
-    const token = jwt.sign(
-      { email: user.email, role: user.role, id: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: '1h' }
-    );
-    
-    user.passwordChangedAt = new Date();
-
-
-    res.json({ 
-      message: 'Password changed successfully',
-      token 
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-
-
-
+// Start the server
 initializeAccounts().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Swagger documentation available at http://localhost:${PORT}/api-docs`);
   });
 });
