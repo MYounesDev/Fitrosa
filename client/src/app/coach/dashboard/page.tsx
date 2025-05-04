@@ -1,7 +1,7 @@
 import React from 'react';
 import Navbar from '@/components/Navbar';
 import AuthWrapper from '@/components/AuthWrapper';
-import React from 'react';
+
 
 const Dashboard: React.FC = () => {
     return (
