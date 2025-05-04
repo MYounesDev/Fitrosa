@@ -171,6 +171,16 @@ export const studentService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  // Delete a student
+  deleteStudent: async (id) => {
+    try {
+      const response = await api.delete(`/students/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   }
 };
 
@@ -185,6 +195,16 @@ export const coachService = {
       throw error;
     }
   },
+
+  // Get a coach by ID (admin)
+  getCoachById: async (id) => {
+    try {
+      const response = await api.get(`/coaches/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
   
   // Add a new coach (admin)
   addCoach: async (coachData) => {
@@ -194,7 +214,29 @@ export const coachService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  // Update a coach (admin)
+  updateCoach: async (id, updateData) => {
+    try {
+      const response = await api.put(`/coaches/${id}`, updateData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+
+  // Delete a coach (admin)
+  deleteCoach: async (id) => {
+    try {
+      const response = await api.delete(`/coaches/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
 };
 
 // Admin Services
