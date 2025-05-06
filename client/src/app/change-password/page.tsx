@@ -3,6 +3,7 @@ import { useState, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService } from '@/services/api';
 import AuthWrapper from '@/components/AuthWrapper';
+import PageTemplate from '@/components/PageTemplate';
 
 export default function ChangePassword() {
   const router = useRouter();
@@ -74,6 +75,7 @@ export default function ChangePassword() {
 
   return (
     <AuthWrapper>
+      <PageTemplate>
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
           <div className="text-center">
@@ -151,6 +153,7 @@ export default function ChangePassword() {
           </form>
         </div>
       </div>
+      </PageTemplate>
     </AuthWrapper>
   );
 }

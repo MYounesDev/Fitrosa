@@ -7,6 +7,26 @@ import { Mail, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
 
 export default function Login() {
   const router = useRouter();
+
+  useEffect(() => {
+    // Check if user is already logged in
+    if (authService.isAuthenticated()) {
+      const user = authService.getCurrentUser();
+      
+      // Redirect based on user role
+      if (user) {
+        if (user.role === 'admin') {
+          router.push('/admin/dashboard');
+        } else if (user.role === 'coach') {
+          router.push('/coach/dashboard');
+        } else {
+          router.push('/student/dashboard');
+        }
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [router]);
   const [formData, setFormData] = useState({
     email: '',
     password: ''
