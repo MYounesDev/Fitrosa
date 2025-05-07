@@ -18,6 +18,11 @@ export default function AuthWrapper({
   const [authorized, setAuthorized] = useState(false);
 
   useEffect(() => {
+    const user = authService.getProfile();
+  }); // Check if the token is not expired (will go to login page if expired)
+
+
+  useEffect(() => {
     const checkAuth = () => {
       // Check if the user is authenticated
       if (!authService.isAuthenticated()) {

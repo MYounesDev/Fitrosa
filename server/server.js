@@ -60,7 +60,7 @@ async function initializeAccounts() {
     { name: "Ahmet Çetin", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach" },
     { name: "Mustafa Öztürk", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach" },
     { name: "Hüseyin Polat", email: "huseyin@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach" },
-    
+
     {
       email: "student@gmail.com", password: "123", session: "Football", section: "A", role: "student",
       firstName: "Mehmet",
@@ -145,7 +145,7 @@ async function initializeAccounts() {
       startDate: "2025-03-10",
       performanceNotes: []
     }
-    
+
   ];
 
   for (let i = 0; i < users.length; i++) {
@@ -156,10 +156,10 @@ async function initializeAccounts() {
       password: hashedPassword,
       role: users[i].role,
       passwordChangedAt: new Date(),
-      ...(users[i].role === 'coach' && { 
+      ...(users[i].role === 'coach' && {
         name: users[i].name,
         session: users[i].session,
-        section: users[i].section 
+        section: users[i].section
       }),
       ...(users[i].role === 'student' && {
         firstName: users[i].firstName,
@@ -185,26 +185,33 @@ function verifyToken(token, secret) {
   if (!token) {
     throw new Error('No token provided');
   }
-  
+
   if (!secret) {
     throw new Error('JWT secret is not defined');
   }
 
   try {
     const decoded = jwt.verify(token, secret);
-    
+
+    { // DEBUGGING
+                                                            console.log('Decoded token:', decoded);
+                                                            console.log('Token expiration (exp):', new Date(decoded.exp * 1000));
+                                                            console.log('Current time:', new Date());
+    } // DEBUGGING
+
+
     const user = accounts.find(u => u.email === decoded.email);
     if (!user) {
       throw new Error('User not found');
     }
-    
-    if (decoded.iat && user.passwordChangedAt && 
-        (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
+
+    if (decoded.iat && user.passwordChangedAt &&
+      (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
       console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
       console.log('Current time:', new Date().getTime());
       throw new Error('Password has been changed, please login again');
     }
-    
+
     return decoded;
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
@@ -219,7 +226,7 @@ function verifyToken(token, secret) {
 // Authentication middleware
 const authenticate = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
-  
+
   try {
     const decoded = verifyToken(token, process.env.JWT_SECRET);
     req.user = decoded;
@@ -297,9 +304,9 @@ app.post('/register', async (req, res) => {
     };
 
     accounts.push(newUser);
-    
+
     const { password: _, ...userData } = newUser;
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Registration successful',
       user: userData
     });
@@ -363,7 +370,7 @@ app.post('/login', async (req, res) => {
     );
 
     const { password: _, ...userData } = user;
-    res.json({ 
+    res.json({
       message: 'Login successful',
       token,
       user: userData
@@ -430,18 +437,18 @@ app.post('/change-password', authenticate, async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
     user.password = hashedPassword;
     user.active = true;
-    
+
     const token = jwt.sign(
       { email: user.email, role: user.role, id: user.id },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
-    
+
     user.passwordChangedAt = new Date();
 
-    res.json({ 
+    res.json({
       message: 'Password changed successfully',
-      token 
+      token
     });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
@@ -499,11 +506,11 @@ app.get('/users', authenticate, (req, res) => {
  *         description: User not found
  */
 app.get('/profile', authenticate, (req, res) => {
-  const user = accounts.find(u => u.email === req.user.email); 
+  const user = accounts.find(u => u.email === req.user.email);
   if (!user) {
     return res.status(404).json({ message: 'User not found.' });
   }
-  
+
   const { password, ...userWithoutPassword } = user;
   res.json(userWithoutPassword);
 });
@@ -536,7 +543,7 @@ app.get('/profile', authenticate, (req, res) => {
 app.get('/students', authenticate, (req, res) => {
   const userRole = req.user.role;
   const userEmail = req.user.email;
-  
+
   if (userRole === 'admin') {
     const students = accounts
       .filter(user => user.role === 'student')
@@ -663,18 +670,18 @@ app.post('/add-student', authenticate, async (req, res) => {
   const { role, id } = req.user;
   const studentData = req.body;
 
-  
+
   if (role !== 'admin' && role !== 'coach') {
     return res.status(403).json({ message: 'Unauthorized access' });
   }
 
   // Check if the user is an admin or coach
-  
-  
+
+
   const requiredFields = ['email', 'firstName', 'lastName', 'birthDate', 'gender', 'parentName', 'parentPhone'];
   const missingFields = requiredFields.filter(field => !studentData[field]);
   if (missingFields.length > 0 && (role === 'coach' && (!studentData.section || !studentData.session))) {
-    return res.status(400).json({ 
+    return res.status(400).json({
       message: 'Missing required fields',
       missing: missingFields
     });
@@ -699,12 +706,12 @@ app.post('/add-student', authenticate, async (req, res) => {
         assignedSection = coach.section;
         assignedSession = coach.session;
       }
-      
+
       if (!assignedSection || !assignedSession) {
         return res.status(403).json({ message: 'Coach is not assigned to any section or session' });
       }
     }
-    
+
     const newStudent = {
       id: accounts.length + 1,
       email: studentData.email,
@@ -716,17 +723,17 @@ app.post('/add-student', authenticate, async (req, res) => {
       role: 'student',
       parentName: studentData.parentName,
       parentPhone: studentData.parentPhone,
-      session: assignedSession,  
-      section: assignedSection, 
+      session: assignedSession,
+      section: assignedSection,
       performanceNotes: [],
       startDate: studentData.startDate || new Date(),
       active: false,
       passwordChangedAt: new Date()
     };
 
-    
+
     accounts.push(newStudent);
-    
+
     const { password, ...studentResponse } = newStudent;
 
     res.status(201).json({
@@ -791,7 +798,7 @@ app.post('/add-student', authenticate, async (req, res) => {
  *       404:
  *         description: Student not found
  */
-app.put('/students/:id', async (req, res) => {
+app.put('/students/:id', authenticate, async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
 
@@ -800,15 +807,9 @@ app.put('/students/:id', async (req, res) => {
     return res.status(403).json({ message: 'No token provided.' });
   }
 
-  let decodedToken;
-  try {
-    decodedToken = verifyToken(token, process.env.JWT_SECRET);
-  } catch (error) {
-    return res.status(403).json({ message: 'Invalid token.' });
-  }
 
-  const userRole = decodedToken.role;
-  const userEmail = decodedToken.email;
+  const userRole = req.user.role;
+  const userEmail = req.user.email;
 
   const studentIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'student');
   if (studentIndex === -1) {
@@ -1014,14 +1015,14 @@ app.delete('/coaches/:id', authenticate, (req, res) => {
   }
 
   const hasStudents = accounts.some(
-      u => u.role === 'student' 
-      && u.section === accounts[coachIndex].section 
+    u => u.role === 'student'
+      && u.section === accounts[coachIndex].section
       && u.session === accounts[coachIndex].session
   );
-  
+
   if (hasStudents) {
-    return res.status(400).json({ 
-      message: 'Cannot delete coach with assigned students. Reassign students first.' 
+    return res.status(400).json({
+      message: 'Cannot delete coach with assigned students. Reassign students first.'
     });
   }
 
@@ -1141,9 +1142,9 @@ app.post('/add-coach', authenticate, async (req, res) => {
     };
 
     accounts.push(newCoach);
-    
+
     const { password, ...coachData } = newCoach;
-    res.status(201).json({ 
+    res.status(201).json({
       message: 'Coach added successfully',
       temporaryPassword: randomPassword,
       coach: coachData
