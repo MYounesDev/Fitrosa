@@ -10,6 +10,7 @@ interface Coach {
     id: string;
     name: string;
     email: string;
+    gender: string;
     session: string;
     section: string;
 }
@@ -19,6 +20,7 @@ const CoachesPage = () => {
     const [newCoach, setNewCoach] = useState({
         name: '',
         email: '',
+        gender: '',
         session: '',
         section: '',
     });
@@ -56,6 +58,7 @@ const CoachesPage = () => {
             setNewCoach({
                 name: '',
                 email: '',
+                gender: '',
                 session: '',
                 section: '',
             });
@@ -130,6 +133,20 @@ const CoachesPage = () => {
                                         />
                                     </div>
                                     <div>
+                                        <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                        <select
+                                            name="gender"
+                                            value={newCoach.gender}
+                                            onChange={handleInputChange}
+                                            className="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            required
+                                        >
+                                            <option value="">Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                        </select>
+                                    </div>
+                                    <div>
                                         <label className="block text-sm font-medium text-gray-700 mb-1">Session</label>
                                         <input
                                             type="text"
@@ -171,6 +188,7 @@ const CoachesPage = () => {
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">ID</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Name</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Email</th>
+                                            <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Gender</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Session</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Section</th>
                                             <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
@@ -188,6 +206,9 @@ const CoachesPage = () => {
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="text-sm text-gray-500">{coach.email}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4 whitespace-nowrap">
+                                                        <div className="text-sm text-gray-500 capitalize">{coach.gender}</div>
                                                     </td>
                                                     <td className="px-6 py-4 whitespace-nowrap">
                                                         <div className="text-sm text-gray-500">{coach.session}</div>

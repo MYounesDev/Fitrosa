@@ -56,10 +56,10 @@ async function initializeAccounts() {
 
   const users = [
     { email: "admin@gmail.com", password: "admin", role: "admin" },
-    { name: "Mehmet Cansız", email: "mehmet@gmail.com", password: "123", session: "Football", section: "A", role: "coach" },
-    { name: "Ahmet Çetin", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach" },
-    { name: "Mustafa Öztürk", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach" },
-    { name: "Hüseyin Polat", email: "huseyin@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach" },
+    { name: "Mehmet Cansız", gender: "Male", email: "mehmet@gmail.com", password: "123", session: "Football", section: "A", role: "coach" },
+    { name: "Ahmet Çetin", gender: "Male", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach" },
+    { name: "Mustafa Öztürk", gender: "Male", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach" },
+    { name: "Zeynep Polat", gender: "Female", email: "zeynep@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach" },
 
     {
       email: "student@gmail.com", password: "123", session: "Football", section: "A", role: "student",
@@ -158,6 +158,7 @@ async function initializeAccounts() {
       passwordChangedAt: new Date(),
       ...(users[i].role === 'coach' && {
         name: users[i].name,
+        gender: users[i].gender,
         session: users[i].session,
         section: users[i].section
       }),

@@ -4,15 +4,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { authService } from '@/services/api';
-import { 
-  User, 
-  Home, 
-  Calendar, 
-  Settings, 
-  Trophy, 
-  Users, 
-  BookOpen, 
-  FileText, 
+import {
+  User,
+  Home,
+  Calendar,
+  Settings,
+  Trophy,
+  Users,
+  BookOpen,
+  FileText,
   Cog,
   LogOut,
   ArrowLeftCircle,
@@ -26,7 +26,8 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  
+
+
   useEffect(() => {
     // Get current user
     if (authService.isAuthenticated()) {
@@ -37,8 +38,8 @@ export default function Sidebar() {
 
   // Don't show sidebar on login or register pages
   if (
-    pathname === '/login' || 
-    pathname === '/register' || 
+    pathname === '/login' ||
+    pathname === '/register' ||
     pathname === '/forgot-password' ||
     pathname === '/unauthorized'
   ) {
@@ -57,29 +58,34 @@ export default function Sidebar() {
   // Common navigation items for all roles
   const commonNavItems = [
     { name: 'Home', href: `/${user.role}/dashboard`, icon: <Home className="h-5 w-5" /> },
-    { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" /> },
     { name: 'Competitions', href: `/${user.role}/competitions`, icon: <Trophy className="h-5 w-5" /> },
-    { name: 'Settings', href: `/settings`, icon: <Settings className="h-5 w-5" /> },
+    { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" /> },
   ];
 
   // Role-specific navigation items
-  const roleSpecificNavItems = isAdmin 
+  const roleSpecificNavItems = isAdmin
     ? [
-        { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" /> },
-        { name: 'Coaches', href: '/admin/coaches', icon: <Users className="h-5 w-5" /> },
-        { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" /> },
-        { name: 'Reports', href: '/admin/reports', icon: <FileText className="h-5 w-5" /> },
-        { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" /> }
-      ]
+      { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" /> },
+      { name: 'Coaches', href: '/admin/coaches', icon: <Users className="h-5 w-5" /> },
+      { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" /> },
+      { name: 'Reports', href: '/admin/reports', icon: <FileText className="h-5 w-5" /> },
+      { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" /> }
+    ]
     : isCoach
-    ? [
+      ? [
         { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" /> },
         { name: 'Classes', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" /> },
         { name: 'Reports', href: '/coach/reports', icon: <FileText className="h-5 w-5" /> }
       ]
-    : [];
+      : [];
 
-  const navItems = [...commonNavItems, ...roleSpecificNavItems];
+  const navItems = [
+    ...commonNavItems,
+    ...roleSpecificNavItems,
+
+    { name: 'Settings', href: `/settings`, icon: <Settings className="h-5 w-5" /> },
+
+  ];
 
   const handleLogout = () => {
     authService.logout();
@@ -106,8 +112,8 @@ export default function Sidebar() {
   return (
     <>
       {/* Mobile menu button */}
-      <button 
-        onClick={toggleMobileSidebar} 
+      <button
+        onClick={toggleMobileSidebar}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-full bg-gray-800/80 backdrop-blur-sm text-gray-200 shadow-lg"
       >
         <Menu className="h-6 w-6" />
@@ -115,14 +121,14 @@ export default function Sidebar() {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div 
+        <div
           className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={() => setMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <div 
+      <div
         className={`
           fixed top-0 left-0 h-full z-40 transition-all duration-300 ease-in-out 
           ${collapsed ? 'w-20' : 'w-64'} 
@@ -137,17 +143,22 @@ export default function Sidebar() {
               <div className="relative">
                 <div className="h-12 w-12 rounded-full bg-gray-700/50 backdrop-blur-md overflow-hidden border-2 border-white/20">
                   {user?.profileImage ? (
-                    <Image 
-                      src={user.profileImage} 
-                      alt="Profile" 
-                      width={48} 
+                    <Image
+                      src={user.profileImage}
+                      alt="Profile"
+                      width={48}
                       height={48}
-                      className="object-cover" 
+                      className="object-cover"
                     />
                   ) : (
-                    <div className="h-full w-full flex items-center justify-center">
-                      <User className="h-6 w-6 text-gray-300" />
-                    </div>
+
+                    <Image
+                      src={`/images/profile/${user.role === 'admin' ? 'admin' :  `${user.gender} ${user.role === 'coach' ? 'coach' : 'student'}`}.png`}
+                      alt="Profile"
+                      width={48}
+                      height={48}
+                      className="object-cover"
+                    />
                   )}
                 </div>
                 <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-gray-800 ${collapsed ? 'block' : ''}`}></div>
@@ -159,9 +170,9 @@ export default function Sidebar() {
                 </div>
               )}
             </div>
-            
+
             {/* Toggle sidebar button - Next to user profile */}
-            <button 
+            <button
               onClick={toggleSidebar}
               className="text-gray-300 hover:text-white p-2 hover:bg-white/10 rounded-full"
             >
@@ -208,7 +219,7 @@ export default function Sidebar() {
                 </span>
                 {!collapsed && <span>Logout</span>}
               </button>
-              
+
             </div>
           </div>
         </div>
