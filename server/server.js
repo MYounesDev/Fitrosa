@@ -55,97 +55,103 @@ async function initializeAccounts() {
   const saltRounds = 10;
 
   const users = [
-    { email: "admin@gmail.com", password: "admin", role: "admin" },
-    { name: "Mehmet Cansız", gender: "Male", email: "mehmet@gmail.com", password: "123", session: "Football", section: "A", role: "coach" },
-    { name: "Ahmet Çetin", gender: "Male", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach" },
-    { name: "Mustafa Öztürk", gender: "Male", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach" },
-    { name: "Zeynep Polat", gender: "Female", email: "zeynep@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach" },
+    { email: "admin@gmail.com", password: "admin", role: "admin", profileImage: "" },
+    { name: "Mehmet Cansız", gender: "male", email: "mehmet@gmail.com", password: "123", session: "Football", section: "A", role: "coach", profileImage: "" },
+    { name: "Ahmet Çetin", gender: "male", email: "ahmet@gmail.com", password: "123", session: "Football", section: "B", role: "coach", profileImage: "" },
+    { name: "Mustafa Öztürk", gender: "male", email: "mustafa@gmail.com", password: "123", session: "Basketbol", section: "A", role: "coach", profileImage: "" },
+    { name: "Zeynep Polat", gender: "female", email: "zeynep@gmail.com", password: "123", session: "Volleyball", section: "A", role: "coach", profileImage: "" },
 
     {
       email: "student@gmail.com", password: "123", session: "Football", section: "A", role: "student",
       firstName: "Mehmet",
       lastName: "Yılmaz",
       birthDate: "2010-05-15",
-      gender: "Male",
+      gender: "male",
       parentName: "Ali Yılmaz",
       parentPhone: "5551234567",
       notes: "Örnek öğrenci",
       startDate: "2023-09-01",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student2@gmail.com", password: "123", session: "Football", section: "B", role: "student",
       firstName: "Ayşe",
       lastName: "Demir",
       birthDate: "2011-03-20",
-      gender: "Female",
+      gender: "female",
       parentName: "Fatma Demir",
       parentPhone: "5559876543",
       notes: "Örnek öğrenci 2",
       startDate: "2025-12-25",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student3@gmail.com", password: "123", session: "Basketbol", section: "A", role: "student",
       firstName: "Ali",
       lastName: "Kaya",
       birthDate: "2012-07-10",
-      gender: "Male",
+      gender: "male",
       parentName: "Veli Kaya",
       parentPhone: "5556543210",
       notes: "Örnek öğrenci 3",
       startDate: "2024-01-15",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student4@gmail.com", password: "123", session: "Volleyball", section: "A", role: "student",
       firstName: "Fatma",
       lastName: "Çelik",
       birthDate: "2013-02-18",
-      gender: "Female",
+      gender: "female",
       parentName: "Hasan Çelik",
       parentPhone: "5551112233",
       notes: "Örnek öğrenci 4",
       startDate: "2023-10-01",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student5@gmail.com", password: "123", session: "Football", section: "B", role: "student",
       firstName: "Emre",
       lastName: "Öztürk",
       birthDate: "2014-06-25",
-      gender: "Male",
+      gender: "male",
       parentName: "Ayşe Öztürk",
       parentPhone: "5552223344",
       notes: "Örnek öğrenci 5",
       startDate: "2024-02-15",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student6@gmail.com", password: "123", session: "Basketbol", section: "A", role: "student",
       firstName: "Zeynep",
       lastName: "Kara",
       birthDate: "2015-09-12",
-      gender: "Female",
+      gender: "female",
       parentName: "Mehmet Kara",
       parentPhone: "5553334455",
       notes: "Örnek öğrenci 6",
       startDate: "2024-05-20",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     },
     {
       email: "student7@gmail.com", password: "123", session: "Volleyball", section: "A", role: "student",
       firstName: "Burak",
       lastName: "Yıldız",
       birthDate: "2012-11-30",
-      gender: "Male",
+      gender: "male",
       parentName: "Selin Yıldız",
       parentPhone: "5554445566",
       notes: "Örnek öğrenci 7",
       startDate: "2025-03-10",
-      performanceNotes: []
+      performanceNotes: [],
+      profileImage: ""
     }
-
   ];
 
   for (let i = 0; i < users.length; i++) {
@@ -155,6 +161,7 @@ async function initializeAccounts() {
       email: users[i].email,
       password: hashedPassword,
       role: users[i].role,
+      profileImage: users[i].profileImage || "",
       passwordChangedAt: new Date(),
       ...(users[i].role === 'coach' && {
         name: users[i].name,
@@ -198,11 +205,15 @@ function verifyToken(token, secret) {
                                                             console.log('Decoded token:', decoded);
                                                             console.log('Token expiration (exp):', new Date(decoded.exp * 1000));
                                                             console.log('Current time:', new Date());
+                                                            console.log('');
+                                                            console.log('');
+                                                            
     } // DEBUGGING
 
 
     const user = accounts.find(u => u.email === decoded.email);
     if (!user) {
+      console.log('User not found in accounts:', decoded.email);
       throw new Error('User not found');
     }
 
@@ -210,16 +221,20 @@ function verifyToken(token, secret) {
       (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
       console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
       console.log('Current time:', new Date().getTime());
+      console.log('Password has been changed, please login again');
       throw new Error('Password has been changed, please login again');
     }
 
     return decoded;
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
+      console.log('Token expired:', error.message);
       throw new Error('Token expired');
     } else if (error.name === 'JsonWebTokenError') {
+      console.log('Invalid token:', error.message);
       throw new Error('Invalid token');
     }
+    console.log('Token verification error:', error.message);
     throw new Error(error.message || 'Token verification failed');
   }
 }
@@ -228,11 +243,16 @@ function verifyToken(token, secret) {
 const authenticate = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
 
+
+  console.log('Token from request:', token); // DEBUGGING  // no token here whene requst change-password ???
+
+
   try {
     const decoded = verifyToken(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
   } catch (error) {
+    console.error('Authentication error   4011111:', error.message); // DEBUGGING
     return res.status(401).json({ message: error.message });
   }
 };
@@ -416,6 +436,9 @@ app.post('/login', async (req, res) => {
  *         description: Internal server error
  */
 app.post('/change-password', authenticate, async (req, res) => {
+  console.log('change-password endpoint hit'); // DEBUGGING
+
+
   const { currentPassword, newPassword } = req.body;
   const { email } = req.user;
 
@@ -542,6 +565,8 @@ app.get('/profile', authenticate, (req, res) => {
  *         description: Coach is not assigned to any session or section
  */
 app.get('/students', authenticate, (req, res) => {
+  console.log('students endpoint hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'); // DEBUGGING
+
   const userRole = req.user.role;
   const userEmail = req.user.email;
 

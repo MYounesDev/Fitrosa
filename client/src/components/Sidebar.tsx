@@ -19,6 +19,16 @@ import {
   ArrowRightCircle,
   Menu
 } from 'lucide-react';
+/*
+
+import adminProfile from 'https://i.imgur.com/JXlqGo1.png';
+import maleCoachProfile from 'https://i.imgur.com/txGF7xA.png';
+import femaleCoachProfile from 'https://i.imgur.com/b9kuKKI.png';
+import maleStudentProfile from 'https://i.imgur.com/b9kuKKI.png';
+import femaleStudentProfile from 'https://i.imgur.com/zWrwTba.png';
+
+
+*/
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -26,8 +36,7 @@ export default function Sidebar() {
   const [user, setUser] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-
+  
   useEffect(() => {
     // Get current user
     if (authService.isAuthenticated()) {
@@ -69,25 +78,30 @@ export default function Sidebar() {
       { name: 'Coaches', href: '/admin/coaches', icon: <Users className="h-5 w-5" /> },
       { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" /> },
       { name: 'Reports', href: '/admin/reports', icon: <FileText className="h-5 w-5" /> },
+      { name: 'Subscriptions', href: '/admin/subscriptions', icon: <Users className="h-5 w-5" /> },
+      { name: 'Payments', href: '/admin/payments', icon: <Users className="h-5 w-5" /> },
+      { name: 'Cashiers', href: '/admin/cashiers', icon: <Users className="h-5 w-5" /> },
       { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" /> }
     ]
     : isCoach
       ? [
         { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" /> },
         { name: 'Classes', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" /> },
-        { name: 'Reports', href: '/coach/reports', icon: <FileText className="h-5 w-5" /> }
+        { name: 'Reports', href: '/coach/reports', icon: <FileText className="h-5 w-5" /> },
       ]
-      : [];
+      : [
+        { name: 'Subscription', href: '/student/subscription', icon: <Users className="h-5 w-5" /> },
+      ];
+      
+      const navItems = [
+        ...commonNavItems,
+        ...roleSpecificNavItems,
+        
+        { name: 'Settings', href: `/settings`, icon: <Settings className="h-5 w-5" /> },
+        
+      ];
 
-  const navItems = [
-    ...commonNavItems,
-    ...roleSpecificNavItems,
-
-    { name: 'Settings', href: `/settings`, icon: <Settings className="h-5 w-5" /> },
-
-  ];
-
-  const handleLogout = () => {
+      const handleLogout = () => {
     authService.logout();
     router.push('/login');
   };
@@ -153,12 +167,13 @@ export default function Sidebar() {
                   ) : (
 
                     <Image
-                      src={`/images/profile/${user.role === 'admin' ? 'admin' :  `${user.gender} ${user.role === 'coach' ? 'coach' : 'student'}`}.png`}
+                      src={user.role === 'coach' ? (user.gender === 'male' ? 'https://i.imgur.com/txGF7xA.png' : 'https://i.imgur.com/b9kuKKI.png') : user.role === 'student' ? (user.gender === 'male' ? 'https://i.imgur.com/ZePN2xF.png' : 'https://i.imgur.com/zWrwTba.png') : 'https://i.imgur.com/JXlqGo1.png'}
                       alt="Profile"
                       width={48}
                       height={48}
                       className="object-cover"
                     />
+                    
                   )}
                 </div>
                 <div className={`absolute bottom-0 right-0 h-3 w-3 rounded-full bg-green-500 border-2 border-gray-800 ${collapsed ? 'block' : ''}`}></div>

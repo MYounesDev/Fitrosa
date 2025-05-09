@@ -5,7 +5,7 @@ interface PageTemplateProps {
   children?: React.ReactNode;
 }
 
-const PageTemplate: React.FC<PageTemplateProps> = ({  children }) => {
+const PageTemplate: React.FC<PageTemplateProps> = ({ children }) => {
 
 
   return (
