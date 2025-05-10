@@ -8,6 +8,8 @@ const swaggerUi = require("swagger-ui-express");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const jwtSecretKey = process.env.JWT_SECRET || "your_jwt_secret";
+
 
 // Swagger configuration
 const swaggerOptions = {
@@ -248,7 +250,7 @@ const authenticate = (req, res, next) => {
 
 
   try {
-    const decoded = verifyToken(token, process.env.JWT_SECRET);
+    const decoded = verifyToken(token, jwtSecretKey);
     req.user = decoded;
     next();
   } catch (error) {
@@ -386,7 +388,7 @@ app.post('/login', async (req, res) => {
 
     const token = jwt.sign(
       { email: user.email, role: user.role, id: user.id },
-      process.env.JWT_SECRET,
+      jwtSecretKey,
       { expiresIn: '1h' }
     );
 
@@ -397,7 +399,7 @@ app.post('/login', async (req, res) => {
       user: userData
     });
   } catch (error) {
-    res.status(500).json({ message: 'Login failed' });
+    res.status(500).json({ message: 'Login failed' , error: error.message});
   }
 });
 
@@ -464,7 +466,7 @@ app.post('/change-password', authenticate, async (req, res) => {
 
     const token = jwt.sign(
       { email: user.email, role: user.role, id: user.id },
-      process.env.JWT_SECRET,
+      jwtSecretKey,
       { expiresIn: '1h' }
     );
 
