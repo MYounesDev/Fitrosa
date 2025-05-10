@@ -6,7 +6,11 @@ import axios from 'axios';
 if (!process.env.NEXT_PUBLIC_API_URL) {
   console.warn("Environment variable NEXT_PUBLIC_API_URL is not set, using default localhost.");
 }
-const API_URL = process.env.NEXT_PUBLIC_API_URL || `http://localhost:5000`;
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || `http://localhost:5000`) 
+
+//.replace("localhost", "192.168.1.108")  // uncomment this line to use a specific IP address
+
+;
 
 
 // Create an axios instance with default config
