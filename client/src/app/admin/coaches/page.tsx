@@ -56,13 +56,13 @@ const CoachCard = ({ coach, onView }) => {
                         <p className="text-sm text-gray-500">{coach.email}</p>
                     </div>
                 </div>
-                <button 
+                <button
                     onClick={() => onView(coach)}
                     className="text-gray-400 hover:text-gray-600">
                     <MoreHorizontal size={16} />
                 </button>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-2 mb-3 text-sm">
                 <div>
                     <p className="text-gray-500">Session</p>
@@ -73,7 +73,7 @@ const CoachCard = ({ coach, onView }) => {
                     <p className="font-medium">{coach.section || 'N/A'}</p>
                 </div>
             </div>
-            
+
             <div className="border-t border-gray-100 pt-3 mt-2 flex justify-between">
                 <div className="flex items-center text-xs text-gray-500">
                     <Calendar size={14} className="mr-1" />
@@ -90,10 +90,18 @@ const CoachCard = ({ coach, onView }) => {
 
 const Modal = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
-    
+
+
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center p-4">
-            <div className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div
+            className="fixed inset-0 backdrop-blur-sm bg-black/40 z-50 flex justify-center items-center p-4"
+            onClick={onClose}
+        >
+            <div
+                className="bg-white rounded-xl shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto"
+                onClick={(e) => e.stopPropagation()} // Prevent backdrop click from triggering onClose
+            >
                 <div className="flex justify-between items-center p-6 border-b">
                     <h2 className="text-xl font-semibold">{title}</h2>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
@@ -105,6 +113,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
                 </div>
             </div>
         </div>
+
     );
 };
 
@@ -204,22 +213,22 @@ const CoachesPage = () => {
 
     const getCoachesByTab = () => {
         if (activeTab === 'all') return filteredCoaches;
-        
+
         if (activeTab === 'active') {
             const sixMonthsAgo = new Date();
             sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
             return filteredCoaches.filter(c => new Date(c.startDate) >= sixMonthsAgo);
         }
-        
+
         if (activeTab === 'sessions') {
             return filteredCoaches;
         }
-        
+
         return filteredCoaches;
     };
 
     const displayedCoaches = getCoachesByTab();
-    
+
     const totalCoaches = coaches.length;
     const maleCoaches = coaches.filter(c => c.gender === 'male').length;
     const femaleCoaches = coaches.filter(c => c.gender === 'female').length;
@@ -240,7 +249,7 @@ const CoachesPage = () => {
                                 <p className="ml-6 mt-1">
                                     Temporary Password: <span className="font-mono bg-gray-100 px-3 py-1 rounded text-gray-800">{temporaryPassword}</span>
                                 </p>
-                                <button 
+                                <button
                                     onClick={closePasswordAlert}
                                     className="absolute top-3 right-3 text-green-600 hover:text-green-800"
                                 >
@@ -316,7 +325,7 @@ const CoachesPage = () => {
                                             activeTab === tab.id 
                                                 ? 'bg-blue-100 text-blue-600 font-medium' 
                                                 : 'text-gray-600 hover:bg-gray-100'
-                                        }`}
+                                            }`}
                                         onClick={() => setActiveTab(tab.id)}
                                     >
                                         {tab.icon}

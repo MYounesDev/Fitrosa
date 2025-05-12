@@ -13,7 +13,6 @@ import {
   Bell, 
   Moon, 
   Sun, 
-  Globe, 
   Shield, 
   LogOut, 
   ChevronRight,
@@ -405,7 +404,7 @@ export default function Settings() {
                       <div className="bg-gray-50 dark:bg-gray-700 p-4 rounded-md mt-6 border border-gray-200 dark:border-gray-600">
                         <h3 className="font-medium text-gray-800 dark:text-white mb-2">Account Information</h3>
                         <div className="text-sm text-gray-600 dark:text-gray-300 space-y-1">
-                          <p>Account type: <span className="font-medium">Premium</span></p>
+                          <p>Account role: <span className="font-medium">Chouch</span></p>
                           <p>Member since: <span className="font-medium">May 2023</span></p>
                           <p>Last login: <span className="font-medium">Today, 9:45 AM</span></p>
                         </div>

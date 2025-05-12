@@ -110,22 +110,21 @@ export const authService = {
   // Change user password
   changePassword: async (currentPassword, newPassword) => {
 
-    // TOKEN ISSSSSSS HEREEEEEEEEE
     try {
       const response = await api.post('/change-password', { // FIND OUT HOT THE TOKEN DOSEN't GO TO THIS REQUSTE 
         currentPassword,
         newPassword
       });
 
-      if (response.status === 401) {
+      if (response.status === 400) {
         // current password is incorrect
         response.error = "Current password is incorrect";
         return response;
       }
-        
 
       // Update token if provided in the response
       if (response.token) {
+        localStorage.setItem('user', JSON.stringify(response.user)); 
         localStorage.setItem('token', response.token);
       }
       return response;

@@ -203,14 +203,6 @@ function verifyToken(token, secret) {
   try {
     const decoded = jwt.verify(token, secret);
 
-    { // DEBUGGING
-                                                            console.log('Decoded token:', decoded);
-                                                            console.log('Token expiration (exp):', new Date(decoded.exp * 1000));
-                                                            console.log('Current time:', new Date());
-                                                            console.log('');
-                                                            console.log('');
-                                                            
-    } // DEBUGGING
 
 
     const user = accounts.find(u => u.email === decoded.email);
@@ -219,11 +211,8 @@ function verifyToken(token, secret) {
       throw new Error('User not found');
     }
 
-    if (decoded.iat && user.passwordChangedAt &&
-      (decoded.iat * 1000 < new Date(user.passwordChangedAt).getTime())) {
-      console.log('Token issued before password change:', decoded.iat, user.passwordChangedAt);
-      console.log('Current time:', new Date().getTime());
-      console.log('Password has been changed, please login again');
+    if (user.passwordChangedAt &&
+      (new Date(decoded.tokenCreatedAt) < new Date(user.passwordChangedAt))) {
       throw new Error('Password has been changed, please login again');
     }
 
@@ -246,7 +235,11 @@ const authenticate = (req, res, next) => {
   const token = req.headers['authorization']?.split(' ')[1];
 
 
-  console.log('Token from request:', token); // DEBUGGING  // no token here whene requst change-password ???
+  console.log(`\n--- AUTH DEBUG ---`);
+  console.log(`Request: ${req.method} ${req.originalUrl}`);
+
+
+  console.log('Token from request:', token); // DEBUGGING 
 
 
   try {
@@ -254,7 +247,6 @@ const authenticate = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
-    console.error('Authentication error   4011111:', error.message); // DEBUGGING
     return res.status(401).json({ message: error.message });
   }
 };
@@ -387,7 +379,7 @@ app.post('/login', async (req, res) => {
     }
 
     const token = jwt.sign(
-      { email: user.email, role: user.role, id: user.id },
+      { email: user.email, role: user.role, id: user.id, tokenCreatedAt: new Date() },
       jwtSecretKey,
       { expiresIn: '1h' }
     );
@@ -456,7 +448,7 @@ app.post('/change-password', authenticate, async (req, res) => {
   try {
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res.status(401).json({ message: 'Current password is incorrect' });
+      return res.status(400).json({ message: 'Current password is incorrect' });
     }
 
     const saltRounds = 10;
@@ -464,17 +456,22 @@ app.post('/change-password', authenticate, async (req, res) => {
     user.password = hashedPassword;
     user.active = true;
 
+
+    user.passwordChangedAt = new Date();
+
+
     const token = jwt.sign(
-      { email: user.email, role: user.role, id: user.id },
+      { email: user.email, role: user.role, id: user.id, tokenCreatedAt: new Date() },
       jwtSecretKey,
       { expiresIn: '1h' }
     );
 
-    user.passwordChangedAt = new Date();
 
+    const { password: _, ...userData } = user;
     res.json({
       message: 'Password changed successfully',
-      token
+      token,
+      user: userData
     });
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
