@@ -1,9 +1,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService,
- // notificationService
- } from '@/services/api';
+import { authService, notificationService, userService } from '@/services/api';
 import AuthWrapper from '@/components/AuthWrapper';
 import PageTemplate from '@/components/PageTemplate';
 import { 
@@ -21,23 +19,49 @@ import {
   X
 } from 'lucide-react';
 
+interface ProfileData {
+  firstName: string;
+  lastName: string;
+  email: string;
+  timezone: string;
+  language: string;
+}
+
+interface PasswordData {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+interface NotificationPreferences {
+  emailUpdates: boolean;
+  appNotifications: boolean;
+  marketingEmails: boolean;
+}
+
+interface UserPreferences {
+  darkMode: boolean;
+  language: string;
+  timezone: string;
+}
+
 export default function Settings() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState('account');
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [profileData, setProfileData] = useState({
+  const [profileData, setProfileData] = useState<ProfileData>({
     firstName: '',
     lastName: '',
     email: '',
     timezone: 'UTC',
     language: 'English'
   });
-  const [passwordData, setPasswordData] = useState({
+  const [passwordData, setPasswordData] = useState<PasswordData>({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
-  const [notifications, setNotifications] = useState({
+  const [notifications, setNotifications] = useState<NotificationPreferences>({
     emailUpdates: true,
     appNotifications: true,
     marketingEmails: false
@@ -48,44 +72,47 @@ export default function Settings() {
   const [saveAnimation, setSaveAnimation] = useState(false);
 
   useEffect(() => {
-    // Simulate loading user data
     const fetchUserData = async () => {
       try {
-        const userData = await authService.getProfile();
+        const userData = (await authService.getProfile() as unknown) as ProfileData;
         setProfileData({
-          firstName: userData.firstName || '',
-          lastName: userData.lastName || '',
-          email: userData.email || '',
-          timezone: userData.timezone || 'UTC',
-          language: userData.language || 'English'
+          firstName: userData?.firstName || '',
+          lastName: userData?.lastName || '',
+          email: userData?.email || '',
+          timezone: userData?.timezone || 'UTC',
+          language: userData?.language || 'English'
         });
         
         // Get notification preferences
-     //   const notifSettings = await notificationService.getPreferences();
-     //   setNotifications(notifSettings);
+        const notifSettings = (await notificationService.getPreferences() as unknown) as NotificationPreferences;
+        setNotifications({
+          emailUpdates: notifSettings?.emailUpdates ?? true,
+          appNotifications: notifSettings?.appNotifications ?? true,
+          marketingEmails: notifSettings?.marketingEmails ?? false
+        });
         
         // Get theme preferences
-     //   const userPreferences = await userService.getPreferences();
-     //   setIsDarkMode(userPreferences.darkMode || false);
+        const userPreferences = (await userService.getPreferences() as unknown) as UserPreferences;
+        setIsDarkMode(userPreferences?.darkMode ?? false);
       } catch (err) {
-        console.error('Failed to load user data', err);
+        console.error('Failed to load user data', err instanceof Error ? err.message : 'Unknown error');
       }
     };
     
     fetchUserData();
   }, []);
 
-  const handleProfileChange = (e) => {
+  const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handlePasswordChange = (e) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setPasswordData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleNotificationChange = (e) => {
+  const handleNotificationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = e.target;
     setNotifications(prev => ({ ...prev, [name]: checked }));
   };
@@ -94,31 +121,31 @@ export default function Settings() {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
     try {
-      //await userService.updatePreferences({ darkMode: newMode });
+      await userService.updatePreferences({ darkMode: newMode });
     } catch (err) {
-      console.error('Failed to update theme preference', err);
+      console.error('Failed to update theme preference', err instanceof Error ? err.message : 'Unknown error');
     }
   };
 
-  const handleSaveProfile = async (e) => {
+  const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
 
     try {
-      //await userService.updateProfile(profileData);
+      await userService.updateProfile(profileData);
       setSuccess('Profile successfully updated');
       setSaveAnimation(true);
-      //setTimeout(() => setSaveAnimation(false), 2000);
+      setTimeout(() => setSaveAnimation(false), 2000);
     } catch (err) {
-      setError(err.message || 'Failed to update profile');
+      setError(err instanceof Error ? err.message : 'Failed to update profile');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChangePassword = async (e) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
@@ -132,7 +159,6 @@ export default function Settings() {
         return;
       }
 
-      
       // Call change password API
       await authService.changePassword(
         passwordData.currentPassword, 
@@ -148,25 +174,25 @@ export default function Settings() {
       });
       
     } catch (err) {
-      setError(err.message || 'Failed to change password. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to change password. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSaveNotifications = async (e) => {
+  const handleSaveNotifications = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
     setLoading(true);
 
     try {
-     // await notificationService.updatePreferences(notifications);
+      await notificationService.updatePreferences(notifications);
       setSuccess('Notification preferences updated');
       setSaveAnimation(true);
       setTimeout(() => setSaveAnimation(false), 2000);
     } catch (err) {
-      setError(err.message || 'Failed to update notification preferences');
+      setError(err instanceof Error ? err.message : 'Failed to update notification preferences');
     } finally {
       setLoading(false);
     }
@@ -177,7 +203,7 @@ export default function Settings() {
       await authService.logout();
       router.push('/login');
     } catch (err) {
-      setError('Failed to logout. Please try again.');
+      setError(err instanceof Error ? err.message : 'Failed to logout. Please try again.');
     }
   };
 

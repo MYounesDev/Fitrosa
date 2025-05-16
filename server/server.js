@@ -321,8 +321,17 @@ app.post('/register', async (req, res) => {
     accounts.push(newUser);
 
     const { password: _, ...userData } = newUser;
+
+    const token = jwt.sign(
+      { email: newUser.email, role: newUser.role, id: newUser.id, tokenCreatedAt: new Date() },
+      jwtSecretKey,
+      { expiresIn: '1h' }
+    );
+
+
     res.status(201).json({
       message: 'Registration successful',
+      token,
       user: userData
     });
   } catch (error) {
@@ -438,6 +447,10 @@ app.post('/change-password', authenticate, async (req, res) => {
 
   if (!currentPassword || !newPassword) {
     return res.status(400).json({ message: 'Both passwords are required' });
+  }
+
+  if (currentPassword === newPassword) {
+    return res.status(400).json({ message: 'New password cannot be the same as current password' });
   }
 
   const user = accounts.find(u => u.email === email);
@@ -564,7 +577,6 @@ app.get('/profile', authenticate, (req, res) => {
  *         description: Coach is not assigned to any session or section
  */
 app.get('/students', authenticate, (req, res) => {
-  console.log('students endpoint hit!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'); // DEBUGGING
 
   const userRole = req.user.role;
   const userEmail = req.user.email;
@@ -1115,7 +1127,7 @@ app.get('/coaches', authenticate, (req, res) => {
  *               section:
  *                 type: string
  *               session:
- *                type: string
+ *                 type: string
  *               name:
  *                 type: string
  *             required:
@@ -1177,6 +1189,217 @@ app.post('/add-coach', authenticate, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Internal server error' });
   }
+});
+
+/**
+ * @swagger
+ * /user/preferences:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get user preferences
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User preferences retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+app.get('/user/preferences', authenticate, (req, res) => {
+  const { email } = req.user;
+  const user = accounts.find(u => u.email === email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Return user preferences (create if doesn't exist)
+  user.preferences = user.preferences || {
+    darkMode: false,
+    language: 'English',
+    timezone: 'UTC'
+  };
+
+  res.json(user.preferences);
+});
+
+/**
+ * @swagger
+ * /user/preferences:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update user preferences
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               darkMode:
+ *                 type: boolean
+ *               language:
+ *                 type: string
+ *               timezone:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: User preferences updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+app.put('/user/preferences', authenticate, (req, res) => {
+  const { email } = req.user;
+  const user = accounts.find(u => u.email === email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  user.preferences = {
+    ...user.preferences,
+    ...req.body
+  };
+
+  res.json(user.preferences);
+});
+
+/**
+ * @swagger
+ * /user/profile:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update user profile
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               firstName:
+ *                 type: string
+ *               lastName:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               timezone:
+ *                 type: string
+ *               language:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profile updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+app.put('/user/profile', authenticate, (req, res) => {
+  const { email } = req.user;
+  const user = accounts.find(u => u.email === email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Update allowed fields
+  const allowedFields = ['firstName', 'lastName', 'timezone', 'language'];
+  allowedFields.forEach(field => {
+    if (req.body[field] !== undefined) {
+      user[field] = req.body[field];
+    }
+  });
+
+  const { password: _, ...userData } = user;
+  res.json(userData);
+});
+
+/**
+ * @swagger
+ * /notifications/preferences:
+ *   get:
+ *     tags: [Users]
+ *     summary: Get notification preferences
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Notification preferences retrieved successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+app.get('/notifications/preferences', authenticate, (req, res) => {
+  const { email } = req.user;
+  const user = accounts.find(u => u.email === email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  // Return notification preferences (create if doesn't exist)
+  user.notificationPreferences = user.notificationPreferences || {
+    emailUpdates: true,
+    appNotifications: true,
+    marketingEmails: false
+  };
+
+  res.json(user.notificationPreferences);
+});
+
+/**
+ * @swagger
+ * /notifications/preferences:
+ *   put:
+ *     tags: [Users]
+ *     summary: Update notification preferences
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               emailUpdates:
+ *                 type: boolean
+ *               appNotifications:
+ *                 type: boolean
+ *               marketingEmails:
+ *                 type: boolean
+ *     responses:
+ *       200:
+ *         description: Notification preferences updated successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+app.put('/notifications/preferences', authenticate, (req, res) => {
+  const { email } = req.user;
+  const user = accounts.find(u => u.email === email);
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  user.notificationPreferences = {
+    ...user.notificationPreferences,
+    ...req.body
+  };
+
+  res.json(user.notificationPreferences);
 });
 
 // Start the server

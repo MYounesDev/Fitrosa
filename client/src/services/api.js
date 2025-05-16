@@ -265,6 +265,62 @@ export const adminService = {
   }
 };
 
+// User Services
+export const userService = {
+  // Get user preferences
+  getPreferences: async () => {
+    try {
+      const response = await api.get('/user/preferences');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update user preferences
+  updatePreferences: async (preferences) => {
+    try {
+      const response = await api.put('/user/preferences', preferences);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update user profile
+  updateProfile: async (profileData) => {
+    try {
+      const response = await api.put('/user/profile', profileData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
+// Notification Services
+export const notificationService = {
+  // Get notification preferences
+  getPreferences: async () => {
+    try {
+      const response = await api.get('/notifications/preferences');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update notification preferences
+  updatePreferences: async (preferences) => {
+    try {
+      const response = await api.put('/notifications/preferences', preferences);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
 // Utility function to determine if current user has admin role
 export const isAdmin = () => {
   const user = authService.getCurrentUser();
@@ -288,6 +344,8 @@ export default {
   studentService,
   coachService,
   adminService,
+  userService,
+  notificationService,
   isAdmin,
   isCoach,
   isStudent
