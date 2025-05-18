@@ -251,6 +251,16 @@ const authenticate = (req, res, next) => {
   }
 };
 
+const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+  };
+};
+
+
 /**
  * @swagger
  * tags:
@@ -512,12 +522,7 @@ app.post('/change-password', authenticate, async (req, res) => {
  *       403:
  *         description: Admin access required
  */
-app.get('/users', authenticate, (req, res) => {
-  const { role } = req.user;
-
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
+app.get('/users', authenticate, authorize('admin'), (req, res) => {
 
   const users = accounts.map(user => {
     const { password, ...userData } = user;
@@ -576,7 +581,7 @@ app.get('/profile', authenticate, (req, res) => {
  *       400:
  *         description: Coach is not assigned to any session or section
  */
-app.get('/students', authenticate, (req, res) => {
+app.get('/students', authenticate, authorize('admin', 'coach'), (req, res) => {
 
   const userRole = req.user.role;
   const userEmail = req.user.email;
@@ -598,8 +603,6 @@ app.get('/students', authenticate, (req, res) => {
       .filter(user => user.section === coach.section && user.session === coach.session && user.role === 'student')
       .map(({ password, ...student }) => student);
     return res.json(studentsInSession);
-  } else {
-    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
 });
 
@@ -625,7 +628,7 @@ app.get('/students', authenticate, (req, res) => {
  *       404:
  *         description: Student not found
  */
-app.get('/students/:id', authenticate, (req, res) => {
+app.get('/students/:id', authenticate, authorize('admin', 'coach'), (req, res) => {
   const { id } = req.params;
   const { role, email } = req.user;
 
@@ -639,8 +642,6 @@ app.get('/students/:id', authenticate, (req, res) => {
     if (!coach || student.section !== coach.section || student.session !== coach.session) {
       return res.status(403).json({ message: 'You can only view students in your session.' });
     }
-  } else if (role !== 'admin') {
-    return res.status(403).json({ message: 'Only admin or coach can access this route.' });
   }
 
   const { password, ...studentData } = student;
@@ -703,16 +704,10 @@ app.get('/students/:id', authenticate, (req, res) => {
  *       500:
  *         description: Failed to add student
  */
-app.post('/add-student', authenticate, async (req, res) => {
+app.post('/add-student', authenticate, authorize('admin', 'coach'), async (req, res) => {
   const { role, id } = req.user;
   const studentData = req.body;
 
-
-  if (role !== 'admin' && role !== 'coach') {
-    return res.status(403).json({ message: 'Unauthorized access' });
-  }
-
-  // Check if the user is an admin or coach
 
 
   const requiredFields = ['email', 'firstName', 'lastName', 'birthDate', 'gender', 'parentName', 'parentPhone'];
@@ -745,7 +740,7 @@ app.post('/add-student', authenticate, async (req, res) => {
       }
 
       if (!assignedSection || !assignedSession) {
-        return res.status(403).json({ message: 'Coach is not assigned to any section or session' });
+        return res.status(400).json({ message: 'Coach is not assigned to any section or session' });
       }
     }
 
@@ -835,14 +830,9 @@ app.post('/add-student', authenticate, async (req, res) => {
  *       404:
  *         description: Student not found
  */
-app.put('/students/:id', authenticate, async (req, res) => {
+app.put('/students/:id', authenticate, authorize('admin', 'coach'), async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
-
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) {
-    return res.status(403).json({ message: 'No token provided.' });
-  }
 
 
   const userRole = req.user.role;
@@ -858,8 +848,6 @@ app.put('/students/:id', authenticate, async (req, res) => {
     if (!coach || accounts[studentIndex].section !== coach.section || accounts[studentIndex].session !== coach.session) {
       return res.status(403).json({ message: 'You can only update students in your session.' });
     }
-  } else if (userRole !== 'admin') {
-    return res.status(403).json({ message: 'Only admin or coach can update student information.' });
   }
 
   const allowedFields = [
@@ -930,14 +918,11 @@ app.put('/students/:id', authenticate, async (req, res) => {
  *       404:
  *         description: Coach not found
  */
-app.put('/coaches/:id', authenticate, async (req, res) => {
+app.put('/coaches/:id', authenticate, authorize('admin'), async (req, res) => {
   const { id } = req.params;
   const updates = req.body;
   const { role } = req.user;
 
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
 
   const coachIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'coach');
   if (coachIndex === -1) {
@@ -992,13 +977,8 @@ app.put('/coaches/:id', authenticate, async (req, res) => {
  *       404:
  *         description: Student not found
  */
-app.delete('/students/:id', authenticate, (req, res) => {
+app.delete('/students/:id', authenticate, authorize('admin'), (req, res) => {
   const { id } = req.params;
-  const { role } = req.user;
-
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
 
   const studentIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'student');
   if (studentIndex === -1) {
@@ -1038,13 +1018,9 @@ app.delete('/students/:id', authenticate, (req, res) => {
  *       400:
  *         description: Coach has assigned students
  */
-app.delete('/coaches/:id', authenticate, (req, res) => {
+app.delete('/coaches/:id', authenticate, authorize('admin'), (req, res) => {
   const { id } = req.params;
-  const { role } = req.user;
 
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
 
   const coachIndex = accounts.findIndex(u => u.id === parseInt(id) && u.role === 'coach');
   if (coachIndex === -1) {
@@ -1093,12 +1069,7 @@ app.delete('/coaches/:id', authenticate, (req, res) => {
  *       403:
  *         description: Admin access required
  */
-app.get('/coaches', authenticate, (req, res) => {
-  const { role } = req.user;
-
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Admin access required' });
-  }
+app.get('/coaches', authenticate, authorize('admin'), (req, res) => {
 
   const coaches = accounts
     .filter(user => user.role === 'coach')
@@ -1145,17 +1116,13 @@ app.get('/coaches', authenticate, (req, res) => {
  *       500:
  *         description: Internal server error
  */
-app.post('/add-coach', authenticate, async (req, res) => {
+app.post('/add-coach', authenticate, authorize('admin'), async (req, res) => {
   const { email, section, session, name } = req.body;
-  const { role } = req.user;
 
   if (!email || !section || !session || !name) {
     return res.status(400).json({ message: 'Email, section and session are required.' });
   }
 
-  if (role !== 'admin') {
-    return res.status(403).json({ message: 'Only admin can add coaches' });
-  }
 
   if (accounts.some(user => user.email === email)) {
     return res.status(409).json({ message: 'Coach already exists.' });
