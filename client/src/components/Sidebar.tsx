@@ -19,16 +19,7 @@ import {
   ArrowRightCircle,
   Menu
 } from 'lucide-react';
-/*
 
-import adminProfile from 'https://i.imgur.com/JXlqGo1.png';
-import maleCoachProfile from 'https://i.imgur.com/txGF7xA.png';
-import femaleCoachProfile from 'https://i.imgur.com/b9kuKKI.png';
-import maleStudentProfile from 'https://i.imgur.com/b9kuKKI.png';
-import femaleStudentProfile from 'https://i.imgur.com/zWrwTba.png';
-
-
-*/
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -39,9 +30,9 @@ export default function Sidebar() {
   
   useEffect(() => {
     // Get current user
-    if (authService.isAuthenticated()) {
-      const currentUser = authService.getCurrentUser();
-      setUser(currentUser);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
     }
   }, []);
 
