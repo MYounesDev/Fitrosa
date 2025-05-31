@@ -13,33 +13,58 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Role {
+  id       Int    @id @default(autoincrement()) @map("role_id")
+  roleName String @map("role_name")
+  users    User[]
+}
+
+model Gender {
+  id         Int    @id @default(autoincrement()) @map("gender_id")
+  genderName String @map("gender_name")
+  users      User[]
+}
+
+model AttendanceLog {
+  id         Int      @id @default(autoincrement())
+  student    User     @relation(fields: [studentId], references: [id])
+  studentId  Int      @map("student_id")
+  date       DateTime @default(now())
+  status     String   // attended, not_attended, with_report, day_off
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
 model User {
-  id                Int       @id @default(autoincrement())
-  email            String    @unique
-  password         String
-  role             String
-  profileImage     String    @default("")
-  active           Boolean   @default(false)
-  passwordChangedAt DateTime  @default(now())
-  preferences      Json?
+  id                     Int       @id @default(autoincrement())
+  firstName             String?
+  lastName              String?
+  email                 String    @unique
+  password              String
+  role                  Role      @relation(fields: [roleId], references: [id])
+  roleId                Int       @map("role_id")
+  gender                Gender?   @relation(fields: [genderId], references: [id])
+  genderId              Int?      @map("gender_id")
+  profileImage          String    @default("")
+  active                Boolean   @default(false)
+  passwordChangedAt     DateTime  @default(now())
+  preferences           Json?
   notificationPreferences Json?
+  attendanceLogs        AttendanceLog[]
 
   // Coach specific fields
-  name             String?
-  gender           String?
-  session         String?
-  section         String?
+  session              String?
+  section              String?
 
   // Student specific fields
-  firstName        String?
-  lastName         String?
-  birthDate        String?
-  parentName       String?
-  parentPhone      String?
-  notes           String?
-  startDate       DateTime?
-  performanceNotes Json?
+  birthDate            String?
+  parentName           String?
+  parentPhone          String?
+  notes                String?
+  startDate            DateTime?
+  performanceNotes     Json?
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 }

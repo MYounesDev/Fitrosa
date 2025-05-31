@@ -92,7 +92,15 @@ export const authService = {
   getCurrentUser: () => {
     if (typeof window === 'undefined') return null;
     const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    if (!user) return null;
+    try {
+      return JSON.parse(user);
+    } catch (error) {
+      console.error('Failed to parse user data:', error);
+      // If there's invalid data in localStorage, clean it up
+      localStorage.removeItem('user');
+      return null;
+    }
   },
   
   // Get the current auth token
@@ -122,6 +130,7 @@ export const authService = {
         return response;
       }
 
+      
       // Update token if provided in the response
       if (response.token) {
         localStorage.setItem('user', JSON.stringify(response.user)); 
@@ -136,7 +145,7 @@ export const authService = {
   // Get user profile
   getProfile: async () => {
     try {
-      const response = await api.get('/profile');
+      const response = await api.get('/user/profile');
       return response;
     } catch (error) {
       throw error;
@@ -157,7 +166,7 @@ export const studentService = {
   },
   
   // Get a student by ID
-  getStudentById: async (id) => {
+  getStudent: async (id) => {
     try {
       const response = await api.get(`/students/${id}`);
       return response;
@@ -169,7 +178,7 @@ export const studentService = {
   // Add a new student
   addStudent: async (studentData) => {
     try {
-      const response = await api.post('/add-student', studentData);
+      const response = await api.post('/students', studentData);
       return response;
     } catch (error) {
       throw error;
@@ -210,7 +219,7 @@ export const coachService = {
   },
 
   // Get a coach by ID (admin)
-  getCoachById: async (id) => {
+  getCoach: async (id) => {
     try {
       const response = await api.get(`/coaches/${id}`);
       return response;
@@ -250,6 +259,59 @@ export const coachService = {
     }
   },
 
+};
+
+// Attendance Services
+export const attendanceService = {
+  // Get all attendance logs (admin/coach)
+  getAllAttendanceLogs: async () => {
+    try {
+      const response = await api.get('/attendance');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get attendance logs for a specific student (admin/coach)
+  getStudentAttendance: async (studentId) => {
+    try {
+      const response = await api.get(`/attendance/${studentId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Create attendance log for a student (admin/coach)
+  createAttendanceLog: async (studentId, attendanceData) => {
+    try {
+      const response = await api.post(`/attendance/${studentId}`, attendanceData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update attendance log (admin/coach)
+  updateAttendanceLog: async (id, updateData) => {
+    try {
+      const response = await api.put(`/attendance/${id}`, updateData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete attendance log (admin/coach)
+  deleteAttendanceLog: async (id) => {
+    try {
+      const response = await api.delete(`/attendance/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 // Admin Services

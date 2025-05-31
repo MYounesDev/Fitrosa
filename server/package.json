@@ -10,8 +10,7 @@
         "dev": "nodemon server.js",
         "prisma:generate": "prisma generate",
         "prisma:migrate": "prisma migrate dev",
-        "prisma:studio": "prisma studio",
-        "seed": "node --experimental-specifier-resolution=node --loader ts-node/esm prisma/seed.ts"
+        "prisma:studio": "prisma studio"
     },
     "keywords": [],
     "author": "",

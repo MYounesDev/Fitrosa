@@ -1,0 +1,94 @@
+/* Calendar Wrapper */
+.calendar-wrapper {
+    --calendar-bg: rgba(255, 255, 255, 0.05);
+    --calendar-border: rgba(255, 255, 255, 0.1);
+    --calendar-text: #fff;
+    --calendar-tile-hover: rgba(59, 130, 246, 0.2);
+    --calendar-selected: rgb(59, 130, 246);
+}
+
+/* Main Calendar Styles */
+.attendance-calendar {
+    width: 100% !important;
+    background: var(--calendar-bg) !important;
+    border: 1px solid var(--calendar-border) !important;
+    border-radius: 1rem !important;
+    padding: 1rem !important;
+    color: var(--calendar-text) !important;
+    font-family: inherit !important;
+}
+
+/* Calendar Navigation */
+.attendance-calendar .react-calendar__navigation {
+    margin-bottom: 1rem !important;
+}
+
+.attendance-calendar .react-calendar__navigation button {
+    color: var(--calendar-text) !important;
+    background: none !important;
+    font-size: 1rem !important;
+    padding: 0.5rem !important;
+    border-radius: 0.5rem !important;
+    min-width: 44px !important;
+}
+
+.attendance-calendar .react-calendar__navigation button:enabled:hover,
+.attendance-calendar .react-calendar__navigation button:enabled:focus {
+    background-color: var(--calendar-tile-hover) !important;
+}
+
+/* Calendar Grid */
+.attendance-calendar .react-calendar__month-view__weekdays {
+    text-transform: uppercase !important;
+    font-weight: bold !important;
+    font-size: 0.75rem !important;
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.attendance-calendar .react-calendar__month-view__days__day {
+    padding: 0.75rem 0 !important;
+    background: none !important;
+    color: var(--calendar-text) !important;
+    border-radius: 0.5rem !important;
+}
+
+.attendance-calendar .react-calendar__tile:enabled:hover,
+.attendance-calendar .react-calendar__tile:enabled:focus {
+    background-color: var(--calendar-tile-hover) !important;
+}
+
+.attendance-calendar .react-calendar__tile--active {
+    background-color: var(--calendar-selected) !important;
+    color: white !important;
+}
+
+/* Attendance Status Colors */
+.attendance-calendar .attendance-attended {
+    background-color: rgba(34, 197, 94, 0.2) !important;
+    color: rgb(34, 197, 94) !important;
+}
+
+.attendance-calendar .attendance-not_attended {
+    background-color: rgba(239, 68, 68, 0.2) !important;
+    color: rgb(239, 68, 68) !important;
+}
+
+.attendance-calendar .attendance-with_report {
+    background-color: rgba(234, 179, 8, 0.2) !important;
+    color: rgb(234, 179, 8) !important;
+}
+
+.attendance-calendar .attendance-day_off {
+    background-color: rgba(107, 114, 128, 0.2) !important;
+    color: rgb(107, 114, 128) !important;
+}
+
+/* Weekend Days */
+.attendance-calendar .react-calendar__month-view__days__day--weekend {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+/* Neighboring Month Days */
+.attendance-calendar .react-calendar__month-view__days__day--neighboringMonth {
+    color: rgba(255, 255, 255, 0.3) !important;
+} 

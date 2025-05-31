@@ -10,7 +10,7 @@
             "server": "localhost",
             "driver": "PostgreSQL",
             "name": "FitolyDB connection",
-            "connectString": "postgresql://FitolyDB_owner:npg_WIZlApXx7q0u@ep-quiet-wind-a2igum2z-pooler.eu-central-1.aws.neon.tech/FitolyDB?sslmode=require"
+            "connectString": "postgresql://FitolyDB_owner:npg_WIZlApXx7q0u@ep-rough-grass-a2i9qg4b-pooler.eu-central-1.aws.neon.tech/FitolyDB?sslmode=require"
         }
     ]
 }
