@@ -24,3 +24,25 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Global select and option styles */
+select {
+  color: inherit;
+}
+
+select option {
+  color: #1a1a1a; /* Dark text for options to ensure visibility in dropdown */
+  background-color: white;
+}
+
+/* Dark theme selects */
+.dark select,
+[data-theme="dark"] select {
+  color: white;
+}
+
+.dark select option,
+[data-theme="dark"] select option {
+  color: white;
+  background-color: #1a1a1a;
+}

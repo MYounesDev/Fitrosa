@@ -27,8 +27,6 @@ export const getProfile = async (req, res) => {
             genderName: true
           }
         },
-        session: true,
-        section: true,
         profileImage: true,
         active: true,
         createdAt: true,
@@ -82,8 +80,6 @@ export const updateProfile = async (req, res) => {
             genderName: true
           }
         },
-        session: true,
-        section: true,
         profileImage: true,
         active: true,
         updatedAt: true

@@ -50,7 +50,6 @@ export default function Settings() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const [saveAnimation, setSaveAnimation] = useState(false);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -90,8 +89,6 @@ export default function Settings() {
     try {
       await userService.updateProfile(profileData);
       setSuccess('Profile successfully updated');
-      setSaveAnimation(true);
-      setTimeout(() => setSaveAnimation(false), 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to update profile');
     } finally {
@@ -116,6 +113,7 @@ export default function Settings() {
         passwordData.currentPassword, 
         passwordData.newPassword
       );
+
       setSuccess('Password successfully changed');
       
       setPasswordData({

@@ -130,7 +130,8 @@ export const authService = {
         return response;
       }
 
-      
+
+
       // Update token if provided in the response
       if (response.token) {
         localStorage.setItem('user', JSON.stringify(response.user)); 
@@ -141,6 +142,17 @@ export const authService = {
       throw error;
     }
   },
+
+
+  setupPassword: async (token, password) => {
+    try {
+      const response = await api.post(`/auth/setup-password/${token}`, { password });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
   
   // Get user profile
   getProfile: async () => {

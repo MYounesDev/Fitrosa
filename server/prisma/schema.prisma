@@ -36,35 +36,83 @@ model AttendanceLog {
   updatedAt  DateTime @updatedAt
 }
 
-model User {
-  id                     Int       @id @default(autoincrement())
-  firstName             String?
-  lastName              String?
-  email                 String    @unique
-  password              String
-  role                  Role      @relation(fields: [roleId], references: [id])
-  roleId                Int       @map("role_id")
-  gender                Gender?   @relation(fields: [genderId], references: [id])
-  genderId              Int?      @map("gender_id")
-  profileImage          String    @default("")
-  active                Boolean   @default(false)
-  passwordChangedAt     DateTime  @default(now())
-  preferences           Json?
-  notificationPreferences Json?
-  attendanceLogs        AttendanceLog[]
+model Sport {
+  id        Int      @id @default(autoincrement())
+  sportName String   @map("sport_name")
+  classes   Class[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
 
-  // Coach specific fields
-  session              String?
-  section              String?
+model Class {
+  id            Int             @id @default(autoincrement())
+  teacherId     Int            @map("teacher_id")
+  sportId       Int            @map("sport_id")
+  section       String
+  sport         Sport          @relation(fields: [sportId], references: [id])
+  teacher       User           @relation("TeacherClasses", fields: [teacherId], references: [id])
+  coaches       ClassCoach[]
+  students      ClassStudent[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model ClassCoach {
+  id        Int      @id @default(autoincrement())
+  classId   Int      @map("class_id")
+  coachId   Int      @map("coach_id")
+  class     Class    @relation(fields: [classId], references: [id])
+  coach     User     @relation("CoachClasses", fields: [coachId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, coachId])
+}
+
+model ClassStudent {
+  id        Int      @id @default(autoincrement())
+  classId   Int      @map("class_id")
+  studentId Int      @map("student_id")
+  class     Class    @relation(fields: [classId], references: [id])
+  student   User     @relation("StudentClasses", fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, studentId])
+}
+
+model User {
+  id                      Int            @id @default(autoincrement())
+  firstName              String?
+  lastName               String?
+  email                  String         @unique
+  password               String?        // Made optional for email activation flow
+  birthDate             String?
+  parentName            String?
+  parentPhone           String?
+  role                   Role           @relation(fields: [roleId], references: [id])
+  roleId                 Int            @map("role_id")
+  gender                 Gender?        @relation(fields: [genderId], references: [id])
+  genderId               Int?           @map("gender_id")
+  profileImage           String?        // can be null
+  active                 Boolean        @default(false)
+  passwordResetToken     String?        // For password setup/reset
+  passwordResetExpires   DateTime?      // Token expiration
+  passwordChangedAt      DateTime       @default(now())
+  preferences            Json?
+  notificationPreferences Json?
+  attendanceLogs         AttendanceLog[]
+
+  // Relationships for different roles
+  teacherClasses         Class[]        @relation("TeacherClasses")
+  coachClasses          ClassCoach[]    @relation("CoachClasses")
+  studentClasses        ClassStudent[]  @relation("StudentClasses")
 
   // Student specific fields
-  birthDate            String?
-  parentName           String?
-  parentPhone          String?
-  notes                String?
-  startDate            DateTime?
-  performanceNotes     Json?
+  notes                 String?
+  startDate             DateTime?
+  performanceNotes      Json?
 
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
 }

@@ -1,5 +1,5 @@
-import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
+import { sendPasswordSetupEmail, generatePasswordSetupToken } from '../utils/emailService.js';
 
 const prisma = new PrismaClient();
 
@@ -39,8 +39,6 @@ export const getAllStudents = async (req, res) => {
             genderName: true
           }
         },
-        session: true,
-        section: true,
         active: true,
         createdAt: true,
         updatedAt: true
@@ -85,8 +83,6 @@ export const getStudent = async (req, res) => {
             genderName: true
           }
         },
-        session: true,
-        section: true,
         active: true,
         createdAt: true,
         updatedAt: true
@@ -119,17 +115,25 @@ export const getStudent = async (req, res) => {
 };
 
 export const addStudent = async (req, res) => {
-  const { email, firstName, lastName, gender: genderName, session, section } = req.body;
-  
   try {
+    const { 
+      email, 
+      firstName, 
+      lastName, 
+      genderId,
+      birthDate,
+      parentName,
+      parentPhone,
+      notes,
+      classId 
+    } = req.body;
+
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
-      return res.status(409).json({
-        message: 'Email already registered'
-      });
+      return res.status(400).json({ message: 'Email already registered' });
     }
 
     const studentRole = await prisma.role.findFirst({
@@ -137,57 +141,65 @@ export const addStudent = async (req, res) => {
     });
 
     if (!studentRole) {
-      return res.status(500).json({
-        message: 'Role configuration error'
-      });
+      return res.status(500).json({ message: 'Student role not found' });
     }
 
-    let genderId = null;
-    if (genderName) {
-      const gender = await prisma.gender.findFirst({
-        where: { genderName: { equals: genderName, mode: 'insensitive' } }
+    // Verify class exists
+    if (classId) {
+      const classExists = await prisma.class.findUnique({
+        where: { id: classId }
       });
-      if (gender) {
-        genderId = gender.id;
+
+      if (!classExists) {
+        return res.status(400).json({ message: 'Invalid class selected' });
       }
     }
 
-    const temporaryPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+    const passwordSetupToken = generatePasswordSetupToken();
+    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    const newStudent = await prisma.user.create({
+    const student = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
         firstName,
         lastName,
-        genderId,
-        session,
-        section,
         roleId: studentRole.id,
-        active: true
+        genderId,
+        birthDate,
+        parentName,
+        parentPhone,
+        notes,
+        startDate: new Date(),
+        passwordResetToken: passwordSetupToken,
+        passwordResetExpires: tokenExpires,
+        active: false
       },
-      include: {
-        role: true,
-        gender: true
-      }
     });
 
-    const { password: _, ...studentData } = newStudent;
+    // If class is specified, create the class-student relationship
+    if (classId) {
+      await prisma.classStudent.create({
+        data: {
+          classId,
+          studentId: student.id
+        }
+      });
+    }
 
-    res.status(201).json({
-      message: 'Student added successfully',
-      data: {
-        ...studentData,
-        temporaryPassword
-      }
+    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken);
+
+    if (!emailSent) {
+      await prisma.user.delete({ where: { id: student.id } });
+      return res.status(500).json({ message: 'Failed to send activation email' });
+    }
+
+    res.status(201).json({ 
+      message: 'Student account created. Please check email to activate account.',
+      studentId: student.id 
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to add student',
-      error: error.message
-    });
+    console.error('Add student error:', error);
+    res.status(500).json({ message: 'Error creating student account' });
   }
 };
 
@@ -208,8 +220,6 @@ export const updateStudent = async (req, res) => {
         firstName: true,
         lastName: true,
         gender: true,
-        session: true,
-        section: true,
         active: true,
         updatedAt: true
       }

@@ -1,13 +1,14 @@
 "use client";
 import { useState, FormEvent, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { authService } from '@/services/api';
-import { Mail, Lock, User, AlertCircle, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     if (authService.isAuthenticated()) {
@@ -26,11 +27,19 @@ export default function Login() {
     }
   }, [router]);
 
+  useEffect(() => {
+    const activated = searchParams.get('activated');
+    if (activated === 'true') {
+      setSuccess('Your account has been activated successfully! You can now log in.');
+    }
+  }, [searchParams]);
+
   const [formData, setFormData] = useState({
     email: '',
     password: ''
   });
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,6 +50,7 @@ export default function Login() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
     
     try {
@@ -49,7 +59,6 @@ export default function Login() {
         setLoading(false);
         return;
       }
-
       await authService.login(formData.email, formData.password);
       
       const user = authService.getCurrentUser();
@@ -68,7 +77,7 @@ export default function Login() {
       console.error(err.message);
       setError(err.message || 'Login failed. Please try again.');
     } finally {
-      setLoading(false);
+   //   setLoading(false);    // better if we don't want to show the loading state
     }
   };
 
@@ -163,6 +172,17 @@ export default function Login() {
             >
               <AlertCircle className="h-5 w-5 mr-2 flex-shrink-0" />
               {error}
+            </motion.div>
+          )}
+
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-lg bg-green-50 p-4 text-sm text-green-700 flex items-center"
+            >
+              <CheckCircle2 className="h-5 w-5 mr-2 flex-shrink-0" />
+              {success}
             </motion.div>
           )}
 

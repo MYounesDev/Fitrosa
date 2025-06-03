@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { PrismaClient } from '@prisma/client';
+import { sendPasswordSetupEmail, generatePasswordSetupToken } from '../utils/emailService.js';
 
 const prisma = new PrismaClient();
 
@@ -32,8 +33,6 @@ export const getAllCoaches = async (req, res) => {
             genderName: true
           }
         },
-        session: true,
-        section: true,
         active: true,
         createdAt: true,
         updatedAt: true
@@ -118,17 +117,15 @@ export const getCoach = async (req, res) => {
 };
 
 export const addCoach = async (req, res) => {
-  const { email, firstName, lastName, gender: genderName, session, section } = req.body;
-  
   try {
+    const { email, firstName, lastName, genderId } = req.body;
+
     const existingUser = await prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
 
     if (existingUser) {
-      return res.status(409).json({
-        message: 'Email already registered'
-      });
+      return res.status(400).json({ message: 'Email already registered' });
     }
 
     const coachRole = await prisma.role.findFirst({
@@ -136,57 +133,39 @@ export const addCoach = async (req, res) => {
     });
 
     if (!coachRole) {
-      return res.status(500).json({
-        message: 'Role configuration error'
-      });
+      return res.status(500).json({ message: 'Coach role not found' });
     }
 
-    let genderId = null;
-    if (genderName) {
-      const gender = await prisma.gender.findFirst({
-        where: { genderName: { equals: genderName, mode: 'insensitive' } }
-      });
-      if (gender) {
-        genderId = gender.id;
-      }
-    }
+    const passwordSetupToken = generatePasswordSetupToken();
+    const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
-    const temporaryPassword = Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
-
-    const newCoach = await prisma.user.create({
+    const coach = await prisma.user.create({
       data: {
         email,
-        password: hashedPassword,
         firstName,
         lastName,
-        genderId,
-        session,
-        section,
         roleId: coachRole.id,
-        active: true
+        genderId,
+        passwordResetToken: passwordSetupToken,
+        passwordResetExpires: tokenExpires,
+        active: false
       },
-      include: {
-        role: true,
-        gender: true
-      }
     });
 
-    const { password: _, ...coachData } = newCoach;
+    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken);
 
-    res.status(201).json({
-      message: 'Coach added successfully',
-      data: {
-        ...coachData,
-        temporaryPassword
-      }
+    if (!emailSent) {
+      await prisma.user.delete({ where: { id: coach.id } });
+      return res.status(500).json({ message: 'Failed to send activation email' });
+    }
+
+    res.status(201).json({ 
+      message: 'Coach account created. Please check email to activate account.',
+      coachId: coach.id 
     });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: 'Failed to add coach',
-      error: error.message
-    });
+    console.error('Add coach error:', error);
+    res.status(500).json({ message: 'Error creating coach account' });
   }
 };
 
@@ -207,8 +186,6 @@ export const updateCoach = async (req, res) => {
         firstName: true,
         lastName: true,
         gender: true,
-        session: true,
-        section: true,
         active: true,
         updatedAt: true
       }

@@ -1,6 +1,13 @@
 {
     "sqltools.connections": [
         {
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://postgres:yh805522@localhost:5432/FitolyDB",
+            "name": "Fitoly"
+        },
+        {
             "pgOptions": {
                 "ssl": {
                     "rejectUnauthorized": true
@@ -9,8 +16,8 @@
             "previewLimit": 50,
             "server": "localhost",
             "driver": "PostgreSQL",
-            "name": "FitolyDB connection",
-            "connectString": "postgresql://FitolyDB_owner:npg_WIZlApXx7q0u@ep-rough-grass-a2i9qg4b-pooler.eu-central-1.aws.neon.tech/FitolyDB?sslmode=require"
+            "name": "fitoly neon connection",
+            "connectString": "postgresql://FitolyDB_owner:npg_NsQHu1DxE9YW@ep-spring-frost-a25o2l7o-pooler.eu-central-1.aws.neon.tech/FitolyDB?sslmode=require"
         }
     ]
 }
