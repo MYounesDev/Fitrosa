@@ -46,11 +46,9 @@ model Sport {
 
 model Class {
   id            Int             @id @default(autoincrement())
-  teacherId     Int            @map("teacher_id")
   sportId       Int            @map("sport_id")
   section       String
   sport         Sport          @relation(fields: [sportId], references: [id])
-  teacher       User           @relation("TeacherClasses", fields: [teacherId], references: [id])
   coaches       ClassCoach[]
   students      ClassStudent[]
   createdAt     DateTime       @default(now())
@@ -104,7 +102,6 @@ model User {
   attendanceLogs         AttendanceLog[]
 
   // Relationships for different roles
-  teacherClasses         Class[]        @relation("TeacherClasses")
   coachClasses          ClassCoach[]    @relation("CoachClasses")
   studentClasses        ClassStudent[]  @relation("StudentClasses")
 

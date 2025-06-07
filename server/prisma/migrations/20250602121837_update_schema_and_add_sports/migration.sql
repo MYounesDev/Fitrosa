@@ -40,7 +40,6 @@ CREATE TABLE "Sport" (
 -- CreateTable
 CREATE TABLE "Class" (
     "id" SERIAL NOT NULL,
-    "teacher_id" INTEGER NOT NULL,
     "sport_id" INTEGER NOT NULL,
     "section" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -113,9 +112,6 @@ ALTER TABLE "AttendanceLog" ADD CONSTRAINT "AttendanceLog_student_id_fkey" FOREI
 
 -- AddForeignKey
 ALTER TABLE "Class" ADD CONSTRAINT "Class_sport_id_fkey" FOREIGN KEY ("sport_id") REFERENCES "Sport"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Class" ADD CONSTRAINT "Class_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "ClassCoach" ADD CONSTRAINT "ClassCoach_class_id_fkey" FOREIGN KEY ("class_id") REFERENCES "Class"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

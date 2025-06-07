@@ -1,0 +1,1857 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fitoly - Teknik Dokümantasyon Raporu</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: #0066cc;
+            margin-top: 25px;
+        }
+
+        h1 {
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #0066cc;
+        }
+
+        h2 {
+            font-size: 24px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 20px;
+        }
+
+        h4 {
+            font-size: 18px;
+        }
+
+        code,
+        pre {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+
+        pre {
+            padding: 15px;
+            overflow-x: auto;
+            border: 1px solid #ddd;
+            margin: 20px 0;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .toc {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+            margin-bottom: 30px;
+        }
+
+        .toc h2 {
+            margin-top: 0;
+        }
+
+        .toc ul {
+            padding-left: 25px;
+        }
+
+        .toc li {
+            margin-bottom: 8px;
+        }
+
+        .warning {
+            background-color: #fff8dc;
+            border-left: 4px solid #ffeb3b;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .note {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+
+        .code-caption {
+            font-style: italic;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .image-placeholder {
+            background-color: #f0f0f0;
+            border: 1px dashed #999;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .diagram-placeholder {
+            background-color: #f0f8ff;
+            border: 1px dashed #4682b4;
+            padding: 20px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* Mermaid diyagramları için ek stil */
+        .mermaid {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 30px auto;
+        }
+        
+        /* Veritabanı diyagramı için özel stil */
+        .diagram-placeholder.mermaid {
+            overflow: auto;
+            max-height: 600px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            background-color: #ffffff;
+        }
+        
+        /* Teknoloji Akış Diyagramı için stiller */
+        .tech-flow-diagram {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            margin: 40px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+        
+        .tech-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .tech-node-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0066cc;
+        }
+        
+        .tech-logo-container {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .tech-logo {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+        
+        .tech-arrow {
+            display: flex;
+            align-items: center;
+            color: #666;
+            font-size: 24px;
+            margin: 0 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .tech-flow-diagram {
+                flex-direction: column;
+            }
+            
+            .tech-arrow {
+                transform: rotate(90deg);
+                margin: 10px 0;
+            }
+        }
+    </style>
+    
+    <!-- Mermaid.js ekliyorum -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js"></script>
+    <script>
+        // Mermaid'i başlangıçta yapılandırma
+        mermaid.initialize({
+            startOnLoad: false, // Manuel olarak başlatacağımız için false
+            theme: 'default',
+            securityLevel: 'loose',
+            fontFamily: 'Segoe UI',
+            er: {
+                useMaxWidth: false,
+                layoutDirection: 'TB', // top to bottom
+                entityPadding: 15,
+                fontSize: 14
+            },
+            flowchart: {
+                useMaxWidth: false,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+    <script src="DiagramCodes.js"></script>
+</head>
+
+<body>
+    <h1>FITOLY - Full-Stack Web Uygulaması Teknik Dokümantasyonu</h1>
+
+    <div class="toc">
+        <h2>İçindekiler</h2>
+        <ol>
+            <li>
+                <a href="#intro">Giriş</a>
+            </li>
+            <li>
+                <a href="#project-structure">Proje Dosya Yapıları</a>
+                <ol>
+                    <li><a href="#backend-structure">Backend Yapısı</a></li>
+                    <li><a href="#frontend-structure">Frontend Yapısı</a></li>
+                </ol>
+            </li>
+            <li>
+                <a href="#backend">Backend (Node.js + Express)</a>
+                <ol>
+                    <li><a href="#backend-folder-structure">Dosya ve Klasör Yapısı</a></li>
+                    <li><a href="#backend-auth">Yetkilendirme ve Kimlik Doğrulama</a></li>
+                    <li><a href="#backend-controllers">Controller'lar</a></li>
+                    <li><a href="#backend-routes">Rotalar</a></li>
+                    <li><a href="#backend-middleware">Middleware'ler</a></li>
+                    <li><a href="#backend-services">Yardımcı Servisler</a></li>
+                    <li><a href="#backend-endpoints">API Endpoint'leri</a></li>
+                </ol>
+            </li>
+            <li>
+                <a href="#frontend">Frontend (Next.js + React)</a>
+                <ol>
+                    <li><a href="#frontend-folder-structure">Dosya ve Klasör Yapısı</a></li>
+                    <li><a href="#frontend-api">API İntegrasyonu</a></li>
+                    <li><a href="#frontend-auth">Yetkilendirme ve Kimlik Doğrulama</a></li>
+                    <li><a href="#frontend-components">Ana Bileşenler</a></li>
+                    <li><a href="#frontend-pages">Sayfalar</a></li>
+                    <li><a href="#frontend-ui">UI/UX Özellikleri</a></li>
+                </ol>
+            </li>
+            <li>
+                <a href="#database">Veritabanı (PostgreSQL + Prisma ORM)</a>
+                <ol>
+                    <li><a href="#database-schema">Şema ve Tablolar</a></li>
+                    <li><a href="#database-relations">Tablo İlişkileri</a></li>
+                    <li><a href="#database-migrations">Migrations</a></li>
+                    <li><a href="#database-prisma">Prisma ORM Kullanımı</a></li>
+                </ol>
+            </li>
+            <li>
+                <a href="#security">Güvenlik ve En İyi Uygulamalar</a>
+                <ol>
+                    <li><a href="#security-auth">Yetkilendirme ve Kimlik Doğrulama</a></li>
+                    <li><a href="#security-passwords">Şifresiz Kayıt Sistemi</a></li>
+                    <li><a href="#security-tokens">Token Yönetimi</a></li>
+                    <li><a href="#security-best-practices">Güvenlik Önerileri</a></li>
+                </ol>
+            </li>
+            <li>
+                <a href="#technologies">Kullanılan Teknolojiler ve Kütüphaneler</a>
+            </li>
+            <li>
+                <a href="#warnings">Uyarılar ve Öneriler</a>
+            </li>
+            <li>
+                <a href="#next-steps">Gelecek Adımlar</a>
+            </li>
+        </ol>
+    </div>
+
+    <section id="intro">
+        <h2>1. Giriş</h2>
+        <p>Bu rapor, Node.js backend, Next.js ve React frontend ile PostgreSQL veritabanı (Prisma ORM kullanılarak)
+            altyapısına sahip bir full-stack web uygulaması olan Fitoly projesinin teknik dokümantasyonudur. Bu
+            dokümantasyon, projenin mimari yapısını, temel bileşenlerini, veri akışını ve geliştirme sürecini detaylı
+            olarak açıklamaktadır.</p>
+
+        <p>Fitoly, bir spor/fitness merkezi için özel olarak geliştirilmiş bir yönetim sistemidir. Sistemde üç temel
+            kullanıcı rolü bulunmaktadır:</p>
+        <ul>
+            <li><strong>Admin:</strong> Sistem yöneticileri, tüm kullanıcıları yönetir ve sistemin tüm özelliklerine
+                erişebilir.</li>
+            <li><strong>Coach (Koç):</strong> Öğrencileri yöneten ve antrenman süreçlerini takip eden eğitmenler.</li>
+            <li><strong>Student (Öğrenci):</strong> Sistemde kayıtlı olan ve antrenmanları takip edilen kullanıcılar.
+            </li>
+        </ul>
+
+        <p>Bu dokümantasyonda, uygulamanın backend ve frontend mimarisi, veritabanı yapısı, güvenlik önlemleri ve sistem
+            kullanımı için öneriler detaylı olarak ele alınmaktadır.</p>
+    </section>
+
+    <section id="project-structure">
+        <h2>2. Proje Dosya Yapıları</h2>
+
+        <p>Proje, iki ana klasörden oluşmaktadır: backend için <code>server</code> ve frontend için <code>client</code>.
+            Bu yapı, frontend ve backend kodlarını net bir şekilde ayırarak bakım ve geliştirmeyi kolaylaştırmaktadır.
+        </p>
+
+        <h3 id="backend-structure">2.1. Backend Yapısı</h3>
+        <p>Backend kodu <code>server</code> klasöründe bulunmakta ve aşağıdaki yapıya sahiptir:</p>
+        <pre>
+server/
+├── controllers/                # İş mantığını içeren controller'lar
+│   ├── authController.js
+│   ├── studentController.js
+│   ├── coachController.js
+│   ├── userController.js
+│   └── attendanceController.js
+├── middleware/                 # Ara yazılımlar
+│   └── auth.js                 # Yetkilendirme ve kimlik doğrulama
+├── routes/                     # API rotaları
+│   ├── authRoutes.js
+│   ├── userRoutes.js
+│   ├── studentRoutes.js
+│   ├── coachRoutes.js
+│   └── attendanceRoutes.js
+├── prisma/                     # Veritabanı şeması ve migration'lar
+│   ├── migrations/             # Veritabanı migration dosyaları
+│   └── schema.prisma           # Veritabanı şema tanımları
+├── templates/                  # E-posta şablonları
+├── utils/                      # Yardımcı işlevler
+├── server.js                   # Ana uygulama dosyası
+├── package.json                # Bağımlılıklar
+└── swagger.json                # API dokümantasyonu
+</pre>
+
+        <h3 id="frontend-structure">2.2. Frontend Yapısı</h3>
+        <p>Frontend kodu <code>client</code> klasöründe bulunmakta ve aşağıdaki yapıya sahiptir:</p>
+        <pre>
+client/
+├── src/
+│   ├── app/                    # Next.js uygulama sayfaları
+│   │   ├── admin/              # Admin rollü kullanıcı sayfaları
+│   │   ├── coach/              # Koç rollü kullanıcı sayfaları
+│   │   ├── student/            # Öğrenci rollü kullanıcı sayfaları
+│   │   ├── login/              # Giriş sayfası
+│   │   ├── register/           # Kayıt sayfası
+│   │   └── ...
+│   ├── components/             # Yeniden kullanılabilir bileşenler
+│   │   ├── AuthWrapper.js      # Yetkilendirme bileşeni
+│   │   ├── PageTemplate.tsx    # Sayfa şablonu
+│   │   ├── Sidebar.tsx         # Kenar çubuğu menüsü
+│   │   └── ui/                 # UI bileşenleri
+│   ├── services/               # API servis entegrasyonu
+│   │   └── api.js              # Backend ile iletişim
+│   └── public/                 # Statik dosyalar
+├── public/                     # Genel statik dosyalar
+├── package.json                # Bağımlılıklar
+└── next.config.js              # Next.js yapılandırması
+</pre>
+
+        <p>Proje kök dizininde ayrıca şu dosyalar bulunmaktadır:</p>
+        <ul>
+            <li><code>start.bat</code>: Hem frontend hem de backend uygulamalarını tek bir komutla başlatan batch
+                dosyası.</li>
+            <li><code>setup.bat</code>: Proje bağımlılıklarını yüklemek için kullanılan batch dosyası.</li>
+        </ul>
+    </section>
+
+    <section id="backend">
+        <h2>3. Backend (Node.js + Express)</h2>
+
+        <p>Backend, Node.js ve Express.js kullanılarak geliştirilmiş bir RESTful API hizmetidir. Veritabanı işlemleri
+            için Prisma ORM kullanılmaktadır.</p>
+
+        <h3 id="backend-folder-structure">3.1. Dosya ve Klasör Yapısı</h3>
+        <p>Backend projesi, Model-View-Controller (MVC) tasarım desenine benzer bir yapıda organize edilmiştir:</p>
+        <ul>
+            <li><strong>controllers/</strong>: API endpoint'lerine gelen istekleri işleyen işlev mantığını içerir.</li>
+            <li><strong>middleware/</strong>: İstek işleme sürecinde ara katman olarak çalışan fonksiyonları içerir.
+            </li>
+            <li><strong>routes/</strong>: API endpoint'lerinin URL yollarını ve HTTP metodlarını tanımlar.</li>
+            <li><strong>prisma/</strong>: Veritabanı şema tanımları ve migration dosyalarını içerir.</li>
+            <li><strong>utils/</strong>: E-posta gönderimi gibi yardımcı işlevleri içerir.</li>
+            <li><strong>templates/</strong>: E-posta şablonları gibi HTML dosyalarını içerir.</li>
+        </ul>
+
+        <p>Bu yapı, iş mantığının (business logic), yönlendirmelerin (routing) ve veritabanı etkileşimlerinin
+            birbirinden ayrılmasını sağlayarak projenin bakımını ve genişletilmesini kolaylaştırır.</p>
+
+        <h3 id="backend-auth">3.2. Yetkilendirme ve Kimlik Doğrulama</h3>
+        <p><code>server/middleware/auth.js</code> dosyası, sistemin güvenlik mekanizmasının temelini oluşturur. Bu
+            dosya, JSON Web Token (JWT) kullanarak kullanıcı kimlik doğrulama ve yetkilendirme işlemlerini
+            gerçekleştirir.</p>
+
+        <pre>
+// auth.js'den alınan temel fonksiyonlar
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+const jwtSecretKey = process.env.JWT_SECRET || "your_jwt_secret";
+
+// Authentication middleware
+export const authenticate = async (req, res, next) => {
+  const token = req.headers['authorization']?.split(' ')[1];
+  
+  try {
+    const decoded = verifyToken(token, jwtSecretKey);
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id },
+      include: {
+        role: true,
+        gender: true
+      }
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
+
+    if (new Date(decoded.tokenCreatedAt) < user.passwordChangedAt) {
+      return res.status(401).json({ message: 'Password has been changed, please login again' });
+    }
+
+    req.user = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: error.message });
+  }
+};
+
+// Authorization middleware
+export const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: 'Access denied' });
+    }
+    next();
+  };
+};</pre>
+
+        <div class="note">
+            <strong>Önemli:</strong> <code>req.user = decoded;</code> satırı, kullanıcı bilgilerini talep nesnesine
+            ekleyerek tüm controller fonksiyonlarının kullanıcı bilgilerine (ID, rol vb.) erişmesini sağlar.
+        </div>
+
+        <p><strong>Middleware Akışı:</strong> API istekleri aşağıdaki sırada işlenir:</p>
+        <ol>
+            <li><code>authenticate</code> middleware'i JWT token'ı doğrular ve kullanıcıyı veritabanında kontrol eder.
+            </li>
+            <li><code>authorize</code> middleware'i kullanıcının istenen kaynağa erişim için doğru role sahip olup
+                olmadığını kontrol eder.</li>
+            <li>Yetkilendirme başarılıysa, controller fonksiyonu çalışır ve asıl işlemi gerçekleştirir.</li>
+        </ol>
+
+        <div class="diagram-placeholder mermaid">
+            <!-- Otomatik olarak doldurulacak -->
+        </div>
+
+        <h3 id="backend-controllers">3.3. Controller'lar</h3>
+        <p>Controller'lar, API endpoint'lerine gelen istekleri işleyen ve iş mantığını uygulayan fonksiyonları içerir.
+            Her bir controller dosyası belirli bir alan için işlemleri toplar:</p>
+
+        <h4>authController.js</h4>
+        <p>Kimlik doğrulama işlemlerini yönetir:</p>
+        <ul>
+            <li><code>login</code>: Kullanıcı girişi ve token oluşturma</li>
+            <li><code>register</code>: Yeni kullanıcı kaydı</li>
+            <li><code>setupPassword</code>: Yeni oluşturulan kullanıcılar için şifre belirleme</li>
+            <li><code>sendPasswordSetupEmail</code>: Şifre belirleme bağlantısı içeren e-posta gönderimi</li>
+        </ul>
+
+        <h4>studentController.js</h4>
+        <p>Öğrenci kayıtları ile ilgili işlemleri yönetir:</p>
+        <ul>
+            <li><code>getAllStudents</code>: Tüm öğrencileri listeleme</li>
+            <li><code>getStudentById</code>: Belirli bir öğrenciyi getirme</li>
+            <li><code>createStudent</code>: Yeni öğrenci kaydı oluşturma</li>
+            <li><code>updateStudent</code>: Öğrenci bilgilerini güncelleme</li>
+            <li><code>deleteStudent</code>: Öğrenci kaydını silme</li>
+        </ul>
+
+        <h4>coachController.js</h4>
+        <p>Koçlar ile ilgili işlemleri yönetir:</p>
+        <ul>
+            <li><code>getAllCoaches</code>: Tüm koçları listeleme</li>
+            <li><code>getCoachById</code>: Belirli bir koçu getirme</li>
+            <li><code>createCoach</code>: Yeni koç kaydı oluşturma</li>
+            <li><code>updateCoach</code>: Koç bilgilerini güncelleme</li>
+            <li><code>deleteCoach</code>: Koç kaydını silme</li>
+        </ul>
+
+        <h4>attendanceController.js</h4>
+        <p>Öğrenci yoklama ve katılım işlemlerini yönetir:</p>
+        <ul>
+            <li><code>getStudentAttendance</code>: Öğrencinin katılım kayıtlarını getirme</li>
+            <li><code>markAttendance</code>: Yoklama kaydı oluşturma</li>
+            <li><code>updateAttendance</code>: Yoklama kaydını güncelleme</li>
+            <li><code>getAttendanceStats</code>: Yoklama istatistikleri</li>
+        </ul>
+
+        <h4>userController.js</h4>
+        <p>Kullanıcı profil işlemlerini yönetir:</p>
+        <ul>
+            <li><code>getProfile</code>: Kullanıcı profilini getirme</li>
+            <li><code>updateProfile</code>: Profil bilgilerini güncelleme</li>
+            <li><code>changePassword</code>: Şifre değiştirme</li>
+        </ul>
+
+        <h3 id="backend-routes">3.4. Rotalar</h3>
+        <p>Rotalar, API endpoint'lerinin URL yollarını ve HTTP metodlarını tanımlar. Her bir rota dosyası belirli bir
+            alan için endpoint'leri tanımlar ve ilgili controller fonksiyonlarına bağlantı sağlar.</p>
+
+        <pre>
+// authRoutes.js örneği
+import express from 'express';
+import { login, register, setupPassword } from '../controllers/authController.js';
+
+const router = express.Router();
+
+router.post('/login', login);
+router.post('/register', register);
+router.post('/auth/setup-password/:token', setupPassword);
+
+export default router;</pre>
+
+        <pre>
+// studentRoutes.js örneği
+import express from 'express';
+import { authenticate, authorize } from '../middleware/auth.js';
+import { 
+  getAllStudents, 
+  getStudentById, 
+  createStudent, 
+  updateStudent, 
+  deleteStudent 
+} from '../controllers/studentController.js';
+
+const router = express.Router();
+
+router.get('/', authenticate, authorize('admin', 'coach'), getAllStudents);
+router.get('/:id', authenticate, authorize('admin', 'coach'), getStudentById);
+router.post('/', authenticate, authorize('admin'), createStudent);
+router.put('/:id', authenticate, authorize('admin'), updateStudent);
+router.delete('/:id', authenticate, authorize('admin'), deleteStudent);
+
+export default router;</pre>
+
+        <p>Rotalarda dikkat edilmesi gereken bir nokta, <code>authenticate</code> ve <code>authorize</code>
+            middleware'lerinin nasıl zincirlendiğidir. Önce kimlik doğrulama yapılır, ardından yetki kontrolü
+            gerçekleştirilir ve son olarak controller fonksiyonu çalıştırılır.</p>
+
+        <div class="diagram-placeholder">
+            [DİYAGRAM: HTTP İstek → Rota Eşleştirme → Authenticate Middleware → Authorize Middleware → Controller
+            Fonksiyonu]
+        </div>
+
+        <h3 id="backend-middleware">3.5. Middleware'ler</h3>
+        <p>Middleware'ler, istek-yanıt döngüsünde ara işlemler gerçekleştiren fonksiyonlardır. Projede kullanılan önemli
+            middleware'ler:</p>
+
+        <ul>
+            <li><strong>authenticate</strong>: JWT token'ı doğrular ve kullanıcı bilgilerini req.user nesnesine ekler.
+            </li>
+            <li><strong>authorize</strong>: Kullanıcının belirli bir endpoint'e erişim için gerekli role sahip olup
+                olmadığını kontrol eder.</li>
+            <li><strong>cors</strong>: Cross-Origin Resource Sharing (CORS) politikalarını yönetir ve frontend'in API'ye
+                erişimini sağlar.</li>
+            <li><strong>express.json</strong>: İstek gövdesindeki JSON verilerini ayrıştırır ve JavaScript nesnelerine
+                dönüştürür.</li>
+        </ul>
+
+        <h3 id="backend-services">3.6. Yardımcı Servisler</h3>
+        <p>Backend'de kullanılan çeşitli yardımcı servisler ve fonksiyonlar bulunmaktadır:</p>
+
+        <h4>E-posta Servisi</h4>
+        <p><code>utils/emailService.js</code> dosyası, nodemailer kütüphanesini kullanarak e-posta gönderme işlemlerini
+            yönetir. Özellikle şifre belirleme bağlantılarının gönderiminde kullanılır.</p>
+
+        <pre>
+// emailService.js örnek kod
+import nodemailer from 'nodemailer';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import handlebars from 'handlebars';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// E-posta şablonunu okuma ve işleme
+const compileTemplate = (templateName, data) => {
+  const templatePath = path.join(__dirname, '..', 'templates', templateName);
+  const source = fs.readFileSync(templatePath, 'utf-8');
+  const template = handlebars.compile(source);
+  return template(data);
+}
+
+// E-posta gönderme fonksiyonu
+export const sendPasswordSetupEmail = async (email, token) => {
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.GMAIL_USER,
+      pass: process.env.GMAIL_APP_PASSWORD
+    }
+  });
+  
+  const resetLink = `${process.env.FRONTEND_URL}/set-password/${token}`;
+  const htmlContent = compileTemplate('passwordSetup.html', { resetLink });
+  
+  const mailOptions = {
+    from: process.env.GMAIL_USER,
+    to: email,
+    subject: 'Fitoly - Şifre Oluşturma Bağlantınız',
+    html: htmlContent
+  };
+  
+  try {
+    await transporter.sendMail(mailOptions);
+    return true;
+  } catch (error) {
+    console.error('E-posta gönderme hatası:', error);
+    throw error;
+  }
+};</pre>
+
+        <div class="note">
+            <strong>Not:</strong> E-posta gönderme işlemi için <code>.env</code> dosyasında <code>GMAIL_USER</code>,
+            <code>GMAIL_APP_PASSWORD</code> ve <code>FRONTEND_URL</code> değişkenlerinin doğru ayarlanması
+            gerekmektedir.
+        </div>
+
+        <h4>Şifre Belirleme E-posta Şablonu</h4>
+        <p><code>templates/passwordSetup.html</code> dosyası, yeni kullanıcılara gönderilen şifre belirleme e-postası
+            için HTML şablonudur. Bu şablonda kullanıcıya özel şifre belirleme bağlantısı yer alır.</p>
+
+        <h3 id="backend-endpoints">3.7. API Endpoint'leri</h3>
+        <p>API endpoint'leri, Swagger dokümantasyonunda detaylı olarak tanımlanmıştır. Swagger dokümantasyonuna
+            <code>http://localhost:5001/api-docs/</code> adresinden erişilebilir (backend sunucusu çalışırken).
+        </p>
+
+        <p>Önemli API endpoint grupları:</p>
+        <ul>
+            <li><strong>Auth Endpoints</strong>: <code>/login</code>, <code>/register</code>,
+                <code>/auth/setup-password/:token</code>
+            </li>
+            <li><strong>Student Endpoints</strong>: <code>/students</code>, <code>/students/:id</code></li>
+            <li><strong>Coach Endpoints</strong>: <code>/coaches</code>, <code>/coaches/:id</code></li>
+            <li><strong>Attendance Endpoints</strong>: <code>/attendance</code>, <code>/attendance/:id</code>,
+                <code>/attendance/student/:id</code>
+            </li>
+            <li><strong>User Endpoints</strong>: <code>/user/profile</code>, <code>/user/change-password</code></li>
+        </ul>
+
+        <p>Her API endpoint'i için şu bilgiler Swagger dokümantasyonunda bulunmaktadır:</p>
+        <ul>
+            <li>HTTP Metodu (GET, POST, PUT, DELETE)</li>
+            <li>URL ve gerekli parametreler</li>
+            <li>İstek gövdesi şeması (request body)</li>
+            <li>Yanıt şemaları (response schemas)</li>
+            <li>Yetkilendirme gereksinimleri</li>
+            <li>Olası hata kodları ve açıklamaları</li>
+        </ul>
+
+        <div class="image-placeholder">
+            [EKRAN GÖRÜNTÜSÜ: Swagger API Dokümantasyonu]
+        </div>
+    </section>
+
+    <section id="frontend">
+        <h2>4. Frontend (Next.js + React)</h2>
+
+        <p>Frontend, Next.js ve React kullanılarak geliştirilmiş bir modern web uygulamasıdır. Next.js'in sunduğu App
+            Router yapısı kullanılarak sayfalar oluşturulmuştur.</p>
+
+        <h3 id="frontend-folder-structure">4.1. Dosya ve Klasör Yapısı</h3>
+        <p>Frontend projesi, Next.js'in App Router yapısına uygun olarak organize edilmiştir:</p>
+
+        <ul>
+            <li><strong>app/</strong>: Uygulamanın tüm sayfa bileşenlerini içerir.</li>
+            <ul>
+                <li><strong>admin/</strong>: Admin rolü için sayfalar.</li>
+                <li><strong>coach/</strong>: Koç rolü için sayfalar.</li>
+                <li><strong>student/</strong>: Öğrenci rolü için sayfalar.</li>
+                <li><strong>login/</strong>, <strong>register/</strong>: Yetkilendirme sayfaları.</li>
+                <li><strong>unauthorized/</strong>: Yetkisiz erişim sayfası.</li>
+                <li><strong>set-password/</strong>: Şifre oluşturma sayfası.</li>
+            </ul>
+            <li><strong>components/</strong>: Yeniden kullanılabilir React bileşenleri.</li>
+            <li><strong>services/</strong>: Backend API ile entegrasyon için servisler.</li>
+        </ul>
+
+        <p>Bu yapı, roller bazında sayfalara ayrılmıştır ve her rol için ilgili fonksiyonaliteler ilgili klasörlerde
+            toplanmıştır.</p>
+
+        <h3 id="frontend-api">4.2. API İntegrasyonu</h3>
+        <p>Frontend'in backend API ile iletişimi, <code>src/services/api.js</code> dosyası aracılığıyla
+            gerçekleştirilir. Bu dosya, axios kütüphanesini kullanarak HTTP istekleri gönderir ve alır.</p>
+
+        <pre>
+// api.js temel yapısı
+import axios from 'axios';
+
+const API_URL = (process.env.NEXT_PUBLIC_API_URL || `http://localhost:5000`);
+
+// Axios instance oluşturma
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// İsteklere token ekleme
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Hata işleme
+api.interceptors.response.use(
+  (response) => response.data,
+  (error) => {
+    const { response } = error;
+    
+    // Token süresi dolmuşsa logout
+    if (response && response.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }
+    }
+    
+    return Promise.reject(
+      response?.data?.message || 'Something went wrong. Please try again.'
+    );
+  }
+);</pre>
+
+        <p>API servisi, farklı fonksiyonel alanlar için servis gruplarına ayrılmıştır:</p>
+
+        <pre>
+// Yetkilendirme servisleri
+export const authService = {
+  login: async (email, password) => { /* ... */ },
+  register: async (userData) => { /* ... */ },
+  logout: () => { /* ... */ },
+  getCurrentUser: () => { /* ... */ },
+  getToken: () => { /* ... */ },
+  isAuthenticated: () => { /* ... */ },
+  changePassword: async (currentPassword, newPassword) => { /* ... */ },
+  setupPassword: async (token, password) => { /* ... */ },
+  getProfile: async () => { /* ... */ }
+};
+
+// Öğrenci servisleri
+export const studentService = {
+  getAllStudents: async () => { /* ... */ },
+  getStudent: async (id) => { /* ... */ },
+  addStudent: async (studentData) => { /* ... */ },
+  updateStudent: async (id, studentData) => { /* ... */ },
+  deleteStudent: async (id) => { /* ... */ }
+};
+
+// Koç servisleri
+export const coachService = { /* ... */ };
+
+// Yoklama servisleri
+export const attendanceService = { /* ... */ };</pre>
+
+        <div class="note">
+            <strong>Not:</strong> Her bir API istekleri için, otomatik olarak isteklere JWT token'ı eklenir ve hata
+            durumunda uygun şekilde işlenir.
+        </div>
+
+        <h3 id="frontend-auth">4.3. Yetkilendirme ve Kimlik Doğrulama</h3>
+        <p>Frontend'de yetkilendirme ve kimlik doğrulama işlemleri, <code>AuthWrapper</code> bileşeni ve
+            <code>authService</code> aracılığıyla yönetilir.
+        </p>
+
+        <h4>AuthWrapper Bileşeni</h4>
+        <p><code>components/AuthWrapper.js</code> dosyası, erişim kontrolünü sağlayan bir Higher Order Component (HOC)
+            olarak çalışır:</p>
+
+        <pre>
+// AuthWrapper.js temel yapısı
+"use client";
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { authService } from '@/services/api';
+
+export default function AuthWrapper({ 
+  children, 
+  allowedRoles = [], 
+  redirectTo = '/login' 
+}) {
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [authorized, setAuthorized] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = () => {
+      // Kullanıcı giriş yapmış mı kontrolü
+      if (!authService.isAuthenticated()) {
+        setAuthorized(false);
+        router.push(redirectTo);
+        return;
+      }
+
+      // Rol kontrolü (eğer belirtilmişse)
+      if (allowedRoles.length > 0) {
+        const user = authService.getCurrentUser();
+        if (!user || !allowedRoles.includes(user.role)) {
+          setAuthorized(false);
+          router.push('/unauthorized');
+          return;
+        }
+      }
+
+      setAuthorized(true);
+    };
+
+    checkAuth();
+    setLoading(false);
+  }, [router, redirectTo, allowedRoles]);
+
+  // Yetkilendirme kontrolü sırasında yükleme gösterimi
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  // Yalnızca yetkili kullanıcılara içeriği göster
+  return authorized ? children : null;
+}</pre>
+
+        <p>Bu bileşen, her korumalı sayfaya sarılarak kullanılır ve şu kontrolleri gerçekleştirir:</p>
+        <ul>
+            <li>Kullanıcı giriş yapmış mı? (localStorage'da token var mı?)</li>
+            <li>Kullanıcı, sayfaya erişmek için gerekli role sahip mi?</li>
+            <li>Kimlik doğrulama başarısızsa, uygun yönlendirme (login veya unauthorized)</li>
+        </ul>
+
+        <h4>Kullanım Örneği</h4>
+        <pre>
+// Admin dashboard sayfası örneği
+"use client";
+import AuthWrapper from '@/components/AuthWrapper';
+import PageTemplate from '@/components/PageTemplate';
+
+export default function AdminDashboard() {
+  return (
+    &lt;AuthWrapper allowedRoles={['admin']}&gt;
+      &lt;PageTemplate&gt;
+        {/* Sayfa içeriği */}
+      &lt;/PageTemplate&gt;
+    &lt;/AuthWrapper&gt;
+  );
+}
+</pre>
+
+        <h3 id="frontend-components">4.4. Ana Bileşenler</h3>
+
+        <h4>PageTemplate</h4>
+        <p><code>components/PageTemplate.tsx</code>, tüm sayfalar için tutarlı bir yapı sağlayan bir şablon bileşenidir.
+            Kenar çubuğu, üst menü ve içerik alanlarını düzenler:</p>
+
+        <pre>
+// PageTemplate.tsx temel yapısı
+"use client";
+import { ReactNode } from 'react';
+import Sidebar from './Sidebar';
+
+interface PageTemplateProps {
+  children: ReactNode;
+  showSidebar?: boolean;
+}
+
+export default function PageTemplate({ 
+  children, 
+  showSidebar = true 
+}: PageTemplateProps) {
+  return (
+    <div className="flex h-screen bg-gray-100">
+      {showSidebar && <Sidebar />}
+      
+      <div className="flex-1 overflow-auto">
+        <main className="p-4">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}</pre>
+
+        <h4>Sidebar</h4>
+        <p><code>components/Sidebar.tsx</code>, uygulamanın gezinme menüsünü içeren kenar çubuğu bileşenidir. Rol bazlı
+            menü öğeleri gösterir:</p>
+
+        <pre>
+// Sidebar.tsx temel yapısı (basitleştirilmiş)
+"use client";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { authService, isAdmin, isCoach, isStudent } from '@/services/api';
+
+export default function Sidebar() {
+  const [user, setUser] = useState(null);
+  
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    setUser(currentUser);
+  }, []);
+  
+  return (
+    <div className="bg-gray-800 text-white w-64 flex flex-col h-full">
+      <div className="p-4">
+        <h1 className="text-2xl font-bold">Fitoly</h1>
+      </div>
+      
+      <nav className="flex-1">
+        <ul>
+          {/* Ortak menü öğeleri */}
+          <li><Link href="/settings">Ayarlar</Link></li>
+          
+          {isAdmin() && (
+              {/* Admin için menü öğeleri */}
+            
+          )}
+          
+          {isCoach() && (
+              {/* Koç için menü öğeleri */}
+          )}
+          
+          {isStudent() && (
+              {/* Öğrenci için menü öğeleri */}
+          )}
+          
+          {/* Çıkış butonu */}
+          <li>
+            &lt;button 
+              onClick={() =&gt; authService.logout()}
+              className="text-red-400" &gt;
+              Çıkış Yap
+            &lt;/button>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  );
+}</pre>
+
+        <div class="image-placeholder">
+            [EKRAN GÖRÜNTÜSÜ: Sidebar Bileşeni]
+        </div>
+
+        <h3 id="frontend-pages">4.5. Sayfalar</h3>
+        <p>Frontend uygulaması, farklı kullanıcı rolleri için çeşitli sayfalar içerir:</p>
+
+        <h4>Yetkilendirme Sayfaları</h4>
+        <ul>
+            <li><strong>login/</strong>: Kullanıcı giriş sayfası.</li>
+            <li><strong>register/</strong>: Yeni kullanıcı kaydı sayfası.</li>
+            <li><strong>set-password/</strong>: Şifre belirleme sayfası (e-posta bağlantısından sonra).</li>
+            <li><strong>unauthorized/</strong>: Yetkisiz erişim durumunda yönlendirilen sayfa.</li>
+        </ul>
+
+        <h4>Admin Sayfaları</h4>
+        <ul>
+            <li><strong>admin/dashboard/</strong>: Admin kontrol paneli.</li>
+            <li><strong>students-List/</strong>: Tüm öğrencileri listeleyen ve yönetme imkanı sunan sayfa.</li>
+            <li><strong>admin/coaches/</strong>: Koçları listeleyen ve yönetme imkanı sunan sayfa.</li>
+        </ul>
+
+        <h4>Koç Sayfaları</h4>
+        <ul>
+            <li><strong>coach/dashboard/</strong>: Koç kontrol paneli.</li>
+            <li><strong>students-List/</strong>: Koçun kendi öğrencilerini listeleyen sayfa.</li>
+            <li><strong>coach/attendance/</strong>: Öğrenci yoklama ve katılım kaydı tutma sayfası.</li>
+        </ul>
+
+        <h4>Öğrenci Sayfaları</h4>
+        <ul>
+            <li><strong>student/dashboard/</strong>: Öğrenci kontrol paneli.</li>
+            <li><strong>student/attendance/</strong>: Öğrencinin kendi katılım kayıtlarını görüntüleme sayfası.</li>
+        </ul>
+
+        <h4>Ortak Sayfalar</h4>
+        <ul>
+            <li><strong>settings/</strong>: Kullanıcı profil ve şifre ayarları sayfası.</li>
+        </ul>
+
+        <h3 id="frontend-ui">4.6. UI/UX Özellikleri</h3>
+        <p>Frontend uygulaması, kullanıcı deneyimini geliştirmek için çeşitli UI/UX özellikleri içerir:</p>
+
+        <ul>
+            <li><strong>Responsive Tasarım</strong>: Farklı ekran boyutlarına uyumlu arayüz.</li>
+            <li><strong>Tema ve Renk Şeması</strong>: Tutarlı bir görsel kimlik için mavi tonlu bir renk şeması.</li>
+            <li><strong>UI Bileşenleri</strong>: Formlar, tablolar, düğmeler ve bildirimler için özelleştirilmiş UI
+                bileşenleri.</li>
+            <li><strong>Rol Bazlı Gezinme</strong>: Kullanıcı rolüne göre özelleştirilmiş kenar çubuğu menüsü.</li>
+            <li><strong>Form Doğrulama</strong>: Kullanıcı girişlerinin kontrolü ve uygun hata mesajları.</li>
+            <li><strong>Yükleme Göstergeleri</strong>: Uzun süren işlemler için kullanıcı geri bildirimi.</li>
+        </ul>
+
+        <div class="image-placeholder">
+            [EKRAN GÖRÜNTÜSÜ: Öğrenci Listesi Sayfası]
+        </div>
+
+        <div class="image-placeholder">
+            [EKRAN GÖRÜNTÜSÜ: Yoklama Kayıt Sayfası]
+        </div>
+    </section>
+
+    <section id="database">
+        <h2>5. Veritabanı (PostgreSQL + Prisma ORM)</h2>
+
+        <p>Proje, veritabanı yönetim sistemi olarak PostgreSQL kullanmakta ve veritabanı işlemlerini Prisma ORM
+            aracılığıyla gerçekleştirmektedir.</p>
+
+        <h3 id="database-schema">5.1. Şema ve Tablolar</h3>
+        <p>Veritabanı şeması, <code>server/prisma/schema.prisma</code> dosyasında tanımlanmıştır. Temel tablolar
+            şunlardır:</p>
+
+        <h4>Role Tablosu</h4>
+        <pre>
+model Role {
+  id       Int    @id @default(autoincrement()) @map("role_id")
+  roleName String @map("role_name")
+  users    User[]
+}</pre>
+        <p>Bu tablo, sistemdeki kullanıcı rollerini (admin, coach, student) tanımlar.</p>
+
+        <h4>Gender Tablosu</h4>
+        <pre>
+model Gender {
+  id         Int    @id @default(autoincrement()) @map("gender_id")
+  genderName String @map("gender_name")
+  users      User[]
+}</pre>
+        <p>Bu tablo, kullanıcı cinsiyetlerini (erkek, kadın) tanımlar.</p>
+
+        <h4>User Tablosu</h4>
+        <pre>
+model User {
+  id                      Int            @id @default(autoincrement())
+  firstName              String?
+  lastName               String?
+  email                  String         @unique
+  password               String?        // Opsiyonel, e-posta aktivasyonu için
+  birthDate             String?
+  parentName            String?
+  parentPhone           String?
+  role                   Role           @relation(fields: [roleId], references: [id])
+  roleId                 Int            @map("role_id")
+  gender                 Gender?        @relation(fields: [genderId], references: [id])
+  genderId               Int?           @map("gender_id")
+  profileImage           String?        // NULL olabilir
+  active                 Boolean        @default(false)
+  passwordResetToken     String?        // Şifre belirleme/sıfırlama için
+  passwordResetExpires   DateTime?      // Token süresi
+  passwordChangedAt      DateTime       @default(now())
+  preferences            Json?
+  notificationPreferences Json?
+  attendanceLogs         AttendanceLog[]
+
+  // Farklı roller için ilişkiler
+  coachClasses          ClassCoach[]    @relation("CoachClasses")
+  studentClasses        ClassStudent[]  @relation("StudentClasses")
+
+  // Öğrenciye özel alanlar
+  notes                 String?
+  startDate             DateTime?
+  performanceNotes      Json?
+
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+}</pre>
+        <p>Bu tablo, sistemdeki tüm kullanıcıları (admin, koç, öğrenci) saklar. Role alanına göre kullanıcının rolü
+            belirlenir.</p>
+
+        <h4>AttendanceLog Tablosu</h4>
+        <pre>
+model AttendanceLog {
+  id         Int      @id @default(autoincrement())
+  student    User     @relation(fields: [studentId], references: [id])
+  studentId  Int      @map("student_id")
+  date       DateTime @default(now())
+  status     String   // attended, not_attended, with_report, day_off
+  note       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}</pre>
+        <p>Bu tablo, öğrencilerin yoklama/katılım kayıtlarını tutar. Katılım durumu, tarih ve notlar gibi bilgileri
+            içerir.</p>
+
+        <h4>Henüz Aktif Kullanılmayan Tablolar</h4>
+        <p>Aşağıdaki tablolar şema içinde tanımlanmış ancak henüz uygulamada aktif olarak kullanılmamaktadır. Gelecek
+            geliştirmeler için hazırdır:</p>
+
+        <h5>Sport Tablosu</h5>
+        <pre>
+model Sport {
+  id        Int      @id @default(autoincrement())
+  sportName String   @map("sport_name")
+  classes   Class[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}</pre>
+        <p>Bu tablo, sistemde tanımlı sporları (futbol, basketbol vb.) saklamak için tasarlanmıştır.</p>
+
+        <h5>Class Tablosu</h5>
+        <pre>
+model Class {
+  id            Int             @id @default(autoincrement())
+  sportId       Int            @map("sport_id")
+  section       String
+  sport         Sport          @relation(fields: [sportId], references: [id])
+  coaches       ClassCoach[]
+  students      ClassStudent[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}</pre>
+        <p>Bu tablo, bir spor dalı ve şubeden oluşan sınıfları tanımlamak için tasarlanmıştır.</p>
+
+        <h5>ClassCoach Tablosu</h5>
+        <pre>
+model ClassCoach {
+  id        Int      @id @default(autoincrement())
+  classId   Int      @map("class_id")
+  coachId   Int      @map("coach_id")
+  class     Class    @relation(fields: [classId], references: [id])
+  coach     User     @relation("CoachClasses", fields: [coachId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, coachId])
+}</pre>
+        <p>Bu tablo, sınıflar ve koçlar arasındaki ilişkiyi tanımlar (hangi koç hangi sınıfı yönetiyor).</p>
+
+        <h5>ClassStudent Tablosu</h5>
+        <pre>
+model ClassStudent {
+  id        Int      @id @default(autoincrement())
+  classId   Int      @map("class_id")
+  studentId Int      @map("student_id")
+  class     Class    @relation(fields: [classId], references: [id])
+  student   User     @relation("StudentClasses", fields: [studentId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([classId, studentId])
+}</pre>
+        <p>Bu tablo, sınıflar ve öğrenciler arasındaki ilişkiyi tanımlar (hangi öğrenci hangi sınıfta).</p>
+
+        <h3 id="database-relations">5.2. Tablo İlişkileri</h3>
+        <p>Veritabanı tablolarının aralarında çeşitli ilişkiler bulunmaktadır:</p>
+
+        <ul>
+            <li><strong>User → Role</strong>: Her kullanıcının bir rolü vardır (1:N ilişkisi).</li>
+            <li><strong>User → Gender</strong>: Her kullanıcı bir cinsiyete sahiptir (1:N ilişkisi).</li>
+            <li><strong>User → AttendanceLog</strong>: Bir öğrenci birden çok yoklama kaydına sahip olabilir (1:N
+                ilişkisi).</li>
+            <li><strong>Class → Sport</strong>: Her sınıf bir spor dalına aittir (1:N ilişkisi).</li>
+            <li><strong>Class ↔ User (Coach)</strong>: Koçlar ve sınıflar arasındaki çoka çok ilişki (ClassCoach ara
+                tablosu ile).</li>
+            <li><strong>Class ↔ User (Student)</strong>: Öğrenciler ve sınıflar arasındaki çoka çok ilişki (ClassStudent
+                ara tablosu ile).</li>
+        </ul>
+
+        <div class="diagram-placeholder mermaid">
+            [DİYAGRAM: Veritabanı ER Diyagramı - Tablolar ve İlişkileri]
+        </div>
+
+        <h3 id="database-migrations">5.3. Migrations</h3>
+        <p><code>server/prisma/migrations/</code> klasörü, veritabanı şema değişikliklerini kayıt altına alan migration
+            dosyalarını içerir. Her bir migration, belirli bir zamanda yapılan şema değişikliklerini temsil eder.</p>
+
+        <p>Migration dosyaları iki önemli işlevi yerine getirir:</p>
+        <ol>
+            <li>Veritabanı şemasını güncel tutmak ve sürüm kontrolü sağlamak.</li>
+            <li>Yeni bir veritabanı kurulumunda örnek veri eklemek.</li>
+        </ol>
+
+        <div class="note">
+            <strong>Not:</strong> <code>server/prisma/migrations</code> klasöründeki .sql dosyaları önemlidir. Bu
+            dosyalar hem veritabanı şemasını oluşturur hem de örnek veri ekler. Bir migration dosyasını çalıştırmadan
+            önce içindeki yorum satırlarını mutlaka okuyunuz.
+        </div>
+
+        <h3 id="database-prisma">5.4. Prisma ORM Kullanımı</h3>
+        <p>Proje, veritabanı işlemleri için Prisma ORM'i kullanır. Prisma, controller fonksiyonlarında veritabanı
+            işlemlerini gerçekleştirmek için kullanılır.</p>
+
+        <h4>Temel Prisma İşlemleri</h4>
+
+        <p><strong>Veri Okuma:</strong></p>
+        <pre>
+// Tüm öğrencileri getirme
+const students = await prisma.user.findMany({
+  where: {
+    roleId: 3 // student role
+  },
+  include: {
+    gender: true
+  }
+});</pre>
+
+        <p><strong>Veri Ekleme:</strong></p>
+        <pre>
+// Yeni öğrenci oluşturma
+const newStudent = await prisma.user.create({
+  data: {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    roleId: 3, // student role
+    genderId: data.genderId,
+    birthDate: data.birthDate,
+    parentName: data.parentName,
+    parentPhone: data.parentPhone
+  }
+});</pre>
+
+        <p><strong>Veri Güncelleme:</strong></p>
+        <pre>
+// Öğrenci bilgilerini güncelleme
+const updatedStudent = await prisma.user.update({
+  where: { id: id },
+  data: {
+    firstName: data.firstName,
+    lastName: data.lastName,
+    // ... diğer alanlar
+  }
+});</pre>
+
+        <p><strong>Veri Silme:</strong></p>
+        <pre>
+// Öğrenci silme
+await prisma.user.delete({
+  where: { id: id }
+});</pre>
+
+        <p><strong>İlişkili Veriler:</strong></p>
+        <pre>
+// Öğrencinin yoklama kayıtlarını getirme
+const attendanceLogs = await prisma.attendanceLog.findMany({
+  where: { studentId: studentId },
+  orderBy: {
+    date: 'desc'
+  }
+});</pre>
+
+        <div class="note">
+            <strong>Not:</strong> Veritabanında yapılan değişiklikler Prisma ile entegre edildiğinde, veritabanı içeriği
+            silinebilir. Bu risk göz önünde bulundurulmalıdır. Önemli verilerin düzenli olarak yedeklenmesi önerilir.
+        </div>
+
+        <h4>Prisma Client Kullanımı</h4>
+        <p>Prisma Client, JavaScript/TypeScript ile veritabanına erişim sağlayan ve tip güvenliği sunan bir
+            kütüphanedir. Controller dosyalarında şu şekilde kullanılır:</p>
+
+        <pre>
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();</pre>
+
+        <p>Bu şekilde oluşturulan prisma nesnesi, veritabanı işlemleri için kullanılır. Prisma Client, her bir modele
+            erişim için ilgili özellikleri sağlar (örn: <code>prisma.user</code>, <code>prisma.attendanceLog</code>.</p>
+    </section>
+
+    <section id="security">
+        <h2>6. Güvenlik ve En İyi Uygulamalar</h2>
+
+        <p>Uygulama, çeşitli güvenlik önlemleri ve en iyi uygulamalar içerir. Bu bölümde, projenin güvenlik mimarisi
+            detaylı olarak incelenecektir.</p>
+
+        <h3 id="security-auth">6.1. Yetkilendirme ve Kimlik Doğrulama</h3>
+        <p>Uygulama, JSON Web Token (JWT) tabanlı bir yetkilendirme ve kimlik doğrulama sistemi kullanır.</p>
+
+        <h4>Token Tabanlı Kimlik Doğrulama</h4>
+        <p>JWT token'ları, kullanıcı kimliğini doğrulamak ve oturum bilgilerini güvenli bir şekilde saklamak için
+            kullanılır. Bu yaklaşımın avantajları:</p>
+        <ul>
+            <li>Durumsuz (stateless) kimlik doğrulaması: Sunucu tarafında oturum verisi saklamaya gerek yoktur.</li>
+            <li>Ölçeklenebilirlik: Birden fazla sunucu kullanıldığında bile sorunsuz çalışır.</li>
+            <li>İmzalı token'lar ile veri bütünlüğünün korunması.</li>
+        </ul>
+
+        <h4>Katmanlı Güvenlik Yaklaşımı</h4>
+        <p>Güvenlik, uygulama içinde çeşitli katmanlarda uygulanır:</p>
+        <ol>
+            <li><strong>Backend Middleware Katmanı:</strong> <code>authenticate</code> ve <code>authorize</code>
+                middleware'leri.</li>
+            <li><strong>Frontend Route Koruması:</strong> <code>AuthWrapper</code> bileşeni ile sayfa erişim kontrolü.
+            </li>
+            <li><strong>API İsteği Katmanı:</strong> axios interceptors ile otomatik token ekleme ve hata işleme.</li>
+        </ol>
+
+        <div class="diagram-placeholder mermaid">
+            <!-- Otomatik olarak doldurulacak -->
+        </div>
+
+        <h3 id="security-passwords">6.2. Şifresiz Kayıt Sistemi</h3>
+        <p>Uygulama, güvenli bir şifresiz kayıt akışı kullanır. Bu sistemin tercih edilme nedenleri:</p>
+
+        <ul>
+            <li><strong>Güvenlik:</strong> Kullanıcılar tarafından zayıf şifre oluşturulma riskini azaltır.</li>
+            <li><strong>Doğrulanmış E-posta:</strong> Kullanıcı e-postasının gerçekten ona ait olduğunu doğrular.</li>
+            <li><strong>Kullanıcı Deneyimi:</strong> Admin tarafından hızlıca kullanıcı eklenebilir, kullanıcı kendi
+                şifresini belirleme esnekliğine sahip olur.</li>
+        </ul>
+
+        <h4>Şifresiz Kayıt Akışı</h4>
+        <ol>
+            <li>Admin/Yetkili, kullanıcıyı (öğrenci veya koç) sisteme e-posta ve diğer gerekli bilgilerle ekler.</li>
+            <li>Sistem, kullanıcı için benzersiz bir şifre belirleme token'ı oluşturur ve e-posta ile kullanıcıya
+                gönderir.</li>
+            <li>Kullanıcı, e-postadaki bağlantıya tıklayarak şifre belirleme sayfasına yönlendirilir.</li>
+            <li>Kullanıcı, kendi şifresini oluşturur ve sistem aktif kullanıcı olarak işaretler.</li>
+        </ol>
+
+        <h4>E-posta Güvenliği</h4>
+        <p>Şifre belirleme bağlantısı güvenliği için alınan önlemler:</p>
+        <ul>
+            <li><strong>Sınırlı Süre:</strong> Token'lar 24 saat süreyle geçerlidir.</li>
+            <li><strong>Tek Kullanımlık:</strong> Şifre belirlendikten sonra token geçersiz olur.</li>
+            <li><strong>Güvenli İletişim:</strong> HTTPS üzerinden bağlantı sağlanır.</li>
+        </ul>
+
+        <h3 id="security-tokens">6.3. Token Yönetimi</h3>
+        <p>JWT token'larının güvenli bir şekilde yönetilmesi için çeşitli önlemler alınmıştır:</p>
+
+        <h4>Token İçeriği</h4>
+        <pre>
+// Token payload örneği
+{
+  "id": 123,
+  "email": "kullanici@ornek.com",
+  "role": "admin",
+  "tokenCreatedAt": "2023-06-01T10:00:00.000Z",
+  "iat": 1685613600,
+  "exp": 1685700000
+}</pre>
+
+        <h4>Token Güvenlik Önlemleri</h4>
+        <ul>
+            <li><strong>Şifre Değiştiğinde Geçersizleştirme:</strong> Kullanıcı şifresini değiştirdiğinde, eski
+                token'ların geçersiz olması için kontrol mekanizması.</li>
+            <li><strong>Sınırlı Geçerlilik Süresi:</strong> Token'lar 24 saat sonra otomatik olarak geçersiz olur.</li>
+            <li><strong>JWT Secret:</strong> Token imzalama için güçlü ve benzersiz bir anahtar (JWT_SECRET) kullanımı.
+            </li>
+        </ul>
+
+        <h3 id="security-best-practices">6.4. Güvenlik Önerileri</h3>
+        <p>Güvenliği daha da artırmak için aşağıdaki öneriler dikkate alınmalıdır:</p>
+
+        <ul>
+            <li><strong>JWT_SECRET:</strong> Üretim ortamında güçlü, benzersiz ve en az 32 karakter uzunluğunda bir
+                JWT_SECRET kullanın.</li>
+            <li><strong>Token Süresi:</strong> Üretim ortamında token süresini ihtiyaca göre ayarlayın (genellikle 1-24
+                saat önerilir).</li>
+            <li><strong>Rate Limiting:</strong> Brute force saldırılarını önlemek için oturum açma denemelerini
+                sınırlayın.</li>
+            <li><strong>HTTPS:</strong> Tüm iletişimin HTTPS üzerinden gerçekleşmesini sağlayın.</li>
+            <li><strong>Veri Doğrulama:</strong> Tüm kullanıcı girdilerini hem frontend hem de backend'de doğrulayın.
+            </li>
+            <li><strong>Güncel Bağımlılıklar:</strong> Güvenlik açıklarını önlemek için npm paketlerini düzenli olarak
+                güncelleyin.</li>
+        </ul>
+    </section>
+
+    <section id="technologies">
+        <h2>8. Kullanılan Teknolojiler ve Kütüphaneler</h2>
+
+        <h3>Programlama Dilleri</h3>
+        <ul>
+            <li><strong>JavaScript (ES6+)</strong>: Backend ve frontend geliştirme için temel dil.</li>
+            <li><strong>TypeScript</strong>: Frontend'de tip güvenliği sağlamak için kullanılmıştır.</li>
+            <li><strong>SQL</strong>: Veritabanı sorguları ve migrations için kullanılmıştır.</li>
+            <li><strong>HTML/CSS</strong>: Frontend arayüz geliştirmesi için kullanılmıştır.</li>
+        </ul>
+
+        <h3>Frontend Teknolojileri</h3>
+        <ul>
+            <li><strong>Next.js 13+ (App Router)</strong>: React tabanlı bir web çerçevesi, sayfa yönlendirme ve sunucu
+                tarafı işlemler için kullanılır.</li>
+            <li><strong>React 18+</strong>: Kullanıcı arayüzü oluşturmak için JavaScript kütüphanesi.</li>
+            <li><strong>TailwindCSS</strong>: Utility-first CSS çerçevesi, hızlı ve tutarlı UI geliştirme sağlar.</li>
+            <li><strong>Axios</strong>: HTTP istekleri için Promise tabanlı istemci.</li>
+        </ul>
+
+        <h3>Backend Teknolojileri</h3>
+        <ul>
+            <li><strong>Node.js</strong>: JavaScript runtime ortamı, sunucu tarafı uygulama çalıştırmak için kullanılır.
+            </li>
+            <li><strong>Express.js</strong>: Node.js için web uygulama çerçevesi, API endpoint'lerini tanımlar.</li>
+            <li><strong>Prisma ORM</strong>: TypeScript ve Node.js için bir ORM, veritabanı işlemlerini kolaylaştırır.
+            </li>
+            <li><strong>PostgreSQL</strong>: İlişkisel veritabanı yönetim sistemi.</li>
+            <li><strong>JSON Web Token (JWT)</strong>: Güvenli kimlik doğrulama ve yetkilendirme için.</li>
+        </ul>
+
+        <h3>Yardımcı Kütüphaneler</h3>
+        <ul>
+            <li><strong>bcrypt</strong>: Şifre hash'leme için güvenli kütüphane.</li>
+            <li><strong>nodemailer</strong>: Node.js uygulamalarından e-posta göndermek için.</li>
+            <li><strong>dotenv</strong>: Ortam değişkenlerini .env dosyasından yüklemek için.</li>
+            <li><strong>cors</strong>: Cross-Origin Resource Sharing politikalarını yönetmek için.</li>
+            <li><strong>swagger-ui-express</strong>: API dokümantasyonu oluşturmak için.</li>
+            <li><strong>nodemon</strong>: Geliştirme sırasında sunucu yeniden başlatma işlemlerini otomatikleştirmek
+                için.</li>
+        </ul>
+
+        <h3>Geliştirme ve Test Araçları</h3>
+        <ul>
+            <li><strong>Thunder Client</strong>: API endpoint'lerini test etmek için VS Code eklentisi.</li>
+            <li><strong>ESLint</strong>: JavaScript/TypeScript kod kalitesini kontrol etmek için.</li>
+            <li><strong>Prettier</strong>: Kod formatını düzenlemek için.</li>
+            <li><strong>Git</strong>: Sürüm kontrolü için.</li>
+        </ul>
+
+        <div class="image-placeholder">
+            [GÖRSEL: Kullanılan Teknolojiler ve Logoları]
+        </div>
+
+        <div class="diagram-placeholder">
+            [DİYAGRAM: Teknolojiler Arası İlişkiler]
+        </div>
+    </section>
+
+    <section id="warnings">
+        <h2>7. Uyarılar ve Öneriler</h2>
+
+        <div class="warning">
+            <h3>Genel Uyarılar</h3>
+            <ul>
+                <li><strong>.env Dosyası:</strong> .env dosyaları mutlaka kontrol edilmelidir. Portlar doğru şekilde
+                    ayarlanmazsa uygulama çalışmayacaktır (backend 5001 portunda, frontend 3000 portunda çalışıyor).
+                </li>
+                <li><strong>Ağ Kısıtlamaları:</strong> Eğer internet ağı okul, kafe veya iş yeri gibi ortak bir Wi-Fi
+                    ağıysa, veritabanı bağlantısında sorunlar yaşanabilir. Normal Wi-Fi'ye bağlanmak veya VPN kullanmak
+                    önerilir.</li>
+                <li><strong>IDE Seçimi:</strong> Projeyi geliştirmek için VS Code veya VS Code tabanlı IDE'ler tercih
+                    edilmelidir.</li>
+                <li><strong>Özellik Eklerken:</strong> Uygulamaya yeni bir sayfa, model veya özellik eklenecekse,
+                    geliştirme işlemine öncelikle backend tarafından başlanması tavsiye edilir.</li>
+            </ul>
+        </div>
+
+        <h3>Backend Geliştiricileri İçin</h3>
+        <ul>
+            <li>Sadece server klasörü içinde çalışılması yeterlidir.</li>
+            <li>Backend geliştiricisi, veritabanı tasarımıyla da ilgilenmelidir.</li>
+            <li>Backend'i test etmek için aşağıdaki komutlarla sadece server klasöründeki projeyi çalıştırabilirsiniz:
+                <pre>cd server
+npm run dev</pre>
+            </li>
+            <li>Endpoint'leri kolayca test etmek için Thunder Client eklentisi önerilir.</li>
+            <li>Eğer request'e token eklemek istenirse:
+                <ul>
+                    <li>"Headers" sekmesine gidin ve yeni bir "header" ekleyin</li>
+                    <li>Key: Authorization</li>
+                    <li>Value: Bearer TOKEN_YAZINIZ_BURAYA (Örnek: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6Ikp...)</li>
+                </ul>
+            </li>
+            <li>Veritabanında bir değişiklik yapılırken Prisma ile entegrasyon sağlandığında, veritabanı içeriği
+                silinebilir. Lütfen bu riski dikkate alınız.</li>
+            <li>server/prisma/migrations klasörü düzenli olarak kontrol edilmelidir. Bu klasörde:
+                <ul>
+                    <li>En güncel veritabanı yapısını oluşturan .sql dosyaları yer almaktadır.</li>
+                    <li>Ayrıca örnek veri ekleyen sorgular da bulunur.</li>
+                    <li>Dosyaları çalıştırmadan önce yorum satırlarını mutlaka okuyunuz.</li>
+                </ul>
+            </li>
+            <li>.env dosyası içinde yer alan şu değişkenlerin değerleri güncellenmelidir:
+                <ul>
+                    <li>DATABASE_URL</li>
+                    <li>GMAIL_USER</li>
+                    <li>GMAIL_APP_PASSWORD</li>
+                </ul>
+            </li>
+            <li>Yeni bir endpoint tanımlandığında Swagger dökümantasyonuna da entegre edilmelidir. Bu frontend
+                geliştiricilerinin endpoint'leri daha kolay kullanabilmesini sağlar.</li>
+        </ul>
+
+        <h3>Frontend Geliştiricileri İçin</h3>
+        <ul>
+            <li>Sadece client klasöründe değişiklik yapılması gerekmektedir.</li>
+            <li>Her sayfanın kodu, ait olduğu role ve amaca göre uygun klasöre yerleştirilmiştir, örneğin:
+                <ul>
+                    <li>Admin dashboard sayfası: app/admin/dashboard/page.tsx</li>
+                    <li>Koç yoklama sayfası: app/coach/attendance/page.tsx</li>
+                </ul>
+            </li>
+            <li>Ortak olan sayfalar rol klasörü içine koyulmamıştır, örneğin:
+                <ul>
+                    <li>Login: app/login/page.tsx</li>
+                    <li>Register: app/register/page.tsx</li>
+                    <li>Settings: app/settings/page.tsx</li>
+                    <li>Student List (admin ve koç için ortak): app/students-List/page.tsx</li>
+                </ul>
+            </li>
+            <li>Endpoint'ler client/services/api.js dosyasında tanımlanmalıdır.
+                <ul>
+                    <li>Backend'de yeni bir endpoint eklendiğinde bu dosyaya mutlaka eklenmelidir.</li>
+                </ul>
+            </li>
+            <li>Tüm endpoint detaylarını öğrenmek için backend geliştiricisinden Swagger dökümantasyonu istenmelidir.
+            </li>
+            <li>Geliştirme sırasında hem frontend hem de backend tarafının çalışması gerekir.
+                <ul>
+                    <li>Kolay başlatmak için start.bat dosyası çalıştırılabilir.</li>
+                </ul>
+            </li>
+            <li>Güvenlik amacıyla bazı sayfalar <code>&lt;AuthWrapper&gt;</code> bileşeni ile korunmuştur.</li>
+            <li>Sayfalarda arka plan ve kenar menüsü (sidebar) ayarları için <code>&lt;PageTemplate&gt;</code> bileşeni
+                kullanılmıştır.</li>
+            <li>Dolayısıyla yeni sayfalar oluşturulurken, bu sayfaların <code>&lt;AuthWrapper&gt;</code> ve
+                <code>&lt;PageTemplate&gt;</code> bileşenleri içinde yer alıp almayacağı değerlendirilmelidir.
+            </li>
+            <li>Yeni sayfalar tasarlanırken genel tema uyumuna dikkat edilmelidir.
+                <ul>
+                    <li>Tema yapısında değişiklik kararı alınmadığı sürece mevcut tasarım korunmalıdır.</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h3>Ek Uyarılar</h3>
+        <ul>
+            <li>Projeyi ilk indirdiğinizde <code>setup.bat</code> dosyası çalıştırılmalıdır (hem frontend hem de backend
+                paketlerini yüklemek için).</li>
+            <li>Projenin hem frontend hem de backend taraflarını tek bir komutla çalıştırmak için <code>start.bat</code>
+                dosyasını çalıştırmak yeterlidir.</li>
+            <li>Veritabanı bağlantı ayarlarını kontrol edin ve gerekirse PostgreSQL servisinin çalışır durumda
+                olduğundan emin olun.</li>
+            <li>Şifre sıfırlama işlemi için belirlenen token süresi mümkün olduğunca kısa tutulmalıdır.</li>
+            <li>Uygulama, kullanıcı verilerinin güvenliğini sağlamak amacıyla şifre hash'leme ve güvenli oturum yönetimi
+                kullanır.</li>
+        </ul>
+    </section>
+
+    <section id="next-steps">
+        <h2>9. Gelecek Adımlar</h2>
+
+        <p>Proje için planlanan gelecek geliştirme adımları şunlardır:</p>
+
+        <h3>Veri Modeli Genişletme</h3>
+        <ul>
+            <li>Şu an kullanılmayan tabloların (sports, classes, classes_coaches, classes_students) entegrasyonu.</li>
+            <li>Bu tablolar için gerekli endpoint'lerin yazılması ve frontend entegrasyonu.</li>
+            <li>Sınıfların bir spor ve şube temsil etmesi için gerekli düzenlemeler.</li>
+        </ul>
+
+        <h3>Rol Tabanlı Görünürlük</h3>
+        <ul>
+            <li>Koçların sadece kendi öğrencilerini görebilmesi için filtreleme mekanizması.</li>
+            <li>Öğrencilerin sadece kendi bilgilerine erişebilmesi.</li>
+        </ul>
+
+        <h3>Admin Panel Geliştirmeleri</h3>
+        <ul>
+            <li>Abonelik ve ödeme sisteminin eklenmesi.</li>
+            <li>Daha detaylı raporlama araçları.</li>
+            <li>Toplu işlem yapabilme özellikleri (örn. birden fazla öğrenciyi aynı sınıfa ekleme).</li>
+        </ul>
+
+        <h3>Kullanıcı Deneyimi İyileştirmeleri</h3>
+        <ul>
+            <li>Türkçe dili eklenmesi (şu an sadece İngilizce arayüz bulunmaktadır).</li>
+            <li>404 not found sayfası tanımlama (sayfa bulunamadığında gösterilecek özel sayfa).</li>
+            <li>Mobil uyumluluk iyileştirmeleri.</li>
+        </ul>
+
+        <h3>Güvenlik ve Yetkilendirme İyileştirmeleri</h3>
+        <ul>
+            <li>"Şifremi unuttum" özelliği eklemek ve bunun için ayrı bir HTML e-posta şablonu oluşturmak
+                (<code>SetPassword</code> sayfasından ve <code>/auth/setup-password/:token</code> endpoint'inden
+                yararlanılabilir).</li>
+            <li>İki faktörlü kimlik doğrulama eklenmesi.</li>
+            <li>Oturum süresi ve güvenlik ayarlarını kullanıcı bazında özelleştirebilme.</li>
+        </ul>
+
+        <h3>Teknik Borç Azaltma</h3>
+        <ul>
+            <li>Kod tabanının refactor edilmesi ve tekrar eden kodların azaltılması.</li>
+            <li>Daha kapsamlı hata işleme ve loglama mekanizmalarının eklenmesi.</li>
+            <li>Birim testlerin ve entegrasyon testlerinin eklenmesi.</li>
+        </ul>
+    </section>
+    
+    <script>
+        // Sayfa yüklendiğinde diyagramları ekle
+        window.onload = function() {
+            insertDiagramsToPlaceholders();
+            
+            // HTML tabanlı teknoloji akış diyagramını oluştur
+            const techDiagramPlaceholder = document.querySelector('section#technologies .diagram-placeholder');
+            if (techDiagramPlaceholder) {
+                techDiagramPlaceholder.innerHTML = `
+                    <div class="tech-flow-diagram">
+                        <div class="tech-node">
+                            <div class="tech-node-title">Kullanıcı</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Kullanıcı" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Client</div>
+                            <div class="tech-logo-container">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1200px-React-icon.svg.png" alt="React" class="tech-logo">
+                                <img src="https://cdn.worldvectorlogo.com/logos/next-js.svg" alt="Next.js" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">API Service</div>
+                            <div class="tech-logo-container">
+                                <img src="https://axios-http.com/assets/logo.svg" alt="Axios" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Authentication</div>
+                            <div class="tech-logo-container">
+                                <img src="https://jwt.io/img/pic_logo.svg" alt="JWT" class="tech-logo">
+                                <img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/expressjs_logo_icon_169185.png" alt="Express" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Database</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn.worldvectorlogo.com/logos/prisma-2.svg" alt="Prisma" class="tech-logo">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/1200px-Postgresql_elephant.svg.png" alt="PostgreSQL" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Response</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/136/136525.png" alt="JSON" class="tech-logo">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Güvenlik diyagramını oluştur
+            const securityDiagramPlaceholder = document.querySelector('section#security .diagram-placeholder.mermaid');
+            if (securityDiagramPlaceholder) {
+                securityDiagramPlaceholder.className = "diagram-placeholder"; // mermaid sınıfını kaldır
+                securityDiagramPlaceholder.innerHTML = `
+                    <div class="tech-flow-diagram">
+                        <div class="tech-node">
+                            <div class="tech-node-title">Kullanıcı</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Kullanıcı" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">AuthWrapper</div>
+                            <div class="tech-logo-container">
+                                <img src="icons/auth-icon.svg" alt="Auth" class="tech-logo" onerror="this.src='https://img.icons8.com/material-outlined/96/000000/lock--v1.png'; this.onerror=null;">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">JWT Token</div>
+                            <div class="tech-logo-container">
+                                <img src="https://jwt.io/img/pic_logo.svg" alt="JWT" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Authenticate</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/5509/5509602.png" alt="Authenticate" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Authorize</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1791/1791961.png" alt="Authorize" class="tech-logo">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // HTTP İstek Akışı diyagramını oluştur
+            const requestFlowDiagramPlaceholder = document.querySelector('section#backend .diagram-placeholder:first-of-type');
+            if (requestFlowDiagramPlaceholder) {
+                requestFlowDiagramPlaceholder.innerHTML = `
+                    <div class="tech-flow-diagram">
+                        <div class="tech-node">
+                            <div class="tech-node-title">İstemci</div>
+                            <div class="tech-logo-container">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/React-icon.svg/1200px-React-icon.svg.png" alt="React" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">API Service</div>
+                            <div class="tech-logo-container">
+                                <img src="https://axios-http.com/assets/logo.svg" alt="Axios" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Express Router</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn.icon-icons.com/icons2/2699/PNG/512/expressjs_logo_icon_169185.png" alt="Express" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Authenticate</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/5509/5509602.png" alt="Authenticate" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Authorize</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/1791/1791961.png" alt="Authorize" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Controller</div>
+                            <div class="tech-logo-container">
+                                <img src="https://cdn-icons-png.flaticon.com/512/5956/5956592.png" alt="Controller" class="tech-logo">
+                            </div>
+                        </div>
+                        
+                        <div class="tech-arrow">→</div>
+                        
+                        <div class="tech-node">
+                            <div class="tech-node-title">Veritabanı</div>
+                            <div class="tech-logo-container">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Postgresql_elephant.svg/1200px-Postgresql_elephant.svg.png" alt="PostgreSQL" class="tech-logo">
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Veritabanı ilişki diyagramını oluştur
+            const dbDiagramPlaceholder = document.querySelector('section#database .diagram-placeholder');
+            if (dbDiagramPlaceholder) {
+                dbDiagramPlaceholder.innerHTML = `
+                    
+sequenceDiagram
+    participant Client as İstemci
+    participant Components as React Bileşenleri
+    participant API as API Servisi
+    participant Router as Express Router
+    participant Auth as Authenticate Middleware
+    participant Role as Authorize Middleware
+    participant Controller as Controller
+    participant Prisma as Prisma ORM
+    participant DB as PostgreSQL
+    
+    Client->>Components: Kullanıcı İsteği
+    Components->>API: HTTP İsteği
+    API->>Router: İstek Yönlendirme
+    Router->>Auth: Kimlik Doğrulama
+    Auth->>Role: Yetki Kontrolü
+    Role->>Controller: İş Mantığı İşleme
+    Controller->>Prisma: Veri İşlemi
+    Prisma->>DB: SQL Sorgusu
+    DB->>Prisma: Veri Dönüşü
+    Prisma->>Controller: İşlenmiş Veri
+    Controller->>API: Yanıt
+    API->>Components: JSON Yanıt
+    Components->>Client: UI Güncelleme
+                `;
+            }
+        };
+    </script>
+</body>
+
+</html>

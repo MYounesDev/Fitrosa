@@ -1,0 +1,8 @@
+        .diagram-placeholder {
+        .diagram-placeholder.mermaid {
+        <div class="diagram-placeholder mermaid">
+        <div class="diagram-placeholder">
+        <div class="diagram-placeholder">
+        <div class="diagram-placeholder mermaid">
+        <div class="diagram-placeholder">
+            document.querySelectorAll('.diagram-placeholder').forEach(el => {
