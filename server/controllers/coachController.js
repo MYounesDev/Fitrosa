@@ -118,7 +118,7 @@ export const getCoach = async (req, res) => {
 
 export const addCoach = async (req, res) => {
   try {
-    const { email, firstName, lastName, genderId } = req.body;
+    const { email, firstName, lastName, gender } = req.body;
 
     const existingUser = await prisma.user.findUnique({
       where: { email },
@@ -136,6 +136,15 @@ export const addCoach = async (req, res) => {
       return res.status(500).json({ message: 'Coach role not found' });
     }
 
+    const genderId = (await prisma.gender.findFirst({
+      where: { genderName: gender }
+    })).id;
+
+    if (!genderId) {
+      return res.status(400).json({ message: 'Invalid gender selected' });
+    }
+
+
     const passwordSetupToken = generatePasswordSetupToken();
     const tokenExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
 
@@ -145,14 +154,14 @@ export const addCoach = async (req, res) => {
         firstName,
         lastName,
         roleId: coachRole.id,
-        genderId,
+        genderId: genderId,
         passwordResetToken: passwordSetupToken,
         passwordResetExpires: tokenExpires,
         active: false
       },
     });
 
-    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken);
+    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken,firstName);
 
     if (!emailSent) {
       await prisma.user.delete({ where: { id: coach.id } });

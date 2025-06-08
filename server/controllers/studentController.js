@@ -120,7 +120,7 @@ export const addStudent = async (req, res) => {
       email, 
       firstName, 
       lastName, 
-      genderId,
+      gender,
       birthDate,
       parentName,
       parentPhone,
@@ -144,6 +144,16 @@ export const addStudent = async (req, res) => {
       return res.status(500).json({ message: 'Student role not found' });
     }
 
+    const genderId = (await prisma.gender.findFirst({
+      where: { genderName: gender }
+    })).id;
+
+    if (!genderId) {
+      return res.status(400).json({ message: 'Invalid gender selected' });
+    }
+    
+    
+
     // Verify class exists
     if (classId) {
       const classExists = await prisma.class.findUnique({
@@ -164,7 +174,7 @@ export const addStudent = async (req, res) => {
         firstName,
         lastName,
         roleId: studentRole.id,
-        genderId,
+        genderId: genderId,
         birthDate,
         parentName,
         parentPhone,
@@ -186,7 +196,7 @@ export const addStudent = async (req, res) => {
       });
     }
 
-    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken);
+    const emailSent = await sendPasswordSetupEmail(email, passwordSetupToken,firstName);
 
     if (!emailSent) {
       await prisma.user.delete({ where: { id: student.id } });

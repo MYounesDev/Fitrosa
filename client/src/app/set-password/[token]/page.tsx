@@ -77,7 +77,7 @@ export default function SetPassword() {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <div className="text-5xl font-black mb-4">Fitoly</div>
+            <div className="text-5xl font-black mb-4">Fitrosa</div>
             <div className="text-xl font-light">Complete Your Account Setup</div>
           </motion.div>
           

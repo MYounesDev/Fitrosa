@@ -1,13 +1,6 @@
 {
     "sqltools.connections": [
         {
-            "previewLimit": 50,
-            "server": "localhost",
-            "driver": "PostgreSQL",
-            "connectString": "postgresql://postgres:yh805522@localhost:5432/FitolyDB",
-            "name": "Fitoly"
-        },
-        {
             "pgOptions": {
                 "ssl": {
                     "rejectUnauthorized": true

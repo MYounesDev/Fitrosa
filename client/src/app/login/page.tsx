@@ -102,7 +102,7 @@ export default function Login() {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <div className="text-5xl font-black mb-4">Fitoly</div>
+            <div className="text-5xl font-black mb-4">Fitrosa</div>
             <div className="text-xl font-light">Your Personal Fitness Journey Starts Here</div>
           </motion.div>
           

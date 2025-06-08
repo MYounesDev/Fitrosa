@@ -92,7 +92,7 @@ export default function Register() {
               transition={{ delay: 0.6, duration: 0.5 }}
               className="text-7xl font-black text-white mb-8"
             >
-              Welcome to Fitoly
+              Welcome to Fitrosa
             </motion.div>
 
             {/* Animated Checkmark */}
@@ -201,7 +201,7 @@ export default function Register() {
             transition={{ delay: 0.2 }}
             className="mb-8"
           >
-            <div className="text-5xl font-black mb-4">Join Fitoly</div>
+            <div className="text-5xl font-black mb-4">Join Fitrosa</div>
             <div className="text-xl font-light">Transform Your Fitness Journey Today</div>
           </motion.div>
           
@@ -261,7 +261,7 @@ export default function Register() {
           <div className="text-center">
             <h2 className="text-3xl font-bold tracking-tight text-gray-900">Create your account</h2>
             <p className="mt-2 text-sm text-gray-600">
-              Start your fitness journey with Fitoly
+              Start your fitness journey with Fitrosa
             </p>
           </div>
 

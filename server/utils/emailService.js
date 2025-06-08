@@ -31,13 +31,13 @@ export const sendPasswordSetupEmail = async (email, token, userName) => {
     const htmlContent = replaceTemplateVariables(template, {
       resetUrl,
       userName: userName || 'User',
-      appName: 'Fitoly'
+      appName: 'Fitrosa'
     });
 
     const mailOptions = {
       from: process.env.GMAIL_USER,
       to: email,
-      subject: 'Welcome to Fitoly - Set Your Password',
+      subject: 'Welcome to Fitrosa - Set Your Password',
       html: htmlContent,
     };
 

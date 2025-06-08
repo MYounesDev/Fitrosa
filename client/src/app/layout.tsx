@@ -5,7 +5,7 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Fitoly',
+  title: 'Fitrosa',
   description: 'A system for managing students, coaches, and administrators',
 };
 

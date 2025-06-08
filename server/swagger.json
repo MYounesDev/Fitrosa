@@ -1,8 +1,8 @@
 {
   "openapi": "3.0.0",
   "info": {
-    "title": "Fitoly API",
-    "description": "API documentation for Fitoly - Sports Academy Management System",
+    "title": "Fitrosa API",
+    "description": "API documentation for Fitrosa - Sports Academy Management System",
     "version": "1.0.0"
   },
   "servers": [

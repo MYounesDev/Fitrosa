@@ -1,5 +1,5 @@
 /**
- * Fitoly projesi için Mermaid.js kullanarak diyagramları oluşturan kod.
+ * Fitrosa projesi için Mermaid.js kullanarak diyagramları oluşturan kod.
  * Kullanım: Bu dosyadaki kodları HTML dosyasına dahil edin veya mermaid.live adresinde çalıştırın.
  */
 
@@ -106,26 +106,7 @@ const diagrams = {
     USER ||--o{ CLASS_STUDENT : "student_id"
   `,
 
-  // HTTP İstek Akışı Diyagramı
-  requestFlowDiagram: `graph LR
-    A[İstemci] --> B[React]
-    B --> C[API Service]
-    C --> D[Express Router]
-    D --> E[Authenticate]
-    E --> F[Authorize]
-    F --> G[Controller]
-    G --> H[Veritabanı]
-  `,
 
-  // Güvenlik Mimarisi Diyagramı
-  securityDiagram: `graph TD
-    A[Kullanıcı] --> B[AuthWrapper]
-    B --> C[localStorage JWT]
-    C --> D[Axios Interceptor]
-    D --> E[JWT Verification]
-    E --> F[authenticate]
-    F --> G[authorize]
-  `,
 
   // HTTP İstek Akışı Diyagramı
   requestFlowDiagram: `
@@ -188,11 +169,7 @@ function insertDiagramsToPlaceholders() {
       diagramCode = diagrams.databaseDiagram;
     } else if (index === 2) {
       diagramCode = diagrams.technologyDiagram;
-    } else if (index === 3) {
-      diagramCode = diagrams.securityDiagram;
-    }else if (index === 4) {
-      diagramCode = diagrams.databaseDiagram;
-    }
+    } 
 
     
     // İçeriği doğrudan metin olarak ayarla

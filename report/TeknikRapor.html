@@ -4,156 +4,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fitoly - Teknik Dokümantasyon Raporu</title>
+    <title>Fitrosa - Teknik Dokümantasyon Raporu</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            margin: 0;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+        :root {
+            --primary-color: #6200ee;
+            --primary-light: #f5f0ff;
+            --secondary-color: #03dac6;
+            --accent-color: #ff4081;
+            --text-color: #2d3748;
+            --text-light: #718096;
+            --bg-color: #f8fafc;
+            --bg-card: #ffffff;
+            --border-color: #e2e8f0;
+            --code-bg: #2d3748;
+            --code-color: #f8fafc;
+            --warning-color: #ffb142;
+            --note-color: #0abde3;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --font-heading: 'Inter', 'Segoe UI', sans-serif;
+            --font-body: 'Inter', 'Segoe UI', sans-serif;
+            --font-code: 'Fira Code', 'Consolas', monospace;
         }
 
-        h1,
-        h2,
-        h3,
-        h4,
-        h5,
-        h6 {
-            color: #0066cc;
-            margin-top: 25px;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+
+        body {
+            font-family: var(--font-body);
+            line-height: 1.7;
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: var(--bg-card);
+            box-shadow: var(--shadow-sm);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--font-heading);
+            color: var(--primary-color);
+            font-weight: 600;
+            line-height: 1.3;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
         }
 
         h1 {
-            font-size: 28px;
+            font-size: 2.5rem;
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #0066cc;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            color: var(--text-color);
+            background: linear-gradient(to right, var(--primary-light), var(--bg-color));
+            border-radius: 8px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         h2 {
-            font-size: 24px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+            font-size: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            margin-top: 3rem;
+            background-color: var(--primary-light);
+            border-radius: 8px 8px 0 0;
+            position: relative;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100px;
+            height: 3px;
+            background-color: var(--accent-color);
+            border-radius: 1.5px;
         }
 
         h3 {
-            font-size: 20px;
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            padding-left: 1rem;
+            border-left: 3px solid var(--secondary-color);
         }
 
         h4 {
-            font-size: 18px;
+            font-size: 1.25rem;
+            color: var(--secondary-color);
+            margin-top: 2rem;
         }
 
-        code,
-        pre {
-            font-family: 'Courier New', Courier, monospace;
-            background-color: #f5f5f5;
-            padding: 2px 5px;
-            border-radius: 3px;
-            font-size: 14px;
+        p, li {
+            margin-bottom: 1rem;
+            font-size: 1rem;
+        }
+
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        a:hover {
+            border-bottom-color: var(--primary-color);
+        }
+
+        code, pre {
+            font-family: var(--font-code);
+            background-color: var(--primary-light);
+            border-radius: 4px;
+        }
+
+        code {
+            padding: 0.2em 0.4em;
+            font-size: 0.9em;
+            color: var(--primary-color);
         }
 
         pre {
-            padding: 15px;
+            padding: 1.25rem;
             overflow-x: auto;
-            border: 1px solid #ddd;
-            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            background-color: var(--code-bg);
+        }
+
+        pre code {
+            background-color: transparent;
+            color: var(--code-color);
+            padding: 0;
+            font-size: 0.9rem;
         }
 
         table {
             border-collapse: collapse;
             width: 100%;
-            margin: 20px 0;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-sm);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
-        th,
-        td {
-            border: 1px solid #ddd;
-            padding: 8px 12px;
+        th, td {
+            padding: 1rem;
             text-align: left;
+            border-bottom: 1px solid var(--border-color);
         }
 
         th {
-            background-color: #f2f2f2;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        tr:nth-child(even) {
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        tr:hover {
+            background-color: rgba(0, 0, 0, 0.04);
         }
 
         .toc {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 5px;
-            border: 1px solid #eee;
-            margin-bottom: 30px;
+            background-color: var(--bg-card);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            margin: 2rem 0;
         }
 
         .toc h2 {
             margin-top: 0;
+            color: var(--text-color);
+            border-bottom: none;
+            font-size: 1.5rem;
         }
 
-        .toc ul {
-            padding-left: 25px;
+        .toc ul, .toc ol {
+            padding-left: 1.5rem;
         }
 
         .toc li {
-            margin-bottom: 8px;
+            margin-bottom: 0.75rem;
         }
 
         .warning {
-            background-color: #fff8dc;
-            border-left: 4px solid #ffeb3b;
-            padding: 15px;
-            margin: 20px 0;
+            background-color: #fff8e1;
+            border-left: 4px solid var(--warning-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .warning h3 {
+            color: var(--warning-color);
+            margin-top: 0;
         }
 
         .note {
-            background-color: #e8f4fd;
-            border-left: 4px solid #2196f3;
-            padding: 15px;
-            margin: 20px 0;
+            background-color: #e3f8ff;
+            border-left: 4px solid var(--note-color);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .note strong {
+            color: var(--note-color);
         }
 
         .code-caption {
             font-style: italic;
-            margin-bottom: 5px;
-            color: #555;
+            margin-bottom: 0.5rem;
+            color: var(--text-light);
         }
 
-        .image-placeholder {
-            background-color: #f0f0f0;
-            border: 1px dashed #999;
-            padding: 20px;
+        .image-container {
+            margin: 2rem 0;
             text-align: center;
-            margin: 20px 0;
         }
 
-        .diagram-placeholder {
-            background-color: #f0f8ff;
-            border: 1px dashed #4682b4;
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
+        .report-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+            transition: transform 0.3s ease;
+        }
+
+        .report-image:hover {
+            transform: scale(1.01);
+        }
+
+        .image-caption {
+            margin-top: 1rem;
+            font-style: italic;
+            color: var(--text-light);
         }
 
         /* Mermaid diyagramları için ek stil */
         .mermaid {
-            font-family: 'Segoe UI', sans-serif;
-            margin: 30px auto;
+            font-family: var(--font-body);
+            margin: 2rem auto;
         }
-        
+
         /* Veritabanı diyagramı için özel stil */
         .diagram-placeholder.mermaid {
-            overflow: auto;
-            max-height: 600px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid var(--border-color);
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            padding: 20px;
-            background-color: #ffffff;
+            box-shadow: var(--shadow-md);
+            padding: 1rem;
+            background-color: var(--bg-card);
         }
-        
+
         /* Teknoloji Akış Diyagramı için stiller */
         .tech-flow-diagram {
             display: flex;
@@ -161,61 +277,139 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            margin: 40px 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin: 2.5rem 0;
+            
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-md);
             overflow-x: auto;
         }
-        
+
         .tech-node {
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin: 10px;
+            margin: 1rem;
             min-width: 120px;
             text-align: center;
+            transition: transform 0.3s ease;
         }
-        
+
+        .tech-node:hover {
+            transform: translateY(-5px);
+        }
+
         .tech-node-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #0066cc;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary-color);
         }
-        
+
         .tech-logo-container {
             display: flex;
             justify-content: center;
-            gap: 5px;
-            margin-bottom: 10px;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
         }
-        
+
         .tech-logo {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             object-fit: contain;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
         }
-        
+
         .tech-arrow {
             display: flex;
             align-items: center;
-            color: #666;
-            font-size: 24px;
-            margin: 0 5px;
+            color: var(--text-light);
+            font-size: 1.5rem;
+            margin: 0 0.5rem;
         }
-        
+
         @media (max-width: 768px) {
             .tech-flow-diagram {
                 flex-direction: column;
             }
-            
+
             .tech-arrow {
                 transform: rotate(90deg);
-                margin: 10px 0;
+                margin: 1rem 0;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.75rem;
             }
         }
+
+        .http-method {
+            padding: 0.3rem 0.6rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-right: 0.5rem;
+            border-radius: 4px;
+            color: white;
+        }
+        
+        .get-method { background-color: #61affe; }
+        .post-method { background-color: #49cc90; }
+        .put-method { background-color: #fca130; }
+        .delete-method { background-color: #f93e3e; }
+        
+        /* Add a section styling */
+        section {
+            margin: 3rem 0;
+            padding: 1rem;
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            box-shadow: var(--shadow-md);
+        }
+        
+        section:target {
+            animation: highlight 2s ease;
+        }
+        
+        @keyframes highlight {
+            0% { background-color: var(--primary-light); }
+            100% { background-color: var(--bg-card); }
+        }
+        
+        /* Improve navigation experience */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 2rem;
+        }
+        
+        /* Diagram placeholder styling */
+        .diagram-placeholder {
+            background-color: var(--bg-card);
+            border-radius: 8px;
+            padding: 2rem;
+            margin: 2rem 0;
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            color: var(--text-light);
+        }
     </style>
+
+    <!-- Syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+        });
+    </script>
     
     <!-- Mermaid.js ekliyorum -->
     <script src="https://cdn.jsdelivr.net/npm/mermaid@8.14.0/dist/mermaid.min.js"></script>
@@ -243,7 +437,8 @@
 </head>
 
 <body>
-    <h1>FITOLY - Full-Stack Web Uygulaması Teknik Dokümantasyonu</h1>
+    <div class="container">
+    <h1>FITROSE - Full-Stack Web Uygulaması Teknik Dokümantasyonu</h1>
 
     <div class="toc">
         <h2>İçindekiler</h2>
@@ -314,11 +509,11 @@
     <section id="intro">
         <h2>1. Giriş</h2>
         <p>Bu rapor, Node.js backend, Next.js ve React frontend ile PostgreSQL veritabanı (Prisma ORM kullanılarak)
-            altyapısına sahip bir full-stack web uygulaması olan Fitoly projesinin teknik dokümantasyonudur. Bu
+            altyapısına sahip bir full-stack web uygulaması olan Fitrosa projesinin teknik dokümantasyonudur. Bu
             dokümantasyon, projenin mimari yapısını, temel bileşenlerini, veri akışını ve geliştirme sürecini detaylı
             olarak açıklamaktadır.</p>
 
-        <p>Fitoly, bir spor/fitness merkezi için özel olarak geliştirilmiş bir yönetim sistemidir. Sistemde üç temel
+        <p>Fitrosa, bir spor/fitness merkezi için özel olarak geliştirilmiş bir yönetim sistemidir. Sistemde üç temel
             kullanıcı rolü bulunmaktadır:</p>
         <ul>
             <li><strong>Admin:</strong> Sistem yöneticileri, tüm kullanıcıları yönetir ve sistemin tüm özelliklerine
@@ -341,35 +536,35 @@
 
         <h3 id="backend-structure">2.1. Backend Yapısı</h3>
         <p>Backend kodu <code>server</code> klasöründe bulunmakta ve aşağıdaki yapıya sahiptir:</p>
-        <pre>
+        <pre> <code class="language-bash">
 server/
-├── controllers/                # İş mantığını içeren controller'lar
+├── controllers/                  # İş mantığını içeren controller'lar
 │   ├── authController.js
 │   ├── studentController.js
 │   ├── coachController.js
 │   ├── userController.js
 │   └── attendanceController.js
-├── middleware/                 # Ara yazılımlar
-│   └── auth.js                 # Yetkilendirme ve kimlik doğrulama
-├── routes/                     # API rotaları
+├── middleware/                   # Ara yazılımlar
+│   └── auth.js                   # Yetkilendirme ve kimlik doğrulama
+├── routes/                       # API rotaları
 │   ├── authRoutes.js
 │   ├── userRoutes.js
 │   ├── studentRoutes.js
 │   ├── coachRoutes.js
 │   └── attendanceRoutes.js
-├── prisma/                     # Veritabanı şeması ve migration'lar
-│   ├── migrations/             # Veritabanı migration dosyaları
-│   └── schema.prisma           # Veritabanı şema tanımları
-├── templates/                  # E-posta şablonları
-├── utils/                      # Yardımcı işlevler
-├── server.js                   # Ana uygulama dosyası
-├── package.json                # Bağımlılıklar
-└── swagger.json                # API dokümantasyonu
-</pre>
+├── prisma/                       # Veritabanı şeması ve migration'lar
+│   ├── migrations/               # Veritabanı migration dosyaları
+│   └── schema.prisma             # Veritabanı şema tanımları
+├── templates/                    # E-posta şablonları
+├── utils/                        # Yardımcı işlevler
+├── server.js                     # Ana uygulama dosyası
+├── package.json                  # Bağımlılıklar
+└── swagger.json                  # API dokümantasyonu
+</code></pre>
 
         <h3 id="frontend-structure">2.2. Frontend Yapısı</h3>
         <p>Frontend kodu <code>client</code> klasöründe bulunmakta ve aşağıdaki yapıya sahiptir:</p>
-        <pre>
+        <pre><code class="language-bash">
 client/
 ├── src/
 │   ├── app/                    # Next.js uygulama sayfaları
@@ -390,7 +585,7 @@ client/
 ├── public/                     # Genel statik dosyalar
 ├── package.json                # Bağımlılıklar
 └── next.config.js              # Next.js yapılandırması
-</pre>
+</code></pre>
 
         <p>Proje kök dizininde ayrıca şu dosyalar bulunmaktadır:</p>
         <ul>
@@ -426,8 +621,7 @@ client/
             dosya, JSON Web Token (JWT) kullanarak kullanıcı kimlik doğrulama ve yetkilendirme işlemlerini
             gerçekleştirir.</p>
 
-        <pre>
-// auth.js'den alınan temel fonksiyonlar
+        <pre><code class="language-javascript">// auth.js'den alınan temel fonksiyonlar
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 
@@ -471,7 +665,7 @@ export const authorize = (...allowedRoles) => {
     }
     next();
   };
-};</pre>
+};</code></pre>
 
         <div class="note">
             <strong>Önemli:</strong> <code>req.user = decoded;</code> satırı, kullanıcı bilgilerini talep nesnesine
@@ -487,9 +681,6 @@ export const authorize = (...allowedRoles) => {
             <li>Yetkilendirme başarılıysa, controller fonksiyonu çalışır ve asıl işlemi gerçekleştirir.</li>
         </ol>
 
-        <div class="diagram-placeholder mermaid">
-            <!-- Otomatik olarak doldurulacak -->
-        </div>
 
         <h3 id="backend-controllers">3.3. Controller'lar</h3>
         <p>Controller'lar, API endpoint'lerine gelen istekleri işleyen ve iş mantığını uygulayan fonksiyonları içerir.
@@ -545,8 +736,7 @@ export const authorize = (...allowedRoles) => {
         <p>Rotalar, API endpoint'lerinin URL yollarını ve HTTP metodlarını tanımlar. Her bir rota dosyası belirli bir
             alan için endpoint'leri tanımlar ve ilgili controller fonksiyonlarına bağlantı sağlar.</p>
 
-        <pre>
-// authRoutes.js örneği
+        <pre><code class="language-javascript">// authRoutes.js örneği
 import express from 'express';
 import { login, register, setupPassword } from '../controllers/authController.js';
 
@@ -556,7 +746,7 @@ router.post('/login', login);
 router.post('/register', register);
 router.post('/auth/setup-password/:token', setupPassword);
 
-export default router;</pre>
+export default router;</code></pre>
 
         <pre>
 // studentRoutes.js örneği
@@ -611,60 +801,73 @@ export default router;</pre>
         <p><code>utils/emailService.js</code> dosyası, nodemailer kütüphanesini kullanarak e-posta gönderme işlemlerini
             yönetir. Özellikle şifre belirleme bağlantılarının gönderiminde kullanılır.</p>
 
-        <pre>
-// emailService.js örnek kod
+
+        <pre><code class="language-javascript">// emailService.js örnek kod
 import nodemailer from 'nodemailer';
-import fs from 'fs';
+import crypto from 'crypto';
+import fs from 'fs/promises';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import handlebars from 'handlebars';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// E-posta şablonunu okuma ve işleme
-const compileTemplate = (templateName, data) => {
-  const templatePath = path.join(__dirname, '..', 'templates', templateName);
-  const source = fs.readFileSync(templatePath, 'utf-8');
-  const template = handlebars.compile(source);
-  return template(data);
-}
-
-// E-posta gönderme fonksiyonu
-export const sendPasswordSetupEmail = async (email, token) => {
-  const transporter = nodemailer.createTransport({
+const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-      user: process.env.GMAIL_USER,
-      pass: process.env.GMAIL_APP_PASSWORD
-    }
-  });
-  
-  const resetLink = `${process.env.FRONTEND_URL}/set-password/${token}`;
-  const htmlContent = compileTemplate('passwordSetup.html', { resetLink });
-  
-  const mailOptions = {
-    from: process.env.GMAIL_USER,
-    to: email,
-    subject: 'Fitoly - Şifre Oluşturma Bağlantınız',
-    html: htmlContent
-  };
-  
-  try {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_APP_PASSWORD,
+    },
+});
+
+export const generatePasswordSetupToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
+const replaceTemplateVariables = (template, variables) => {
+    return Object.entries(variables).reduce((result, [key, value]) => {
+    return result.replace(new RegExp(`{{${key}}}`, 'g'), value);
+    }, template);
+};
+
+export const sendPasswordSetupEmail = async (email, token, userName) => {
+    const resetUrl = `${process.env.FRONTEND_URL}/set-password/${token}`;
+    
+    try {
+    const templatePath = path.join(process.cwd(),  'templates', 'passwordSetup.html');
+    const template = await fs.readFile(templatePath, 'utf-8');
+    
+    const htmlContent = replaceTemplateVariables(template, {
+        resetUrl,
+        userName: userName || 'User',
+        appName: 'Fitrosa'
+    });
+
+    const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: email,
+        subject: 'Welcome to Fitrosa - Set Your Password',
+        html: htmlContent,
+    };
+
     await transporter.sendMail(mailOptions);
     return true;
-  } catch (error) {
-    console.error('E-posta gönderme hatası:', error);
-    throw error;
-  }
-};</pre>
+    } catch (error) {
+    console.error('Error sending email:', error);
+    return false;
+    }
+}; </code></pre>
+
 
         <div class="note">
             <strong>Not:</strong> E-posta gönderme işlemi için <code>.env</code> dosyasında <code>GMAIL_USER</code>,
             <code>GMAIL_APP_PASSWORD</code> ve <code>FRONTEND_URL</code> değişkenlerinin doğru ayarlanması
             gerekmektedir.
         </div>
-
+        <div class="image-container">
+            <img src="images/email.png" alt="E-posta Şeklini Görüntüleme" class="report-image">
+            <p class="image-caption">Şekil 1: E-posta Şablonu Görünümü</p>
+        </div>
+        <div class="image-container">
+            <img src="images/Set-Password.png" alt="Set Password Sayfası" class="report-image">
+            <p class="image-caption">Şekil 2: Şifre Belirleme Sayfası</p>
+        </div>
         <h4>Şifre Belirleme E-posta Şablonu</h4>
         <p><code>templates/passwordSetup.html</code> dosyası, yeni kullanıcılara gönderilen şifre belirleme e-postası
             için HTML şablonudur. Bu şablonda kullanıcıya özel şifre belirleme bağlantısı yer alır.</p>
@@ -697,8 +900,115 @@ export const sendPasswordSetupEmail = async (email, token) => {
             <li>Olası hata kodları ve açıklamaları</li>
         </ul>
 
-        <div class="image-placeholder">
-            [EKRAN GÖRÜNTÜSÜ: Swagger API Dokümantasyonu]
+        <div class="image-container">
+            <img src="images/Swagger.png" alt="Swagger API Dokümantasyonu" class="report-image">
+            <p class="image-caption">Şekil 3: Swagger API Dokümantasyonu</p>
+        </div>
+
+        <h4>HTTP İstek Metodları ve Kullanımı</h4>
+        <p>API endpoint'leri, HTTP protokolünün standart metodlarını kullanarak veri alışverişi yapar. Her metodun belirli bir amacı vardır:</p>
+
+        <ul>
+            <li><span class="http-method get-method">GET</span> <strong>Veri Alma:</strong> Sunucudan veri getirmek için kullanılır. URL parametreleri kullanılabilir ancak istek gövdesi (request body) içermez. Örnekler:
+                <ul>
+                    <li><code>GET /students</code> - Tüm öğrencileri getir</li>
+                    <li><code>GET /students/:id</code> - Belirli bir öğrenciyi getir</li>
+                </ul>
+            </li>
+            <li><span class="http-method post-method">POST</span> <strong>Veri Oluşturma:</strong> Sunucuda yeni bir kayıt oluşturmak için kullanılır. Veriler istek gövdesinde (request body) gönderilir. Örnekler:
+                <ul>
+                    <li><code>POST /students</code> - Yeni öğrenci ekle</li>
+                    <li><code>POST /login</code> - Oturum açma isteği</li>
+                </ul>
+            </li>
+            <li><span class="http-method put-method">PUT</span> <strong>Veri Güncelleme:</strong> Mevcut bir kaydı güncellemek için kullanılır. Genellikle tam kayıt güncellemeleri için tercih edilir. Örnekler:
+                <ul>
+                    <li><code>PUT /students/:id</code> - Belirli bir öğrenciyi güncelle</li>
+                    <li><code>PUT /user/profile</code> - Kullanıcı profilini güncelle</li>
+                </ul>
+            </li>
+            <li><span class="http-method delete-method">DELETE</span> <strong>Veri Silme:</strong> Bir kaydı silmek için kullanılır. Örnekler:
+                <ul>
+                    <li><code>DELETE /students/:id</code> - Belirli bir öğrenciyi sil</li>
+                </ul>
+            </li>
+        </ul>
+
+        <h4>Login İşleminde POST Kullanımı</h4>
+        <p>Login işleminde <span class="http-method post-method">POST</span> metodunun kullanılmasının önemli güvenlik sebepleri vardır:</p>
+        <ul>
+            <li><strong>Hassas Veri Güvenliği:</strong> GET istekleri URL'de parametreleri görünür şekilde taşır. Bu, kullanıcı adı ve şifre gibi hassas bilgilerin tarayıcı geçmişinde, sunucu loglarında ve proxy kayıtlarında açık metin olarak saklanmasına neden olabilir.</li>
+            <li><strong>URL Uzunluk Kısıtlaması:</strong> GET isteklerinde URL uzunluğu sınırlıdır, bu da karmaşık kimlik doğrulama verileri için sorun oluşturabilir.</li>
+            <li><strong>HTTPS Şifreleme:</strong> POST isteği gövdesi HTTPS ile şifrelenir, URL parametreleri ise şifreleme öncesinde görünür olabilir.</li>
+            <li><strong>İdempotent Olmama:</strong> Login işlemi her seferinde sunucuda bir değişiklik oluşturur (token üretimi, oturum kayıtları gibi), bu nedenle GET yerine POST kullanımı HTTP standardına daha uygundur.</li>
+        </ul>
+
+        <h4>req.body ve req.params Farkı</h4>
+        <p>Express.js uygulamalarında gelen isteklerdeki verilere erişmek için iki temel yöntem kullanılır:</p>
+
+        <h5>req.params</h5>
+        <ul>
+            <li><strong>Kullanım Yeri:</strong> URL'de belirtilen parametrelere erişmek için kullanılır (örneğin <code>/students/:id</code> rotasındaki <code>id</code> değeri).</li>
+            <li><strong>Uygun İstek Tipleri:</strong> Tüm HTTP metodlarında (GET, POST, PUT, DELETE) kullanılabilir.</li>
+            <li><strong>Örnek:</strong> <code>/students/123</code> için <code>req.params.id</code> değeri "123" olur.</li>
+            <li><strong>Güvenlik:</strong> URL'de açıkça görünür olduğu için hassas veriler için uygun değildir.</li>
+            <li><strong>Kullanım Amacı:</strong> Genellikle bir kaynağı tanımlamak veya filtrelemek için kullanılır.</li>
+        </ul>
+
+        <pre>
+// Örnek: Belirli bir öğrenciyi ID ile getirme
+router.get('/students/:id', (req, res) => {
+  const studentId = req.params.id; // URL'deki :id parametresi
+  // Veritabanından öğrenciyi getirme işlemi
+});</pre>
+
+        <h5>req.body</h5>
+        <ul>
+            <li><strong>Kullanım Yeri:</strong> İstek gövdesinde gönderilen verilere erişmek için kullanılır (genellikle JSON formatında).</li>
+            <li><strong>Uygun İstek Tipleri:</strong> Ağırlıklı olarak POST, PUT metodları ile kullanılır. GET metodu ile kullanılması önerilmez.</li>
+            <li><strong>Örnek:</strong> <code>{ "name": "Ali", "email": "ali@example.com" }</code> gibi bir veri gönderildiğinde <code>req.body.name</code> değeri "Ali" olur.</li>
+            <li><strong>Güvenlik:</strong> URL'de görünmediği için hassas veriler için daha uygundur.</li>
+            <li><strong>Kullanım Amacı:</strong> Genellikle karmaşık veya büyük miktarda veri göndermek için kullanılır.</li>
+        </ul>
+
+        <pre>
+// Örnek: Yeni öğrenci ekleme
+router.post('/students', (req, res) => {
+  const studentData = req.body; // İstek gövdesindeki JSON verisi
+  // Yeni öğrenci oluşturma işlemi
+});</pre>
+
+        <h5>Hangi Durumlarda Hangisi Kullanılır?</h5>
+        <table>
+            <tr>
+                <th>HTTP Metodu</th>
+                <th>req.params Kullanımı</th>
+                <th>req.body Kullanımı</th>
+            </tr>
+            <tr>
+                <td><span class="http-method get-method">GET</span></td>
+                <td>Kaynak tanımlama, filtreleme</td>
+                <td>Kullanılmaz (önerilmez)</td>
+            </tr>
+            <tr>
+                <td><span class="http-method post-method">POST</span></td>
+                <td>Opsiyonel (ek tanımlayıcılar için)</td>
+                <td>Yeni kayıt oluşturma bilgileri</td>
+            </tr>
+            <tr>
+                <td><span class="http-method put-method">PUT</span></td>
+                <td>Güncellenecek kaynağın tanımlayıcısı</td>
+                <td>Güncelleme verileri</td>
+            </tr>
+            <tr>
+                <td><span class="http-method delete-method">DELETE</span></td>
+                <td>Silinecek kaynağın tanımlayıcısı</td>
+                <td>Genellikle kullanılmaz (bazen doğrulama için)</td>
+            </tr>
+        </table>
+
+        <div class="note">
+            <strong>Not:</strong> Express.js'de <code>req.body</code> verilerine erişmek için <code>express.json()</code> middleware'i kullanılmalıdır. Bu middleware, JSON formatındaki istek gövdelerini ayrıştırır ve <code>req.body</code> nesnesine dönüştürür.
         </div>
     </section>
 
@@ -824,7 +1134,7 @@ export const attendanceService = { /* ... */ };</pre>
         <p><code>components/AuthWrapper.js</code> dosyası, erişim kontrolünü sağlayan bir Higher Order Component (HOC)
             olarak çalışır:</p>
 
-        <pre>
+        <pre> <code class="language-javascript">
 // AuthWrapper.js temel yapısı
 "use client";
 import { useRouter } from 'next/navigation';
@@ -873,17 +1183,19 @@ export default function AuthWrapper({
 
   // Yalnızca yetkili kullanıcılara içeriği göster
   return authorized ? children : null;
-}</pre>
+}</code></pre>
 
         <p>Bu bileşen, her korumalı sayfaya sarılarak kullanılır ve şu kontrolleri gerçekleştirir:</p>
         <ul>
             <li>Kullanıcı giriş yapmış mı? (localStorage'da token var mı?)</li>
             <li>Kullanıcı, sayfaya erişmek için gerekli role sahip mi?</li>
-            <li>Kimlik doğrulama başarısızsa, uygun yönlendirme (login veya unauthorized)</li>
+            <li>Kimlik doğrulama başarısızsa, kullanıcı login sayfasına yönlendirilir</li>
+            <li>Kimlik doğrulama başarılı ancak yetkilendirme başarısızsa (rol uyuşmazlığı), kullanıcı unauthorized
+                sayfasına yönlendirilir</li>
         </ul>
 
         <h4>Kullanım Örneği</h4>
-        <pre>
+        <pre><code class="language-typescript">
 // Admin dashboard sayfası örneği
 "use client";
 import AuthWrapper from '@/components/AuthWrapper';
@@ -898,7 +1210,49 @@ export default function AdminDashboard() {
     &lt;/AuthWrapper&gt;
   );
 }
-</pre>
+</code></pre>
+
+        <h4>Yetkilendirme Senaryoları</h4>
+        <p>Admin dashboard sayfası örneğinde görüldüğü üzere, sayfa <code>AuthWrapper</code> bileşeni ile korunmaktadır.
+            Bu bileşen, sayfaya erişmek isteyen kullanıcının yetkisini kontrol eder. Olası senaryolar:</p>
+
+        <h5>Senaryo 1: Giriş Yapmamış Kullanıcı</h5>
+        <ul>
+            <li>Kullanıcı henüz giriş yapmamışsa (localStorage'da token yoksa)</li>
+            <li><code>authService.isAuthenticated()</code> fonksiyonu <code>false</code> döner</li>
+            <li>Kullanıcı otomatik olarak <code>/login</code> sayfasına yönlendirilir</li>
+            <li>Sayfanın içeriği hiç gösterilmez</li>
+        </ul>
+
+        <h5>Senaryo 2: Yetkisiz Rol (Örneğin: Koç Admin Sayfasına Erişmeye Çalışıyor)</h5>
+        <ul>
+            <li>Kullanıcı giriş yapmış ve geçerli bir token'a sahip</li>
+            <li>Ancak kullanıcı "coach" rolüne sahip ve "admin" rolüne sahip değil</li>
+            <li><code>allowedRoles</code> içinde "coach" rolü olmadığı için yetkilendirme başarısız olur</li>
+            <li>Kullanıcı otomatik olarak <code>/unauthorized</code> sayfasına yönlendirilir</li>
+            <li>Unauthorized sayfası, kullanıcıya yeterli yetkiye sahip olmadığını bildirir</li>
+            <li>Unauthorized sayfası, kullanıcıyı kendi rolüne uygun bir sayfaya (örneğin koç dashboard'una) geri dönme
+                seçeneği sunar</li>
+        </ul>
+
+        <div class="image-container">
+            <img src="images/Unauthorized.png" alt="Unauthorized (Yetkisiz Erişim) Sayfası" class="report-image">
+            <p class="image-caption">Şekil 4: Yetkisiz Erişim Sayfası</p>
+        </div>
+
+        <h5>Senaryo 3: Yetkili Kullanıcı (Admin)</h5>
+        <ul>
+            <li>Kullanıcı giriş yapmış ve admin rolüne sahip</li>
+            <li>Yetkilendirme kontrolü başarılı olur (<code>allowedRoles=['admin']</code> koşulu sağlanır)</li>
+            <li>Admin dashboard içeriği kullanıcıya gösterilir</li>
+            <li>Admin, sayfadaki tüm işlevleri kullanabilir</li>
+        </ul>
+
+        <div class="note">
+            <strong>Not:</strong> Rol tabanlı erişim kontrolü sisteminin her sayfada tutarlı bir şekilde uygulanması
+            önemlidir. Tüm korumalı sayfalar <code>AuthWrapper</code> bileşeni ile sarılmalıdır. Bu, kullanıcıların
+            sadece yetkili oldukları sayfalara erişebilmesini sağlar ve güvenlik açıklarını önler.
+        </div>
 
         <h3 id="frontend-components">4.4. Ana Bileşenler</h3>
 
@@ -922,15 +1276,15 @@ export default function PageTemplate({
   showSidebar = true 
 }: PageTemplateProps) {
   return (
-    <div className="flex h-screen bg-gray-100">
-      {showSidebar && <Sidebar />}
+    &lt;div className="flex h-screen bg-gray-100"&gt;
+      {showSidebar && &lt;Sidebar /&gt;}
       
-      <div className="flex-1 overflow-auto">
-        <main className="p-4">
+      &lt;div className="flex-1 overflow-auto"&gt;
+        &lt;main className="p-4"&gt;
           {children}
-        </main>
-      </div>
-    </div>
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
   );
 }</pre>
 
@@ -954,15 +1308,15 @@ export default function Sidebar() {
   }, []);
   
   return (
-    <div className="bg-gray-800 text-white w-64 flex flex-col h-full">
-      <div className="p-4">
-        <h1 className="text-2xl font-bold">Fitoly</h1>
-      </div>
+    &lt;div className="bg-gray-800 text-white w-64 flex flex-col h-full"&gt;
+      &lt;div className="p-4"&gt;
+        &lt;h1 className="text-2xl font-bold"&gt;Fitrosa&lt;/h1&gt;
+      &lt;/div&gt;
       
-      <nav className="flex-1">
-        <ul>
+      &lt;nav className="flex-1"&gt;
+        &lt;ul&gt;
           {/* Ortak menü öğeleri */}
-          <li><Link href="/settings">Ayarlar</Link></li>
+          &lt;li&gt;&lt;Link href="/settings"&gt;Ayarlar&lt;/Link&gt;&lt;/li&gt;
           
           {isAdmin() && (
               {/* Admin için menü öğeleri */}
@@ -978,21 +1332,22 @@ export default function Sidebar() {
           )}
           
           {/* Çıkış butonu */}
-          <li>
+          &lt;li&gt;
             &lt;button 
               onClick={() =&gt; authService.logout()}
               className="text-red-400" &gt;
               Çıkış Yap
-            &lt;/button>
-          </li>
-        </ul>
-      </nav>
-    </div>
+            &lt;/button&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/nav&gt;
+    &lt;/div&gt;
   );
 }</pre>
 
-        <div class="image-placeholder">
-            [EKRAN GÖRÜNTÜSÜ: Sidebar Bileşeni]
+        <div class="image-container">
+            <img src="images/sidebar.png" alt="Sidebar Bileşeni" class="report-image">
+            <p class="image-caption">Şekil 5: Sidebar Bileşeni (Rol bazlı menü)</p>
         </div>
 
         <h3 id="frontend-pages">4.5. Sayfalar</h3>
@@ -1044,12 +1399,24 @@ export default function Sidebar() {
             <li><strong>Yükleme Göstergeleri</strong>: Uzun süren işlemler için kullanıcı geri bildirimi.</li>
         </ul>
 
-        <div class="image-placeholder">
-            [EKRAN GÖRÜNTÜSÜ: Öğrenci Listesi Sayfası]
+        <div class="image-container">
+            <img src="images/login.png" alt="Login Sayfası" class="report-image">
+            <p class="image-caption">Şekil 6: Kullanıcı Giriş Sayfası</p>
         </div>
 
-        <div class="image-placeholder">
-            [EKRAN GÖRÜNTÜSÜ: Yoklama Kayıt Sayfası]
+        <div class="image-container">
+            <img src="images/register.png" alt="Kayıt Sayfası" class="report-image">
+            <p class="image-caption">Şekil 7: Kullanıcı Kayıt Sayfası</p>
+        </div>
+
+        <div class="image-container">
+            <img src="images/student-list.png" alt="Öğrenci Listesi Sayfası" class="report-image">
+            <p class="image-caption">Şekil 8: Öğrenci Listesi Sayfası</p>
+        </div>
+
+        <div class="image-container">
+            <img src="images/attendance.png" alt="Yoklama Kayıt Sayfası" class="report-image">
+            <p class="image-caption">Şekil 9: Yoklama Kayıt Sayfası</p>
         </div>
     </section>
 
@@ -1064,74 +1431,74 @@ export default function Sidebar() {
             şunlardır:</p>
 
         <h4>Role Tablosu</h4>
-        <pre>
+        <pre> <code class="language-javascript">
 model Role {
-  id       Int    @id @default(autoincrement()) @map("role_id")
-  roleName String @map("role_name")
-  users    User[]
-}</pre>
+  id         Int      @id @default(autoincrement()) @map("role_id")
+  roleName   String   @map("role_name")
+  users      User[]
+}</code></pre>
         <p>Bu tablo, sistemdeki kullanıcı rollerini (admin, coach, student) tanımlar.</p>
 
         <h4>Gender Tablosu</h4>
-        <pre>
+        <pre> <code class="language-javascript">
 model Gender {
   id         Int    @id @default(autoincrement()) @map("gender_id")
   genderName String @map("gender_name")
   users      User[]
-}</pre>
+}</code></pre>
         <p>Bu tablo, kullanıcı cinsiyetlerini (erkek, kadın) tanımlar.</p>
 
         <h4>User Tablosu</h4>
-        <pre>
+        <pre> <code class="language-javascript">
 model User {
-  id                      Int            @id @default(autoincrement())
-  firstName              String?
-  lastName               String?
-  email                  String         @unique
-  password               String?        // Opsiyonel, e-posta aktivasyonu için
-  birthDate             String?
-  parentName            String?
-  parentPhone           String?
-  role                   Role           @relation(fields: [roleId], references: [id])
-  roleId                 Int            @map("role_id")
-  gender                 Gender?        @relation(fields: [genderId], references: [id])
-  genderId               Int?           @map("gender_id")
-  profileImage           String?        // NULL olabilir
-  active                 Boolean        @default(false)
-  passwordResetToken     String?        // Şifre belirleme/sıfırlama için
-  passwordResetExpires   DateTime?      // Token süresi
-  passwordChangedAt      DateTime       @default(now())
-  preferences            Json?
-  notificationPreferences Json?
-  attendanceLogs         AttendanceLog[]
+  id                                Int               @id @default(autoincrement())
+  firstName                         String?
+  lastName                          String?
+  email                             String            @unique
+  password                          String?           // Opsiyonel, e-posta aktivasyonu için
+  birthDate                         String?
+  parentName                        String?
+  parentPhone                       String?
+  role                              Role              @relation(fields: [roleId], references: [id])
+  roleId                            Int               @map("role_id")
+  gender                            Gender?           @relation(fields: [genderId], references: [id])
+  genderId                          Int?              @map("gender_id")
+  profileImage                      String?           // NULL olabilir
+  active                            Boolean           @default(false)
+  passwordResetToken                String?           // Şifre belirleme/sıfırlama için
+  passwordResetExpires              DateTime?         // Token süresi
+  passwordChangedAt                 DateTime          @default(now())
+  preferences                       Json?
+  notificationPreferences           Json?
+  attendanceLogs                    AttendanceLog[]
 
   // Farklı roller için ilişkiler
-  coachClasses          ClassCoach[]    @relation("CoachClasses")
-  studentClasses        ClassStudent[]  @relation("StudentClasses")
+  coachClasses                      ClassCoach[]      @relation("CoachClasses")
+  studentClasses                    ClassStudent[]    @relation("StudentClasses")
 
   // Öğrenciye özel alanlar
-  notes                 String?
-  startDate             DateTime?
-  performanceNotes      Json?
+  notes                             String?
+  startDate                         DateTime?
+  performanceNotes                  Json?
 
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-}</pre>
+  createdAt                         DateTime          @default(now())
+  updatedAt                         DateTime          @updatedAt
+}</code></pre>
         <p>Bu tablo, sistemdeki tüm kullanıcıları (admin, koç, öğrenci) saklar. Role alanına göre kullanıcının rolü
             belirlenir.</p>
 
         <h4>AttendanceLog Tablosu</h4>
-        <pre>
+        <pre> <code class="language-javascript">
 model AttendanceLog {
-  id         Int      @id @default(autoincrement())
-  student    User     @relation(fields: [studentId], references: [id])
-  studentId  Int      @map("student_id")
-  date       DateTime @default(now())
-  status     String   // attended, not_attended, with_report, day_off
-  note       String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-}</pre>
+  id           Int         @id @default(autoincrement())
+  student      User        @relation(fields: [studentId], references: [id])
+  studentId    Int         @map("student_id")
+  date         DateTime    @default(now())
+  status       String      // attended, not_attended, with_report, day_off
+  note         String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}</code></pre>
         <p>Bu tablo, öğrencilerin yoklama/katılım kayıtlarını tutar. Katılım durumu, tarih ve notlar gibi bilgileri
             içerir.</p>
 
@@ -1140,58 +1507,58 @@ model AttendanceLog {
             geliştirmeler için hazırdır:</p>
 
         <h5>Sport Tablosu</h5>
-        <pre>
+        <pre> <code class="language-javascript">
 model Sport {
-  id        Int      @id @default(autoincrement())
-  sportName String   @map("sport_name")
-  classes   Class[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}</pre>
+  id           Int         @id @default(autoincrement())
+  sportName    String      @map("sport_name")
+  classes      Class[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}</code></pre>
         <p>Bu tablo, sistemde tanımlı sporları (futbol, basketbol vb.) saklamak için tasarlanmıştır.</p>
 
         <h5>Class Tablosu</h5>
-        <pre>
+        <pre> <code class="language-javascript">
 model Class {
-  id            Int             @id @default(autoincrement())
-  sportId       Int            @map("sport_id")
+  id            Int               @id @default(autoincrement())
+  sportId       Int               @map("sport_id")
   section       String
-  sport         Sport          @relation(fields: [sportId], references: [id])
+  sport         Sport             @relation(fields: [sportId], references: [id])
   coaches       ClassCoach[]
   students      ClassStudent[]
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-}</pre>
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+}</code></pre>
         <p>Bu tablo, bir spor dalı ve şubeden oluşan sınıfları tanımlamak için tasarlanmıştır.</p>
 
         <h5>ClassCoach Tablosu</h5>
-        <pre>
+        <pre> <code class="language-javascript">
 model ClassCoach {
-  id        Int      @id @default(autoincrement())
-  classId   Int      @map("class_id")
-  coachId   Int      @map("coach_id")
-  class     Class    @relation(fields: [classId], references: [id])
-  coach     User     @relation("CoachClasses", fields: [coachId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            Int          @id @default(autoincrement())
+  classId       Int          @map("class_id")
+  coachId       Int          @map("coach_id")
+  class         Class        @relation(fields: [classId], references: [id])
+  coach         User         @relation("CoachClasses", fields: [coachId], references: [id])
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
   @@unique([classId, coachId])
-}</pre>
+}</code></pre>
         <p>Bu tablo, sınıflar ve koçlar arasındaki ilişkiyi tanımlar (hangi koç hangi sınıfı yönetiyor).</p>
 
         <h5>ClassStudent Tablosu</h5>
-        <pre>
+        <pre> <code class="language-javascript">
 model ClassStudent {
-  id        Int      @id @default(autoincrement())
-  classId   Int      @map("class_id")
-  studentId Int      @map("student_id")
-  class     Class    @relation(fields: [classId], references: [id])
-  student   User     @relation("StudentClasses", fields: [studentId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id             Int           @id @default(autoincrement())
+  classId        Int           @map("class_id")
+  studentId      Int           @map("student_id")
+  class          Class         @relation(fields: [classId], references: [id])
+  student        User          @relation("StudentClasses", fields: [studentId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   @@unique([classId, studentId])
-}</pre>
+}</code></pre>
         <p>Bu tablo, sınıflar ve öğrenciler arasındaki ilişkiyi tanımlar (hangi öğrenci hangi sınıfta).</p>
 
         <h3 id="database-relations">5.2. Tablo İlişkileri</h3>
@@ -1209,7 +1576,7 @@ model ClassStudent {
                 ara tablosu ile).</li>
         </ul>
 
-        <div class="diagram-placeholder mermaid">
+        <div class="diagram-placeholder">
             [DİYAGRAM: Veritabanı ER Diyagramı - Tablolar ve İlişkileri]
         </div>
 
@@ -1309,6 +1676,11 @@ const prisma = new PrismaClient();</pre>
         <p>Bu şekilde oluşturulan prisma nesnesi, veritabanı işlemleri için kullanılır. Prisma Client, her bir modele
             erişim için ilgili özellikleri sağlar (örn: <code>prisma.user</code>, <code>prisma.attendanceLog</code>.</p>
     </section>
+
+    <div class="diagram-placeholder">
+        [DİYAGRAM: technologyDiagram]
+    </div>
+
 
     <section id="security">
         <h2>6. Güvenlik ve En İyi Uygulamalar</h2>
@@ -1461,8 +1833,9 @@ const prisma = new PrismaClient();</pre>
             <li><strong>Git</strong>: Sürüm kontrolü için.</li>
         </ul>
 
-        <div class="image-placeholder">
-            [GÖRSEL: Kullanılan Teknolojiler ve Logoları]
+        <div class="image-container">
+            <img src="images/Teknolojiler.jpg" alt="Kullanılan Teknolojiler ve Logoları" class="report-image">
+            <p class="image-caption">Şekil 10: Kullanılan Teknolojiler ve Logoları</p>
         </div>
 
         <div class="diagram-placeholder">
@@ -1494,8 +1867,8 @@ const prisma = new PrismaClient();</pre>
             <li>Sadece server klasörü içinde çalışılması yeterlidir.</li>
             <li>Backend geliştiricisi, veritabanı tasarımıyla da ilgilenmelidir.</li>
             <li>Backend'i test etmek için aşağıdaki komutlarla sadece server klasöründeki projeyi çalıştırabilirsiniz:
-                <pre>cd server
-npm run dev</pre>
+                <pre> <code class="language-bash">cd server
+npm run dev</code></pre>
             </li>
             <li>Endpoint'leri kolayca test etmek için Thunder Client eklentisi önerilir.</li>
             <li>Eğer request'e token eklemek istenirse:
@@ -1629,12 +2002,12 @@ npm run dev</pre>
             <li>Birim testlerin ve entegrasyon testlerinin eklenmesi.</li>
         </ul>
     </section>
-    
+
     <script>
         // Sayfa yüklendiğinde diyagramları ekle
-        window.onload = function() {
+        window.onload = function () {
             insertDiagramsToPlaceholders();
-            
+
             // HTML tabanlı teknoloji akış diyagramını oluştur
             const techDiagramPlaceholder = document.querySelector('section#technologies .diagram-placeholder');
             if (techDiagramPlaceholder) {
@@ -1697,7 +2070,7 @@ npm run dev</pre>
                     </div>
                 `;
             }
-            
+
             // Güvenlik diyagramını oluştur
             const securityDiagramPlaceholder = document.querySelector('section#security .diagram-placeholder.mermaid');
             if (securityDiagramPlaceholder) {
@@ -1749,7 +2122,7 @@ npm run dev</pre>
                     </div>
                 `;
             }
-            
+
             // HTTP İstek Akışı diyagramını oluştur
             const requestFlowDiagramPlaceholder = document.querySelector('section#backend .diagram-placeholder:first-of-type');
             if (requestFlowDiagramPlaceholder) {
@@ -1818,40 +2191,35 @@ npm run dev</pre>
                     </div>
                 `;
             }
-            
-            // Veritabanı ilişki diyagramını oluştur
-            const dbDiagramPlaceholder = document.querySelector('section#database .diagram-placeholder');
-            if (dbDiagramPlaceholder) {
-                dbDiagramPlaceholder.innerHTML = `
-                    
-sequenceDiagram
-    participant Client as İstemci
-    participant Components as React Bileşenleri
-    participant API as API Servisi
-    participant Router as Express Router
-    participant Auth as Authenticate Middleware
-    participant Role as Authorize Middleware
-    participant Controller as Controller
-    participant Prisma as Prisma ORM
-    participant DB as PostgreSQL
-    
-    Client->>Components: Kullanıcı İsteği
-    Components->>API: HTTP İsteği
-    API->>Router: İstek Yönlendirme
-    Router->>Auth: Kimlik Doğrulama
-    Auth->>Role: Yetki Kontrolü
-    Role->>Controller: İş Mantığı İşleme
-    Controller->>Prisma: Veri İşlemi
-    Prisma->>DB: SQL Sorgusu
-    DB->>Prisma: Veri Dönüşü
-    Prisma->>Controller: İşlenmiş Veri
-    Controller->>API: Yanıt
-    API->>Components: JSON Yanıt
-    Components->>Client: UI Güncelleme
-                `;
-            }
+
+            // Kalan code bloklarına syntax highlighting uygula
+            document.querySelectorAll('pre:not(:has(code))').forEach((block) => {
+                // İçeriği al
+                const content = block.innerHTML;
+                
+                // Kod dili tespiti
+                let language = 'javascript'; // varsayılan dil
+                if (content.includes('model ') && content.includes('@id')) {
+                    language = 'prisma';
+                } else if (content.includes('<') && content.includes('>')) {
+                    language = 'html';
+                }
+                
+                // Yeni code elementi oluştur
+                const codeElement = document.createElement('code');
+                codeElement.className = `language-${language}`;
+                codeElement.innerHTML = content;
+                
+                // Eski içeriği temizle ve yeni elementi ekle
+                block.innerHTML = '';
+                block.appendChild(codeElement);
+                
+                // Syntax highlighting uygula
+                hljs.highlightElement(codeElement);
+            });
         };
     </script>
+    </div>
 </body>
 
 </html>
