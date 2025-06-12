@@ -100,4 +100,62 @@ export const updateProfile = async (req, res) => {
     console.error('Failed to update profile:', error);
     res.status(500).json({ message: 'Failed to update profile' });
   }
-}; 
+};
+
+
+
+export const setActive = async (req, res) => {
+  const { id } = req.user;
+  const { active } = req.body;
+
+  if (!id || !active) {
+    return res.status(400).json({ message: 'User ID and Active status are required' });
+  }
+
+  // if the role is coach check if the id is for student and assigned to one of the classes that the coach is assigned to
+  if (req.user.role === 'coach') {
+    // get student role id
+    const studentRoleId = await prisma.role.findFirst({
+      where: { roleName: 'student' }
+    });
+    if (!studentRoleId) {
+      return res.status(400).json({ message: 'Student role not found' });
+    }
+    // check if the user is a student
+    const checkStudent = await prisma.user.findUnique({
+      where: { id: Number(id), roleId: studentRoleId.id }
+    });
+    if (!checkStudent) {
+      return res.status(403).json({ message: 'You are not authorized to set active status for this user' });
+    }
+    // get all the classes that the coach is assigned to
+    const coachClasses = await prisma.classCoach.findMany({
+      where: { coachId: req.user.id },
+      select: { classId: true }
+    });
+    // check if the student is assigned to one of the classes
+    const studentClass = await prisma.classStudent.findFirst({
+      where: { studentId: Number(id), classId: { in: coachClasses.map(c => c.classId) } }
+    });
+    if (!studentClass) {
+      return res.status(403).json({ message: 'You are not authorized to set active status for this user' });
+    }
+  }
+
+
+
+  try {
+    const updatedUser = await prisma.user.update({
+      where: { id: Number(id) },
+      data: { active: active },
+    });
+
+    res.status(200).json({
+      message: 'Active status updated successfully',
+      data: updatedUser
+    });
+  } catch (error) {
+    console.error('Failed to set active:', error);
+    res.status(500).json({ message: 'Failed to set active' });
+  }
+};
