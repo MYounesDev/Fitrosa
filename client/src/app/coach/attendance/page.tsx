@@ -153,6 +153,7 @@ const AttendancePage = () => {
     });
     const [isLoading, setIsLoading] = useState(true);
     const [isLoadingLogs, setIsLoadingLogs] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         fetchStudents();
@@ -223,21 +224,28 @@ const AttendancePage = () => {
     };
 
     const handleSubmit = async () => {
+        if (!selectedStudent || !selectedDate) return;
+        
         try {
-            if (!selectedStudent || !selectedDate) return;
-
+            setIsSubmitting(true);
+            const requestData = {
+                date: selectedDate.toISOString().split('T')[0],
+                status: formData.status,
+                note: formData.note
+            };
+            
             if (selectedLog) {
-                await attendanceService.updateAttendanceLog(selectedLog.id, formData);
+                await attendanceService.updateAttendanceLog(selectedLog.id, requestData);
             } else {
-                await attendanceService.createAttendanceLog(selectedStudent.id, {
-                    ...formData,
-                    date: selectedDate,
-                });
+                await attendanceService.createAttendanceLog(selectedStudent.id, requestData);
             }
-            await fetchAttendanceLogs();
+            
+            fetchAttendanceLogs();
             setIsModalOpen(false);
         } catch (error) {
             console.error('Failed to save attendance:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -427,6 +435,7 @@ const AttendancePage = () => {
                                         <Button
                                             variant="primary"
                                             onClick={handleSubmit}
+                                            isLoading={isSubmitting}
                                         >
                                             {selectedLog ? 'Update' : 'Save'}
                                         </Button>

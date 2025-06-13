@@ -1,14 +1,32 @@
 "use client";
 import Sidebar from '@/components/Sidebar';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
 
 interface PageTemplateProps {
   children?: React.ReactNode;
 }
 
 const PageTemplate: React.FC<PageTemplateProps> = ({ children }) => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Listen for sidebar collapse state changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const sidebarState = localStorage.getItem('sidebarCollapsed');
+      setIsSidebarCollapsed(sidebarState === 'true');
+    };
+
+    // Check initial state
+    handleStorageChange();
+
+    // Listen for changes
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-black to-blue-950 relative overflow-hidden ">
+    <div className="min-h-screen bg-gradient-to-br from-black to-blue-950 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* Large glowing orb */}
@@ -59,7 +77,11 @@ const PageTemplate: React.FC<PageTemplateProps> = ({ children }) => {
       <motion.main 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        className="flex-1 transition-all duration-300 ease-in-out relative z-10 p-4"
+        className={`
+          transition-all duration-300 ease-in-out 
+          relative z-10 p-4 lg:p-8
+          ${isSidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'}
+        `}
       >
         {children}
       </motion.main>

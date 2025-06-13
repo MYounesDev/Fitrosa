@@ -23,7 +23,8 @@ import {
   BarChart2,
   CreditCard,
   DollarSign,
-  UserCheck
+  UserCheck,
+  Dumbbell
 } from 'lucide-react';
 
 interface User {
@@ -51,6 +52,12 @@ export default function Sidebar() {
       } catch (error) {
         console.error('Failed to parse user data:', error);
       }
+    }
+
+    // Get sidebar collapsed state from localStorage
+    const sidebarState = localStorage.getItem('sidebarCollapsed');
+    if (sidebarState) {
+      setCollapsed(sidebarState === 'true');
     }
   }, []);
 
@@ -87,12 +94,6 @@ export default function Sidebar() {
       icon: <Trophy className="h-5 w-5" />,
       description: 'View and manage competitions'
     },
-    { 
-      name: 'Calendar', 
-      href: `/${user.role}/calendar`, 
-      icon: <Calendar className="h-5 w-5" />,
-      description: 'Schedule and appointments'
-    },
   ];
 
   // Role-specific navigation items
@@ -100,21 +101,23 @@ export default function Sidebar() {
     ? [
       { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'Manage student profiles' },
       { name: 'Coaches', href: '/admin/coaches', icon: <UserCheck className="h-5 w-5" />, description: 'Manage coach profiles' },
+      { name: 'Sports', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
       { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'View and manage classes' },
       { name: 'Analytics', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
       { name: 'Subscriptions', href: '/admin/subscriptions', icon: <Activity className="h-5 w-5" />, description: 'Manage subscriptions' },
       { name: 'Payments', href: '/admin/payments', icon: <DollarSign className="h-5 w-5" />, description: 'Payment management' },
-      { name: 'Billing', href: '/admin/cashiers', icon: <CreditCard className="h-5 w-5" />, description: 'Billing and invoices' },
       { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
     ]
     : isCoach
       ? [
+        { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
         { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'View your students' },
         { name: 'Attendance', href: '/coach/attendance', icon: <FileText className="h-5 w-5" />, description: 'Manage student attendance' },
         { name: 'Classes', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage your classes' },
         { name: 'Analytics', href: '/coach/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance tracking' },
       ]
       : [
+        { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
         { name: 'Subscription', href: '/student/subscription', icon: <Activity className="h-5 w-5" />, description: 'Manage your subscription' },
       ];
       
@@ -134,12 +137,13 @@ export default function Sidebar() {
     ? 'from-red-600 to-red-900' // Admin theme (red)
     : 'from-blue-600 to-purple-800'; // Coach and Student theme (blue/purple)
 
-  const activeItemColor = isAdmin
-    ? 'bg-red-700/50 border-r-4 border-red-400'
-    : 'bg-blue-700/50 border-r-4 border-blue-400';
 
   const toggleSidebar = () => {
-    setCollapsed(!collapsed);
+    const newState = !collapsed;
+    setCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', String(newState));
+    // Dispatch an event to notify other components
+    window.dispatchEvent(new Event('storage'));
   };
 
   const toggleMobileSidebar = () => {
@@ -248,104 +252,98 @@ export default function Sidebar() {
           <nav className="mt-6 px-2 flex-grow">
             <motion.ul layout className="space-y-2">
               {navItems.map((item) => {
-                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const isActive = pathname === item.href;
                 return (
                   <motion.li 
                     key={item.name}
                     layout
-                    onHoverStart={() => setHoveredItem(item.name)}
-                    onHoverEnd={() => setHoveredItem(null)}
+                    onMouseEnter={() => setHoveredItem(item.name)}
+                    onMouseLeave={() => setHoveredItem(null)}
                   >
                     <Link href={item.href}>
-                      <motion.div
+                      <div
                         className={`
-                          relative flex items-center px-4 py-3 rounded-xl
-                          ${isActive ? 'bg-gradient-to-r from-blue-900/50 to-blue-800/30 text-white' : 'text-gray-300 hover:text-white'}
-                          transition-all duration-200 group
+                          flex items-center px-3 py-3 rounded-xl transition-all duration-200
+                          ${isActive ? 'bg-blue-700/50 border-r-4 border-blue-400' : 'hover:bg-white/10'}
+                          ${collapsed ? 'justify-center' : 'justify-start'}
                         `}
-                        whileHover={{ x: collapsed ? 0 : 5 }}
                       >
-                        <span className={`${collapsed ? 'mx-auto' : 'mr-3'} relative z-10`}>
+                        <div className={`${isActive ? 'text-white' : 'text-gray-400'}`}>
                           {item.icon}
-                        </span>
+                        </div>
+                        
                         <AnimatePresence>
                           {!collapsed && (
                             <motion.span
                               initial={{ opacity: 0, x: -10 }}
                               animate={{ opacity: 1, x: 0 }}
                               exit={{ opacity: 0, x: -10 }}
-                              className="relative z-10"
+                              className={`ml-3 ${isActive ? 'text-white font-medium' : 'text-gray-300'}`}
                             >
                               {item.name}
                             </motion.span>
                           )}
                         </AnimatePresence>
-                        
-                        {isActive && (
-                          <motion.div
-                            layoutId="activeBackground"
-                            className="absolute inset-0 rounded-xl bg-gradient-to-r from-blue-900/50 to-blue-800/30 border-r-4 border-blue-400"
-                            initial={false}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          />
-                        )}
-
-                        {/* Tooltip */}
+                      </div>
+                    </Link>
+                    
+                    {/* Tooltip for collapsed state */}
                         {collapsed && hoveredItem === item.name && (
                           <motion.div
-                            initial={{ opacity: 0, x: 20 }}
+                        initial={{ opacity: 0, x: -10 }}
                             animate={{ opacity: 1, x: 0 }}
-                            exit={{ opacity: 0, x: 20 }}
-                            className="absolute left-full ml-4 px-3 py-2 bg-black/90 text-white text-sm rounded-lg whitespace-nowrap z-50"
+                        className="absolute left-20 top-0 mt-2 bg-gray-900 text-white text-sm py-1.5 px-3 rounded-md shadow-lg z-50 whitespace-nowrap"
                           >
-                            <div className="font-medium">{item.name}</div>
-                            <div className="text-xs text-gray-300">{item.description}</div>
-                          </motion.div>
-                        )}
+                        {item.name}
                       </motion.div>
-                    </Link>
+                    )}
                   </motion.li>
                 );
               })}
             </motion.ul>
           </nav>
 
-          {/* Footer */}
-          <motion.div layout className="mt-auto p-4">
+          {/* Logout button */}
+          <motion.div layout className="mt-auto mb-6 px-2">
             <motion.button
-              whileHover={{ x: collapsed ? 0 : 5 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={handleLogout}
               className={`
-                flex items-center px-4 py-3 text-gray-300 hover:text-white rounded-xl
-                hover:bg-gradient-to-r hover:from-blue-900/50 hover:to-blue-800/30
-                ${collapsed ? 'w-full justify-center' : 'w-full'} transition-all duration-200
+                w-full flex items-center px-3 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors
+                ${collapsed ? 'justify-center' : 'justify-start'}
               `}
+              onMouseEnter={() => setHoveredItem('logout')}
+              onMouseLeave={() => setHoveredItem(null)}
             >
-              <span className={`${collapsed ? '' : 'mr-3'}`}>
                 <LogOut className="h-5 w-5" />
-              </span>
+              
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
+                    className="ml-3 font-medium"
                   >
                     Logout
                   </motion.span>
                 )}
               </AnimatePresence>
             </motion.button>
+            
+            {/* Tooltip for collapsed state */}
+            {collapsed && hoveredItem === 'logout' && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="absolute left-20 bottom-6 bg-gray-900 text-white text-sm py-1.5 px-3 rounded-md shadow-lg z-50"
+              >
+                Logout
+              </motion.div>
+            )}
           </motion.div>
         </div>
-      </motion.div>
-
-      {/* Main content padding */}
-      <motion.div 
-        layout
-        className={`transition-all duration-300 ${collapsed ? 'lg:ml-20' : 'lg:ml-72'}`}
-      >
-        {/* Your main content goes here */}
       </motion.div>
     </>
   );

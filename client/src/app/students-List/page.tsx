@@ -176,6 +176,7 @@ const StudentsPage = () => {
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     // Tabs definition
     const tabs: Tab[] = [
@@ -224,6 +225,7 @@ const StudentsPage = () => {
     const handleAddStudent = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
+            setIsSubmitting(true);
             const response = await studentService.addStudent(newStudent);
 
             fetchStudents();
@@ -244,6 +246,8 @@ const StudentsPage = () => {
             setIsFormOpen(false);
         } catch (error) {
             console.error('Error adding student:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -550,6 +554,7 @@ const StudentsPage = () => {
                                         <Button
                                             variant="primary"
                                             type="submit"
+                                            isLoading={isSubmitting}
                                         >
                                             Add Student
                                         </Button>

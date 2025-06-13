@@ -177,6 +177,7 @@ const CoachesPage = () => {
     const [selectedCoach, setSelectedCoach] = useState<Coach | null>(null);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const tabs: Tab[] = [
         { id: 'all', label: 'All Coaches', icon: Users },
@@ -207,9 +208,9 @@ const CoachesPage = () => {
         try {
             setIsLoading(true);
             const response = await coachService.getAllCoaches();
-            if (response && response.data) {
-                setCoaches(response.data.coaches || []);
-                setFilteredCoaches(response.data.coaches || []);
+            if (response && response.coaches) {
+                setCoaches(response.coaches || []);
+                setFilteredCoaches(response.coaches || []);
             }
         } catch (error) {
             console.error('Error fetching coaches:', error);
@@ -226,8 +227,8 @@ const CoachesPage = () => {
     const handleAddCoach = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await coachService.addCoach(newCoach);
-
+            setIsSubmitting(true);
+            await coachService.addCoach(newCoach);
             fetchCoaches();
             setNewCoach({
                 firstName: '',
@@ -242,6 +243,8 @@ const CoachesPage = () => {
             setIsFormOpen(false);
         } catch (error) {
             console.error('Error adding coach:', error);
+        } finally {
+            setIsSubmitting(false);
         }
     };
 
@@ -504,6 +507,7 @@ const CoachesPage = () => {
                                     <Button
                                         variant="primary"
                                         type="submit"
+                                        isLoading={isSubmitting}
                                     >
                                         Add Coach
                                     </Button>

@@ -33,25 +33,26 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle common errors
+// Response interceptor to handle errors
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    return response.data;
+  },
   (error) => {
-    const { response } = error;
-    
-    // Handle expired tokens or authentication errors
-    if (response && response.status === 401) {
-      // Clear local storage and redirect to login if token is invalid or expired
+    // Handle session expiration
+    if (error.response && error.response.status === 401) {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/login?expired=true';
       }
     }
     
-    return Promise.reject(
-      response?.data?.message || 'Something went wrong. Please try again.'
-    );
+    // Format error message
+    const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
+    
+    // Return a rejected promise with the error message
+    return Promise.reject(errorMessage);
   }
 );
 
@@ -115,9 +116,18 @@ export const authService = {
     return !!localStorage.getItem('token');
   },
   
-  // Change user password
+  // Get the user profile
+  getProfile: async () => {
+    try {
+      const response = await api.get('/user/profile');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Change password
   changePassword: async (currentPassword, newPassword) => {
-
     try {
       const response = await api.post('/change-password', { // FIND OUT HOT THE TOKEN DOSEN't GO TO THIS REQUSTE 
         currentPassword,
@@ -142,8 +152,8 @@ export const authService = {
       throw error;
     }
   },
-
-
+  
+  // Setup password (for new users)
   setupPassword: async (token, password) => {
     try {
       const response = await api.post(`/auth/setup-password/${token}`, { password });
@@ -152,12 +162,11 @@ export const authService = {
       throw error;
     }
   },
-
   
-  // Get user profile
-  getProfile: async () => {
+  // Request password reset
+  requestPasswordReset: async (email) => {
     try {
-      const response = await api.get('/user/profile');
+      const response = await api.post('/forgot-password', { email });
       return response;
     } catch (error) {
       throw error;
@@ -271,6 +280,152 @@ export const coachService = {
     }
   },
 
+};
+
+// Sport Services
+export const sportService = {
+  // Get all sports
+  getAllSports: async () => {
+    try {
+      const response = await api.get('/sports');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get a sport by ID
+  getSport: async (id) => {
+    try {
+      const response = await api.get(`/sports/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Create a new sport (admin only)
+  createSport: async (sportData) => {
+    try {
+      const response = await api.post('/sports', sportData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update a sport (admin only)
+  updateSport: async (id, sportData) => {
+    try {
+      const response = await api.put(`/sports/${id}`, sportData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete a sport (admin only)
+  deleteSport: async (id) => {
+    try {
+      const response = await api.delete(`/sports/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
+// Class Services
+export const classService = {
+  // Get all classes (admin/coach)
+  getAllClasses: async () => {
+    try {
+      const response = await api.get('/classes');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get a class by ID (admin/coach)
+  getClass: async (id) => {
+    try {
+      const response = await api.get(`/classes/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Get unassigned classes (admin only)
+  getUnassignedClasses: async () => {
+    try {
+      const response = await api.get('/classes/unassigned');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Create a new class (admin only)
+  createClass: async (classData) => {
+    try {
+      const response = await api.post('/classes', classData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Update a class (admin only)
+  updateClass: async (id, classData) => {
+    try {
+      const response = await api.put(`/classes/${id}`, classData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Delete a class (admin only)
+  deleteClass: async (id) => {
+    try {
+      const response = await api.delete(`/classes/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Assign a coach to a class (admin only)
+  assignCoach: async (classId, coachId) => {
+    try {
+      const response = await api.post(`/classes/${classId}/coach`, { coachId });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Assign a student to a class (admin/coach)
+  assignStudent: async (classId, studentId) => {
+    try {
+      const response = await api.post(`/classes/${classId}/students`, { studentId });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  // Remove a student from a class (admin/coach)
+  removeStudent: async (classId, studentId) => {
+    try {
+      const response = await api.delete(`/classes/${classId}/students/${studentId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  }
 };
 
 // Attendance Services
@@ -417,6 +572,8 @@ export default {
   authService,
   studentService,
   coachService,
+  sportService,
+  classService,
   adminService,
   userService,
   notificationService,

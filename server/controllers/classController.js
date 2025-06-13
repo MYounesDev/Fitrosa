@@ -3,9 +3,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getAllClasses = async (req, res) => {
-
   try {
-    const classes = await prisma.class.findMany({
+    // Define the base query structure
+    const baseQuery = {
       include: {
         sport: {
           select: {
@@ -23,16 +23,22 @@ export const getAllClasses = async (req, res) => {
               }
             }
           }
-        },
-        // If user is a coach, only get classes assigned to them
-        ...(req.user.role === 'coach' ? {
-          where: {
-            coaches: { some: { coachId: req.user.id } }
-          }
-        } : {})
-          
+        }
       }
-    });
+    };
+
+    // Add role-specific filtering
+    if (req.user.role === 'coach') {
+      baseQuery.where = {
+        coaches: {
+          some: {
+            coachId: req.user.id
+          }
+        }
+      };
+    }
+
+    const classes = await prisma.class.findMany(baseQuery);
 
     // Transform data to make it easier to use on frontend
     const transformedClasses = classes.map(classItem => ({
@@ -51,7 +57,7 @@ export const getAllClasses = async (req, res) => {
       classes: transformedClasses
     });
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching classes:', error);
     res.status(500).json({
       message: 'Failed to fetch classes',
       error: error.message
