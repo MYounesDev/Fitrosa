@@ -20,7 +20,7 @@ function verifyToken(token, secret) {
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
       console.log('Token expired:', error.message);
-      throw new Error('Token expired');
+      throw new Error(error.name);
     } else if (error.name === 'JsonWebTokenError') {
       console.log('Invalid token:', error.message);
       throw new Error('Invalid token');
@@ -46,19 +46,18 @@ export const authenticate = async (req, res, next) => {
         gender: true
       }
     });
-
     if (!user) {
       return res.status(401).json({ message: 'User not found' });
     }
-
     if (new Date(decoded.tokenCreatedAt) < user.passwordChangedAt) {
-      return res.status(401).json({ message: 'Password has been changed, please login again' });
+      //  'Password has been changed, please login again'
+      return res.status(401).json({ message: 'TokenExpiredError' });
     }
-
     req.user = decoded ;
     next();
   } catch (error) {
-    return res.status(401).json({ message: error.message });
+    //  'TokenExpiredError'
+    return res.status(401).json({ message: error.message});
   }
 };
 

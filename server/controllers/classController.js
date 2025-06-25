@@ -111,7 +111,8 @@ export const getClass = async (req, res) => {
                 lastName: true,
                 email: true
               }
-            }
+            },
+            attendanceLogs: true
           }
         }
       }
@@ -131,7 +132,10 @@ export const getClass = async (req, res) => {
       section: classData.section,
       hasCoach: classData.coaches.length > 0,
       coach: classData.coaches[0]?.coach || null,
-      students: classData.students.map(s => s.student),
+      students: classData.students.map(cs => ({
+        ...cs.student,
+        classStudentId: cs.id
+      })),
       createdAt: classData.createdAt,
       updatedAt: classData.updatedAt
     };

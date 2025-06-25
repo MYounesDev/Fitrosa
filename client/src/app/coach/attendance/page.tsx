@@ -1,15 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { studentService, attendanceService } from '@/services/api';
+import { studentService, attendanceService, classService } from '@/services/api';
 import Calendar from 'react-calendar';
 import AuthWrapper from '@/components/AuthWrapper';
 import PageTemplate from '@/components/PageTemplate';
-import type { OnChangeDateCallback } from 'react-calendar/dist/cjs/shared/types';
 import 'react-calendar/dist/Calendar.css';
 import './attendance.css';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Calendar as CalendarIcon, Users, Activity, Check, X } from 'lucide-react';
+import { Search, Calendar as CalendarIcon, Users, Activity, Check, X, BookOpen } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
@@ -18,6 +17,21 @@ interface Student {
     firstName: string;
     lastName: string;
     email: string;
+    classStudentId: number;
+}
+
+interface Class {
+    id: number;
+    section: string;
+    sportId: number;
+    sportName: string;
+    hasCoach?: boolean;
+    coach?: {
+        id: number;
+        firstName: string;
+        lastName: string;
+        email: string;
+    } | null;
 }
 
 interface AttendanceLog {
@@ -51,6 +65,12 @@ interface StudentCardProps {
     student: Student;
     isSelected: boolean;
     onClick: (student: Student) => void;
+}
+
+interface ClassCardProps {
+    class: Class;
+    isSelected: boolean;
+    onClick: (classItem: Class) => void;
 }
 
 interface ModalProps {
@@ -100,6 +120,28 @@ const StudentCard: React.FC<StudentCardProps> = ({ student, isSelected, onClick 
     );
 };
 
+// Class Card Component
+const ClassCard: React.FC<ClassCardProps> = ({ class: classItem, isSelected, onClick }) => {
+    return (
+        <motion.div
+            whileHover={{ scale: 1.02 }}
+            className={`bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-5 border border-white/10 cursor-pointer ${isSelected ? 'ring-2 ring-blue-500' : ''
+                }`}
+            onClick={() => onClick(classItem)}
+        >
+            <div className="flex items-center">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-purple-800 flex items-center justify-center text-white font-bold shadow-lg">
+                    <BookOpen size={16} />
+                </div>
+                <div className="ml-3">
+                    <h3 className="font-semibold text-white">{classItem.sportName}</h3>
+                    <p className="text-sm text-gray-400">Section: {classItem.section}</p>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
 // Modal Component
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     if (!isOpen) return null;
@@ -138,11 +180,31 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, children }) => {
     );
 };
 
+// Add a type for the API response
+interface ClassesResponse {
+    classes?: Class[];
+    data?: Class[];
+    message?: string;
+}
+
+// Add type definition for AuthWrapper props to match the component
+interface AuthWrapperProps {
+    children: React.ReactNode;
+    allowedRoles: string[];
+    redirectTo?: string;
+}
+
 const AttendancePage = () => {
+    const [classes, setClasses] = useState<Class[]>([]);
+    const [filteredClasses, setFilteredClasses] = useState<Class[]>([]);
+    const [classSearchTerm, setClassSearchTerm] = useState('');
+    const [selectedClass, setSelectedClass] = useState<Class | null>(null);
+
     const [students, setStudents] = useState<Student[]>([]);
     const [filteredStudents, setFilteredStudents] = useState<Student[]>([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    const [studentSearchTerm, setStudentSearchTerm] = useState('');
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+
     const [attendanceLogs, setAttendanceLogs] = useState<AttendanceLog[]>([]);
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -151,26 +213,48 @@ const AttendancePage = () => {
         status: 'attended',
         note: '',
     });
-    const [isLoading, setIsLoading] = useState(true);
+    
+    const [isLoadingClasses, setIsLoadingClasses] = useState(true);
+    const [isLoadingStudents, setIsLoadingStudents] = useState(false);
     const [isLoadingLogs, setIsLoadingLogs] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        fetchStudents();
+        fetchClasses();
     }, []);
 
     useEffect(() => {
-        if (searchTerm) {
+        if (classSearchTerm) {
+            const filtered = classes.filter(cls =>
+                cls.section.toLowerCase().includes(classSearchTerm.toLowerCase()) ||
+                cls.sportName.toLowerCase().includes(classSearchTerm.toLowerCase())
+            );
+            setFilteredClasses(filtered);
+        } else {
+            setFilteredClasses(classes);
+        }
+    }, [classSearchTerm, classes]);
+
+    useEffect(() => {
+        if (selectedClass) {
+            fetchStudentsInClass(selectedClass.id);
+            setSelectedStudent(null);
+            setAttendanceLogs([]);
+        }
+    }, [selectedClass]);
+
+    useEffect(() => {
+        if (studentSearchTerm) {
             const filtered = students.filter(student =>
-                student.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                student.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                student.email.toLowerCase().includes(searchTerm.toLowerCase())
+                student.firstName.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+                student.lastName.toLowerCase().includes(studentSearchTerm.toLowerCase()) ||
+                student.email.toLowerCase().includes(studentSearchTerm.toLowerCase())
             );
             setFilteredStudents(filtered);
         } else {
             setFilteredStudents(students);
         }
-    }, [searchTerm, students]);
+    }, [studentSearchTerm, students]);
 
     useEffect(() => {
         if (selectedStudent) {
@@ -178,16 +262,39 @@ const AttendancePage = () => {
         }
     }, [selectedStudent]);
 
-    const fetchStudents = async () => {
+    const fetchClasses = async () => {
         try {
-            setIsLoading(true);
-            const response = await studentService.getAllStudents() as ApiResponse<Student>;
-            setStudents(response.students || []);
-            setFilteredStudents(response.students || []);
+            setIsLoadingClasses(true);
+            const response = await classService.getAllClasses();
+            
+            // The server returns classes in response.classes based on the server code
+            const classesData = (response as any).classes || [];
+            setClasses(classesData);
+            setFilteredClasses(classesData);
         } catch (error) {
-            console.error('Failed to fetch students:', error);
+            console.error('Failed to fetch classes:', error);
         } finally {
-            setIsLoading(false);
+            setIsLoadingClasses(false);
+        }
+    };
+
+    const fetchStudentsInClass = async (classId: number) => {
+        try {
+            setIsLoadingStudents(true);
+            const response = await classService.getClass(classId);
+            console.log(response);
+            
+            const studentsWithClassIds = response.data.students.map((student: any) => ({
+                ...student,
+                classStudentId: student.classStudentId || student.ClassStudent?.id
+            })) || [];
+            
+            setStudents(studentsWithClassIds);
+            setFilteredStudents(studentsWithClassIds);
+        } catch (error) {
+            console.error('Failed to fetch students in class:', error);
+        } finally {
+            setIsLoadingStudents(false);
         }
     };
 
@@ -195,7 +302,12 @@ const AttendancePage = () => {
         try {
             if (!selectedStudent) return;
             setIsLoadingLogs(true);
-            const response = await attendanceService.getStudentAttendance(selectedStudent.id) as ApiResponse<AttendanceLog>;
+            const response = await attendanceService.getStudentAttendance(selectedStudent.classStudentId) as ApiResponse<AttendanceLog>;
+            console.log("!!!!!!!");
+            console.log(response);
+            console.log(response.data);
+            console.log(selectedStudent.classStudentId);
+            console.log("!!!!!!!");
             setAttendanceLogs(response.data || []);
         } catch (error) {
             console.error('Failed to fetch attendance logs:', error);
@@ -204,11 +316,15 @@ const AttendancePage = () => {
         }
     };
 
+    const handleClassSelect = (classItem: Class) => {
+        setSelectedClass(classItem);
+    };
+
     const handleStudentSelect = (student: Student) => {
         setSelectedStudent(student);
     };
 
-    const handleDateClick: OnChangeDateCallback = (value) => {
+    const handleDateClick = (value: any) => {
         if (!value || Array.isArray(value)) return;
         const date = value as Date;
         const existingLog = attendanceLogs.find(
@@ -237,7 +353,8 @@ const AttendancePage = () => {
             if (selectedLog) {
                 await attendanceService.updateAttendanceLog(selectedLog.id, requestData);
             } else {
-                await attendanceService.createAttendanceLog(selectedStudent.id, requestData);
+                console.log(selectedStudent.classStudentId);    
+                await attendanceService.createAttendanceLog(selectedStudent.classStudentId, requestData);
             }
             
             fetchAttendanceLogs();
@@ -275,9 +392,12 @@ const AttendancePage = () => {
     const withReportCount = attendanceLogs.filter(log => log.status === 'with_report').length;
 
     return (
-        <AuthWrapper allowedRoles={['admin', 'coach']}>
+        <AuthWrapper 
+            allowedRoles={["admin", "coach"]}
+            redirectTo="/login"
+        >
             <PageTemplate>
-                {isLoading ? (
+                {isLoadingClasses ? (
                     <LoadingSpinner fullScreen />
                 ) : (
                     <div className="max-w-7xl mx-auto px-4 py-8">
@@ -286,17 +406,18 @@ const AttendancePage = () => {
                         </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                            {/* Classes List */}
                             <div className="lg:col-span-1 space-y-4">
                                 <div className="flex items-center justify-between mb-4">
-                                    <h2 className="text-xl font-semibold text-white">Students</h2>
+                                    <h2 className="text-xl font-semibold text-white">Classes</h2>
                                     <div className="flex-1 max-w-xs ml-4">
                                         <div className="relative">
                                             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                                             <input
                                                 type="text"
-                                                placeholder="Search students..."
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
+                                                placeholder="Search classes..."
+                                                value={classSearchTerm}
+                                                onChange={(e) => setClassSearchTerm(e.target.value)}
                                                 className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
                                             />
                                         </div>
@@ -304,17 +425,17 @@ const AttendancePage = () => {
                                 </div>
                                 <div className="space-y-4 max-h-[540px] overflow-y-auto pr-2 p-4 rounded-lg">
                                     <AnimatePresence>
-                                        {filteredStudents.map((student) => (
+                                        {filteredClasses.map((classItem) => (
                                             <motion.div
-                                                key={student.id}
+                                                key={classItem.id}
                                                 initial={{ opacity: 0, y: 20 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -20 }}
                                             >
-                                                <StudentCard
-                                                    student={student}
-                                                    isSelected={selectedStudent?.id === student.id}
-                                                    onClick={handleStudentSelect}
+                                                <ClassCard
+                                                    class={classItem}
+                                                    isSelected={selectedClass?.id === classItem.id}
+                                                    onClick={handleClassSelect}
                                                 />
                                             </motion.div>
                                         ))}
@@ -322,62 +443,110 @@ const AttendancePage = () => {
                                 </div>
                             </div>
 
-                            {selectedStudent && (
-                                <div className="lg:col-span-2">{isLoadingLogs ? (
-                                    <LoadingSpinner />
-                                ) : (
-                                    <div className="space-y-6">
+                            {/* Students for Selected Class */}
+                            {selectedClass && (
+                                <div className="lg:col-span-1 space-y-4">
+                                    {isLoadingStudents ? (
+                                        <LoadingSpinner />
+                                    ) : (
+                                        <>
+                                            <div className="flex items-center justify-between mb-4">
+                                                <h2 className="text-xl font-semibold text-white">Students</h2>
+                                                <div className="flex-1 max-w-xs ml-4">
+                                                    <div className="relative">
+                                                        <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Search students..."
+                                                            value={studentSearchTerm}
+                                                            onChange={(e) => setStudentSearchTerm(e.target.value)}
+                                                            className="w-full pl-9 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="space-y-4 max-h-[540px] overflow-y-auto pr-2 p-4 rounded-lg">
+                                                <AnimatePresence>
+                                                    {filteredStudents.map((student) => (
+                                                        <motion.div
+                                                            key={student.id}
+                                                            initial={{ opacity: 0, y: 20 }}
+                                                            animate={{ opacity: 1, y: 0 }}
+                                                            exit={{ opacity: 0, y: -20 }}
+                                                        >
+                                                            <StudentCard
+                                                                student={student}
+                                                                isSelected={selectedStudent?.id === student.id}
+                                                                onClick={handleStudentSelect}
+                                                            />
+                                                        </motion.div>
+                                                    ))}
+                                                </AnimatePresence>
+                                                {filteredStudents.length === 0 && (
+                                                    <div className="text-center py-8 text-gray-400">
+                                                        No students found in this class.
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
 
-                                        {/* Attendance Calendar */}
-                                        <h2 className="text-xl font-semibold text-white mb-4">
-                                            Attendance Calendar - {selectedStudent.firstName} {selectedStudent.lastName}
-                                        </h2>
-                                        <div className="bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
-                                            <div className="calendar-wrapper">
-                                                <Calendar
-                                                    onChange={handleDateClick}
-                                                    tileClassName={getTileClassName}
-                                                    value={null}
-                                                    className="attendance-calendar"
+                            {/* Attendance Calendar for Selected Student */}
+                            {selectedStudent && (
+                                <div className="lg:col-span-1">
+                                    {isLoadingLogs ? (
+                                        <LoadingSpinner />
+                                    ) : (
+                                        <div className="space-y-6">
+                                            {/* Attendance Calendar */}
+                                            <h2 className="text-xl font-semibold text-white mb-4">
+                                                Attendance Calendar - {selectedStudent.firstName} {selectedStudent.lastName}
+                                            </h2>
+                                            <div className="bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-6 border border-white/10">
+                                                <div className="calendar-wrapper">
+                                                    <Calendar
+                                                        onChange={handleDateClick}
+                                                        tileClassName={getTileClassName}
+                                                        value={null}
+                                                        className="attendance-calendar"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Attendance Stats */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                                                <StatsCard
+                                                    title="Total Records"
+                                                    value={totalAttendance}
+                                                    icon={<Activity size={24} className="text-blue-500" />}
+                                                    color="bg-blue-500/10"
+                                                />
+                                                <StatsCard
+                                                    title="Attended"
+                                                    value={attendedCount}
+                                                    icon={<Check size={24} className="text-green-500" />}
+                                                    color="bg-green-500/10"
+                                                />
+                                                <StatsCard
+                                                    title="Not Attended"
+                                                    value={notAttendedCount}
+                                                    icon={<X size={24} className="text-red-500" />}
+                                                    color="bg-red-500/10"
+                                                />
+                                                <StatsCard
+                                                    title="With Report"
+                                                    value={withReportCount}
+                                                    icon={<CalendarIcon size={24} className="text-yellow-500" />}
+                                                    color="bg-yellow-500/10"
                                                 />
                                             </div>
                                         </div>
-
-
-                                        {/* Attendance Stats */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                                            <StatsCard
-                                                title="Total Records"
-                                                value={totalAttendance}
-                                                icon={<Activity size={24} className="text-blue-500" />}
-                                                color="bg-blue-500/10"
-                                            />
-                                            <StatsCard
-                                                title="Attended"
-                                                value={attendedCount}
-                                                icon={<Check size={24} className="text-green-500" />}
-                                                color="bg-green-500/10"
-                                            />
-                                            <StatsCard
-                                                title="Not Attended"
-                                                value={notAttendedCount}
-                                                icon={<X size={24} className="text-red-500" />}
-                                                color="bg-red-500/10"
-                                            />
-                                            <StatsCard
-                                                title="With Report"
-                                                value={withReportCount}
-                                                icon={<CalendarIcon size={24} className="text-yellow-500" />}
-                                                color="bg-yellow-500/10"
-                                            />
-                                        </div>
-
-                                    </div>
-                                )}
+                                    )}
                                 </div>
                             )}
                         </div>
-
 
                         {/* Attendance Modal */}
                         <Modal

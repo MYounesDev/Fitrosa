@@ -15,35 +15,91 @@ export const getAllStudents = async (req, res) => {
       });
     }
 
-    // TODO: Add session and section filters
-    // TO-DO: if user is admin, show all students
-    // TO-DO: if user is coach, show students of the class
+    // Check if the requesting user is a coach
+    const userRole = req.user?.role;
+    const userId = req.user?.id;
 
+    let students = [];
 
-    const students = await prisma.user.findMany({
-      where: { 
-        roleId: studentRoleId
-      },
-      select: {
-        id: true,
-        email: true,
-        firstName: true,
-        lastName: true,
-        role: {
+    if (userRole === 'coach' && userId) {
+      // Find classes assigned to the coach
+      const coachClasses = await prisma.classCoach.findMany({
+        where: { coachId: userId },
+        select: { classId: true }
+      });
+      
+      const classIds = coachClasses.map(cc => cc.classId);
+      
+      if (classIds.length === 0) {
+        // Coach has no classes assigned
+        students = [];
+      } else {
+        // Find students assigned to those classes
+        const studentIds = await prisma.classStudent.findMany({
+          where: { 
+            classId: { 
+              in: classIds 
+            } 
+          },
+          select: { studentId: true }
+        });
+        
+        const uniqueStudentIds = [...new Set(studentIds.map(s => s.studentId))];
+        
+        // Get the actual student data
+        students = await prisma.user.findMany({
+          where: { 
+            id: { in: uniqueStudentIds },
+            roleId: studentRoleId
+          },
           select: {
-            roleName: true
+            id: true,
+            email: true,
+            firstName: true,
+            lastName: true,
+            role: {
+              select: {
+                roleName: true
+              }
+            },
+            gender: {
+              select: {
+                genderName: true
+              }
+            },
+            active: true,
+            createdAt: true,
+            updatedAt: true
           }
-        },
-        gender: {
-          select: {
-            genderName: true
-          }
-        },
-        active: true,
-        createdAt: true,
-        updatedAt: true
+        });
       }
-    });
+    } else {
+      // For admin or other roles, show all students
+      students = await prisma.user.findMany({
+        where: { 
+          roleId: studentRoleId
+        },
+        select: {
+          id: true,
+          email: true,
+          firstName: true,
+          lastName: true,
+          role: {
+            select: {
+              roleName: true
+            }
+          },
+          gender: {
+            select: {
+              genderName: true
+            }
+          },
+          active: true,
+          createdAt: true,
+          updatedAt: true
+        }
+      });
+    }
 
     res.status(200).json({
       message: 'Students fetched successfully',

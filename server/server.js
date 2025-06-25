@@ -12,6 +12,7 @@ import attendanceRoutes from './routes/attendanceRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import sportRoutes from './routes/sportRoutes.js';
 import classRoutes from './routes/classRoutes.js';
+import financialRoutes from './routes/financialRoutes.js';
 
 dotenv.config();
 
@@ -28,12 +29,13 @@ app.use(express.json());
 
 // Routes
 app.use('/', authRoutes);
-app.use('/user', userRoutes);
+app.use('/', userRoutes);
 app.use('/students', studentRoutes);
 app.use('/coaches', coachRoutes);
 app.use('/attendance', attendanceRoutes);
 app.use('/sports', sportRoutes);
 app.use('/classes', classRoutes);
+app.use('/financial', financialRoutes);
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

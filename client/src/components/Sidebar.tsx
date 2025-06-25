@@ -99,22 +99,33 @@ export default function Sidebar() {
   // Role-specific navigation items
   const roleSpecificNavItems = isAdmin
     ? [
-      { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'Manage student profiles' },
-      { name: 'Coaches', href: '/admin/coaches', icon: <UserCheck className="h-5 w-5" />, description: 'Manage coach profiles' },
-      { name: 'Sports', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
-      { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'View and manage classes' },
-      { name: 'Analytics', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
-      { name: 'Subscriptions', href: '/admin/subscriptions', icon: <Activity className="h-5 w-5" />, description: 'Manage subscriptions' },
-      { name: 'Payments', href: '/admin/payments', icon: <DollarSign className="h-5 w-5" />, description: 'Payment management' },
-      { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
+      /* Student */
+      { name: 'Öğrenciler', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'Manage student profiles' },
+      /* Coach */
+      { name: 'Koçlar', href: '/admin/coaches', icon: <UserCheck className="h-5 w-5" />, description: 'Manage coach profiles' },
+      /* Sports */
+      { name: 'Sporlar', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
+      /* Classes */
+      { name: 'Sınıflar', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'View and manage classes' },
+      /* Analytics */
+      { name: 'Analitik', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
+       /*FinMuhase Transactions */   
+      { name: 'Muhasebe', href: '/admin/financial', icon: <DollarSign className="h-5 w-5" />, description: 'Financial Transactions' },
+      /* System */
+      { name: 'Sistem', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
     ]
     : isCoach
       ? [
-        { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
-        { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'View your students' },
-        { name: 'Attendance', href: '/coach/attendance', icon: <FileText className="h-5 w-5" />, description: 'Manage student attendance' },
-        { name: 'Classes', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage your classes' },
-        { name: 'Analytics', href: '/coach/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance tracking' },
+        /* Calendar */
+        { name: 'Takvim', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
+        /* Students */
+        { name: 'Öğrenciler', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'View your students' },
+        /* Attendance */
+        { name: 'Devamsızlık', href: '/coach/attendance', icon: <FileText className="h-5 w-5" />, description: 'Manage student attendance' },
+        /* Classes */
+        { name: 'Sınıflar', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage your classes' },
+        /* Analytics */
+        { name: 'Analitik', href: '/coach/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance tracking' },
       ]
       : [
         { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },

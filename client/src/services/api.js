@@ -40,11 +40,12 @@ api.interceptors.response.use(
   },
   (error) => {
     // Handle session expiration
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && error.response.data.message !== 'Invalid email or password') {
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login?expired=true';
+        console.log('error.response.data.message : ', error.response.data.message);
+        window.location.href = `/login${error.response.data.message === 'TokenExpiredError' ? '?expired=true' : ''}`;
       }
     }
     
@@ -111,9 +112,21 @@ export const authService = {
   },
   
   // Check if the user is authenticated
-  isAuthenticated: () => {
-    if (typeof window === 'undefined') return false;
-    return !!localStorage.getItem('token');
+  isAuthenticated: async() => {
+    try {
+      const response = await api.get('/isAuthenticated');
+
+      console.log(response);
+      
+      return !!response.token;
+    } catch (error) {
+      throw error;
+    }
+    /*
+      if (typeof window === 'undefined') return false;
+      return !!localStorage.getItem('token');
+    */
+
   },
   
   // Get the user profile
@@ -439,27 +452,47 @@ export const attendanceService = {
       throw error;
     }
   },
+  
+  // Get attendance logs for a class (admin/coach)
+  getClassAttendance: async (classId) => {
+    try {
+      const response = await api.get(`/attendance/class/${classId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 
-  // Get attendance logs for a specific student (admin/coach)
+  // Get attendance logs for a specific student across all classes (admin/coach)
   getStudentAttendance: async (studentId) => {
     try {
-      const response = await api.get(`/attendance/${studentId}`);
+      const response = await api.get(`/attendance/class-student/${studentId}`);
       return response;
     } catch (error) {
       throw error;
     }
   },
 
-  // Create attendance log for a student (admin/coach)
-  createAttendanceLog: async (studentId, attendanceData) => {
+  // Get attendance logs for a specific student in a specific class (admin/coach)
+  getClassStudentAttendance: async (classStudentId) => {
     try {
-      const response = await api.post(`/attendance/${studentId}`, attendanceData);
+      const response = await api.get(`/attendance/class-student/${classStudentId}`);
       return response;
     } catch (error) {
       throw error;
     }
   },
-
+  
+  // Create attendance log for a student in a class (admin/coach)
+  createAttendanceLog: async (classStudentId, attendanceData) => {
+    try {
+      const response = await api.post(`/attendance/class-student/${classStudentId}`, attendanceData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
   // Update attendance log (admin/coach)
   updateAttendanceLog: async (id, updateData) => {
     try {
@@ -469,7 +502,7 @@ export const attendanceService = {
       throw error;
     }
   },
-
+  
   // Delete attendance log (admin/coach)
   deleteAttendanceLog: async (id) => {
     try {
@@ -550,6 +583,161 @@ export const notificationService = {
   }
 };
 
+// Financial Transaction Services
+export const financialService = {
+  // Get all financial transactions (admin only)
+  getAllTransactions: async () => {
+    try {
+      const response = await api.get('/financial');
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Get financial transactions with filters (admin only)
+  getFilteredTransactions: async (filters = {}) => {
+    try {
+      // Build query parameters from filters
+      const queryParams = new URLSearchParams();
+      
+      if (filters.transaction_type) {
+        queryParams.append('transaction_type', filters.transaction_type);
+      }
+      
+      if (filters.user_id) {
+        queryParams.append('user_id', filters.user_id);
+      }
+      
+      if (filters.min_amount) {
+        queryParams.append('min_amount', filters.min_amount);
+      }
+      
+      if (filters.max_amount) {
+        queryParams.append('max_amount', filters.max_amount);
+      }
+      
+      if (filters.currency) {
+        queryParams.append('currency', filters.currency);
+      }
+      
+      if (filters.start_date) {
+        queryParams.append('start_date', filters.start_date);
+      }
+      
+      if (filters.end_date) {
+        queryParams.append('end_date', filters.end_date);
+      }
+      
+      if (filters.search) {
+        queryParams.append('search', filters.search);
+      }
+      
+      const queryString = queryParams.toString();
+      const url = queryString ? `/financial?${queryString}` : '/financial';
+      
+      const response = await api.get(url);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  
+  // Create a new financial transaction (admin only)
+  createTransaction: async (transactionData) => {
+    try {
+      const response = await api.post('/financial', transactionData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Update a financial transaction (admin only)
+  updateTransaction: async (id, transactionData) => {
+    try {
+      const response = await api.put(`/financial/${id}`, transactionData);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Delete a financial transaction (admin only)
+  deleteTransaction: async (id) => {
+    try {
+      const response = await api.delete(`/financial/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Get financial summary (admin only)
+  getFinancialSummary: async (period = 'all') => {
+    try {
+      const response = await api.get(`/financial/summary?period=${period}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+  // Get financial transactions by user (admin only)
+  getUserTransactions: async (userId) => {
+    try {
+      const response = await api.get(`/financial?user_id=${userId}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  
+
+  
+  // Export transactions to CSV or Excel (admin only)
+  exportTransactions: async (format = 'csv', filters = {}) => {
+    try {
+      // Build query parameters
+      const queryParams = new URLSearchParams();
+      queryParams.append('format', format);
+      
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          queryParams.append(key, value);
+        }
+      });
+      
+      const queryString = queryParams.toString();
+      const url = `/financial/export?${queryString}`;
+      
+      // Use axios directly for binary responses
+      const response = await axios({
+        url: `${API_URL}${url}`,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      
+      // Create a download link
+      const downloadUrl = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', `financial-transactions.${format}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      
+      return true;
+    } catch (error) {
+      throw error;
+    }
+  }
+};
+
 // Utility function to determine if current user has admin role
 export const isAdmin = () => {
   const user = authService.getCurrentUser();
@@ -577,6 +765,7 @@ export default {
   adminService,
   userService,
   notificationService,
+  financialService,
   isAdmin,
   isCoach,
   isStudent

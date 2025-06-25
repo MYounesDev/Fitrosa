@@ -11,10 +11,13 @@ export default function Login() {
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    if (authService.isAuthenticated()) {
-      const user = authService.getCurrentUser();
-      if (user) {
-        if (user.role === 'admin') {
+    // Check if user is already logged in
+    const checkAuth = async () => {
+      const isAuthenticated = await authService.isAuthenticated();
+      if (isAuthenticated) {
+        const user = authService.getCurrentUser();
+        if (user) {
+          if (user.role === 'admin') {
           router.push('/admin/dashboard');
         } else if (user.role === 'coach') {
           router.push('/coach/dashboard');
@@ -25,6 +28,8 @@ export default function Login() {
         router.push('/dashboard');
       }
     }
+    checkAuth();
+  };
   }, [router]);
 
   useEffect(() => {
@@ -74,8 +79,9 @@ export default function Login() {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      console.error(err.message);
-      setError(err.message || 'Login failed. Please try again.');
+      console.error(err);
+      setLoading(false);
+      setError(err || 'Login failed. Please try again.');
     } finally {
    //   setLoading(false);    // better if we don't want to show the loading state
     }

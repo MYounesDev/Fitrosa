@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { studentService } from '@/services/api';
-import { Search, PlusCircle, UserPlus, ChevronDown, Activity, BookOpen, Users, User, Calendar, File, X, Check, Edit3, Trash2, MoreHorizontal, Filter } from 'lucide-react';
+import { Search, PlusCircle, UserPlus, ChevronDown, Activity, BookOpen, Users, User, Calendar, File, X, Check, Edit3, Trash2, MoreHorizontal, Filter, List, Grid } from 'lucide-react';
 import AuthWrapper from '@/components/AuthWrapper';
 import PageTemplate from "@/components/PageTemplate";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -107,6 +107,55 @@ const StudentCard = ({ student, onView }) => {
                 <div className="flex items-center text-xs text-gray-400">
                     <User size={14} className="mr-1" />
                     <span className="capitalize">{student.gender?.genderName || 'N/A'}</span>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+// Student List Item Component
+const StudentListItem = ({ student, onView }) => {
+    return (
+        <motion.div 
+            whileHover={{ scale: 1.01 }}
+            className="bg-white/5 backdrop-blur-lg rounded-xl shadow-2xl p-4 border border-white/10"
+        >
+            <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center text-white font-bold shadow-lg">
+                        {student.firstName[0]}{student.lastName[0]}
+                    </div>
+                    <div className="flex-1">
+                        <h3 className="font-semibold text-white text-lg">{student.firstName} {student.lastName}</h3>
+                        <p className="text-sm text-gray-400">{student.email}</p>
+                    </div>
+                </div>
+                
+                <div className="flex items-center space-x-6 text-sm">
+                    <div className="text-center">
+                        <p className="text-gray-400">Session</p>
+                        <p className="font-medium text-white">{student.session || 'N/A'}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-gray-400">Section</p>
+                        <p className="font-medium text-white">{student.section || 'N/A'}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-gray-400">Gender</p>
+                        <p className="font-medium text-white capitalize">{student.gender?.genderName || 'N/A'}</p>
+                    </div>
+                    <div className="text-center">
+                        <p className="text-gray-400">Start Date</p>
+                        <p className="font-medium text-white">{formatDate(student.startDate)}</p>
+                    </div>
+                    <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => onView(student)}
+                        className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/10 rounded-lg"
+                    >
+                        <MoreHorizontal size={20} />
+                    </motion.button>
                 </div>
             </div>
         </motion.div>
@@ -337,10 +386,10 @@ const StudentsPage = () => {
                             <div className="flex items-center gap-4 w-full md:w-auto">
                                 <Button
                                     variant="secondary"
-                                    icon={Filter}
+                                    icon={viewMode === 'grid' ? List : Grid}
                                     onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
                                 >
-                                    View
+                                    {viewMode === 'grid' ? 'List' : 'Grid'}
                                 </Button>
                                 <Button
                                     variant="primary"
@@ -368,24 +417,34 @@ const StudentsPage = () => {
                             </div>
 
                         {/* Students Grid */}
-                        <div className={`grid gap-6 ${
-                            viewMode === 'grid' 
-                                ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
-                                : 'grid-cols-1'
-                        }`}>
+                        <motion.div 
+                            layout
+                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            className={`grid gap-6 ${
+                                viewMode === 'grid' 
+                                    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' 
+                                    : 'grid-cols-1'
+                            }`}
+                        >
                             <AnimatePresence>
                                 {displayedStudents.map((student) => (
                                     <motion.div
-                                                key={student.id} 
+                                        key={student.id} 
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
+                                        layout
+                                        transition={{ duration: 0.3, ease: "easeInOut" }}
                                     >   
-                                        <StudentCard student={(student)} onView={handleViewStudent} />
+                                        {viewMode === 'grid' ? (
+                                            <StudentCard student={student} onView={handleViewStudent} />
+                                        ) : (
+                                            <StudentListItem student={student} onView={handleViewStudent} />
+                                        )}
                                     </motion.div>
                                 ))}
                             </AnimatePresence>
-                                </div>
+                        </motion.div>
 
                                 {/* Add Student Modal */}
                                 <Modal 

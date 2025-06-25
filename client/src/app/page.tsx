@@ -8,8 +8,10 @@ export default function Home() {
 
   useEffect(() => {
     // Check if user is already logged in
-    if (authService.isAuthenticated()) {
-      const user = authService.getCurrentUser();
+    const checkAuth = async () => {
+      const isAuthenticated = await authService.isAuthenticated();
+      if (isAuthenticated) {
+        const user = authService.getCurrentUser();
       
       // Redirect based on user role
       if (user) {
@@ -27,6 +29,9 @@ export default function Home() {
       // Not logged in, redirect to login page
       router.push('/login');
     }
+  };
+
+  checkAuth();
   }, [router]);
 
   return (
