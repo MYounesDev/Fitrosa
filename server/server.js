@@ -13,6 +13,7 @@ import userRoutes from './routes/userRoutes.js';
 import sportRoutes from './routes/sportRoutes.js';
 import classRoutes from './routes/classRoutes.js';
 import financialRoutes from './routes/financialRoutes.js';
+import authLogRoutes from './routes/authLogRoutes.js';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/attendance', attendanceRoutes);
 app.use('/sports', sportRoutes);
 app.use('/classes', classRoutes);
 app.use('/financial', financialRoutes);
+app.use('/auth-logs', authLogRoutes);
 
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));

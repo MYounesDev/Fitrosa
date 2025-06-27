@@ -392,10 +392,7 @@ const AttendancePage = () => {
     const withReportCount = attendanceLogs.filter(log => log.status === 'with_report').length;
 
     return (
-        <AuthWrapper 
-            allowedRoles={["admin", "coach"]}
-            redirectTo="/login"
-        >
+        <AuthWrapper allowedRoles={['admin', 'coach']}>
             <PageTemplate>
                 {isLoadingClasses ? (
                     <LoadingSpinner fullScreen />

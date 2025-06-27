@@ -27,7 +27,11 @@ export default function AuthWrapper({
       // Check if the user is authenticated
       if (!authService.isAuthenticated()) {
         setAuthorized(false);
-        router.push(redirectTo);
+        // we are in http://localhost:3000/projects/fitrosa/admin/classes for example
+        // we need to redirect to http://localhost:3000/projects/fitrosa/login
+        // we need to remove the /admin/classes from the url
+
+        router.push(url.toString());
         return;
       }
 

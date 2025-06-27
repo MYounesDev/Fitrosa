@@ -61,15 +61,7 @@ export default function Sidebar() {
     }
   }, []);
 
-  // Don't show sidebar on login or register pages
-  if (
-    pathname === '/login' ||
-    pathname === '/register' ||
-    pathname === '/forgot-password' ||
-    pathname === '/unauthorized'
-  ) {
-    return null;
-  }
+  
 
   // Don't show sidebar if not authenticated
   if (!user) {
@@ -106,11 +98,13 @@ export default function Sidebar() {
       /* Sports */
       { name: 'Sporlar', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
       /* Classes */
-      { name: 'Sınıflar', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'View and manage classes' },
+      { name: 'Sınıflar', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage classes' },
       /* Analytics */
       { name: 'Analitik', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
        /*FinMuhase Transactions */   
       { name: 'Muhasebe', href: '/admin/financial', icon: <DollarSign className="h-5 w-5" />, description: 'Financial Transactions' },
+      /* Sign-In Logs */
+      { name: 'Giriş Logları', href: '/admin/signin-logs', icon: <FileText className="h-5 w-5" />, description: 'View system sign-in logs' },
       /* System */
       { name: 'Sistem', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
     ]

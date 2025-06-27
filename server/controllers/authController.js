@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
 import { sendPasswordSetupEmail, generatePasswordSetupToken } from '../utils/emailService.js';
+import { logAuthAttempt } from '../utils/authLogHelper.js';
 
 const prisma = new PrismaClient();
 const jwtSecretKey = process.env.JWT_SECRET || "your_jwt_secret";
@@ -71,7 +72,7 @@ export const register = async (req, res) => {
         if (!emailSent) {
             await prisma.user.delete({ where: { id: user.id } });
             return res.status(500).json({ message: 'Failed to send activation email' });
-        }       
+        }
 
         res.status(201).json({ 
             message: 'Account created. Please check your email to activate your account.',
@@ -127,8 +128,17 @@ export const setupPassword = async (req, res) => {
 
 export const login = async (req, res) => {
     const { email, password } = req.body;
+    const ip_address = req.ip || req.connection.remoteAddress;
+    const user_agent = req.headers['user-agent'];
 
     if (!email || !password) {
+        await logAuthAttempt({
+            email,
+            status: "fail",
+            ip_address,
+            user_agent,
+            failure_reason: "Email and password required"
+        });
         return res.status(400).json({
             message: 'Email and password required'
         });
@@ -162,6 +172,13 @@ export const login = async (req, res) => {
         });
 
         if (!user) {
+            await logAuthAttempt({
+                email,
+                status: "fail",
+                ip_address,
+                user_agent,
+                failure_reason: "User not found"
+            });
             return res.status(401).json({
                 message: 'Invalid email or password'
             });
@@ -170,6 +187,13 @@ export const login = async (req, res) => {
         const isMatch = await bcrypt.compare(password, user.password);
 
         if (!isMatch) {
+            await logAuthAttempt({
+                email,
+                status: "fail",
+                ip_address,
+                user_agent,
+                failure_reason: "Wrong password"
+            });
             return res.status(401).json({
                 message: 'Invalid email or password'
             });
@@ -186,6 +210,14 @@ export const login = async (req, res) => {
             { expiresIn: '1h' }
         );
 
+        // Log successful login
+        await logAuthAttempt({
+            email,
+            status: "success",
+            ip_address,
+            user_agent
+        });
+
         const { password: _, role, gender, ...restUserData } = user;
       
         res.status(200).json({
@@ -199,6 +231,13 @@ export const login = async (req, res) => {
         });
     } catch (error) {
         console.error('Login error:', error);
+        await logAuthAttempt({
+            email,
+            status: "fail",
+            ip_address,
+            user_agent,
+            failure_reason: error.message
+        });
         res.status(500).json({
             message: 'Login failed',
             error: error.message

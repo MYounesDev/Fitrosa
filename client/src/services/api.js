@@ -21,6 +21,7 @@ const api = axios.create({
   },
 });
 
+
 // Request interceptor to add the auth token to requests
 api.interceptors.request.use(
   (config) => {
@@ -33,29 +34,51 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor to handle errors
+
+// Response interceptor to handle errors and responses
 api.interceptors.response.use(
   (response) => {
     return response.data;
   },
   (error) => {
-    // Handle session expiration
-    if (error.response && error.response.status === 401 && error.response.data.message !== 'Invalid email or password') {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        console.log('error.response.data.message : ', error.response.data.message);
-        window.location.href = `/login${error.response.data.message === 'TokenExpiredError' ? '?expired=true' : ''}`;
-      }
+    const { response } = error;
+    
+    // Handle authentication errors (excluding login failures)
+    console.log('response : ', response);
+    if (response?.status === 401 && response.data?.message !== 'Invalid email or password') {
+      handleSessionExpiration(response.data?.message);
     }
     
-    // Format error message
-    const errorMessage = error.response?.data?.message || error.message || 'An unknown error occurred';
-    
-    // Return a rejected promise with the error message
+    // Extract and return error message
+    const errorMessage = response?.data?.message || error.message || 'An unknown error occurred';
     return Promise.reject(errorMessage);
   }
 );
+
+/**
+ * Handles session expiration by clearing auth data and redirecting to login
+ * @param {string} message - Error message from the response
+ */
+async function handleSessionExpiration(message) {
+  if (typeof window === 'undefined') return;
+  
+  // Clear authentication data
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  
+  // Log for debugging
+  console.log('Session expired:', message);
+  
+  // Build redirect URL
+  const { protocol, host } = window.location;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  const isTokenExpired = message === 'TokenExpiredError';
+  const redirectPath = `/login${isTokenExpired ? '?expired=true' : ''}`;
+  
+
+  // Perform redirect
+  window.location.href = `${protocol}//${host}${basePath}${redirectPath}`;
+}
 
 // Auth Services
 export const authService = {
@@ -86,7 +109,14 @@ export const authService = {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     if (typeof window !== 'undefined') {
-      window.location.href = '/login';
+  // Build redirect URL
+  const { protocol, host } = window.location;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  const redirectPath = `/login`;
+  
+
+  // Perform redirect
+  window.location.href = `${protocol}//${host}${basePath}${redirectPath}`;
     }
   },
   
@@ -132,7 +162,7 @@ export const authService = {
   // Get the user profile
   getProfile: async () => {
     try {
-      const response = await api.get('/user/profile');
+      const response = await api.get('/profile');
       return response;
     } catch (error) {
       throw error;
@@ -524,7 +554,17 @@ export const adminService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  // Get all auth logs (admin only)
+  getAllAuthLogs: async () => {
+      try {
+        const response = await api.get('/auth-logs');
+        return response;
+      } catch (error) {
+        throw error;
+      }
+    }
 };
 
 // User Services
@@ -557,7 +597,9 @@ export const userService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+  
+
 };
 
 // Notification Services
