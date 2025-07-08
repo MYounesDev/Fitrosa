@@ -29,6 +29,13 @@ export const getAllSports = async (req, res) => {
 export const getSport = async (req, res) => {
   const { id } = req.params;
   
+  if (!id) {
+    return res.status(400).json({
+      message: 'Sport ID is required'
+    });
+  }
+
+
   try {
     const sport = await prisma.sport.findUnique({
       where: { id: Number(id) },
@@ -102,9 +109,9 @@ export const updateSport = async (req, res) => {
   const { id } = req.params;
   const { sportName } = req.body;
   
-  if (!sportName) {
+  if (!sportName || !id) {
     return res.status(400).json({
-      message: 'Sport name is required'
+      message: 'Sport name and ID are required'
     });
   }
 
@@ -139,7 +146,13 @@ export const updateSport = async (req, res) => {
 
 export const deleteSport = async (req, res) => {
   const { id } = req.params;
-  
+ 
+  if (!id) {
+    return res.status(400).json({
+      message: 'Sport ID is required'
+    });
+  }
+
   try {
     const sport = await prisma.sport.findUnique({
       where: { id: Number(id) },

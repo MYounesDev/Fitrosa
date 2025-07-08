@@ -244,6 +244,134 @@
             "format": "password"
           }
         }
+      },
+      "FinancialTransaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "transaction_type": {
+            "type": "string",
+            "enum": ["income", "expense", "loss", "salary", "other"]
+          },
+          "user_id": {
+            "type": "integer"
+          },
+          "amount": {
+            "type": "number"
+          },
+          "currency": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "transaction_date": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "FinancialSummary": {
+        "type": "object",
+        "properties": {
+          "totalTransactions": {
+            "type": "integer"
+          },
+          "incomeTotal": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "count": {
+                "type": "integer"
+              }
+            }
+          },
+          "expenseTotal": {
+            "type": "object",
+            "properties": {
+              "amount": {
+                "type": "number"
+              },
+              "count": {
+                "type": "integer"
+              }
+            }
+          },
+          "netTotal": {
+            "type": "number"
+          },
+          "typeBreakdown": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "transaction_type": {
+                  "type": "string"
+                },
+                "_sum": {
+                  "type": "object",
+                  "properties": {
+                    "amount": {
+                      "type": "number"
+                    }
+                  }
+                },
+                "_count": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "currencyBreakdown": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "monthlySummary": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          }
+        }
+      },
+      "AuthLog": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "userId": {
+            "type": "integer"
+          },
+          "email": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string",
+            "enum": ["login", "logout", "failed_login", "password_reset"]
+          },
+          "ip_address": {
+            "type": "string"
+          },
+          "user_agent": {
+            "type": "string"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       }
     }
   },
@@ -1482,6 +1610,348 @@
           },
           "404": {
             "description": "Class, student, or relationship not found"
+          }
+        }
+      }
+    },
+    "/financial": {
+      "get": {
+        "tags": ["Financial"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Get all financial transactions",
+        "description": "Retrieve a list of all financial transactions (requires admin role)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "transaction_type",
+            "schema": {
+              "type": "string",
+              "enum": ["income", "expense", "loss", "salary", "other"]
+            },
+            "description": "Filter by transaction type"
+          },
+          {
+            "in": "query",
+            "name": "user_id",
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Filter by user ID"
+          },
+          {
+            "in": "query",
+            "name": "min_amount",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Minimum transaction amount"
+          },
+          {
+            "in": "query",
+            "name": "max_amount",
+            "schema": {
+              "type": "number"
+            },
+            "description": "Maximum transaction amount"
+          },
+          {
+            "in": "query",
+            "name": "currency",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Filter by currency"
+          },
+          {
+            "in": "query",
+            "name": "start_date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "Start date for filtering"
+          },
+          {
+            "in": "query",
+            "name": "end_date",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            },
+            "description": "End date for filtering"
+          },
+          {
+            "in": "query",
+            "name": "search",
+            "schema": {
+              "type": "string"
+            },
+            "description": "Search term for description field"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of financial transactions",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "results": {
+                      "type": "integer"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/FinancialTransaction"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Financial"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Create a new financial transaction",
+        "description": "Create a new financial transaction (requires admin role)",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["transaction_type", "amount", "currency", "description", "transaction_date"],
+                "properties": {
+                  "transaction_type": {
+                    "type": "string",
+                    "enum": ["income", "expense", "loss", "salary", "other"]
+                  },
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "amount": {
+                    "type": "number"
+                  },
+                  "currency": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  },
+                  "transaction_date": {
+                    "type": "string",
+                    "format": "date-time"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Transaction created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FinancialTransaction"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          }
+        }
+      }
+    },
+    "/financial/summary": {
+      "get": {
+        "tags": ["Financial"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Get financial summary",
+        "description": "Get financial summary data (totals by type, currency, etc.) (requires admin role)",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "period",
+            "schema": {
+              "type": "string",
+              "enum": ["all", "year", "month", "week", "day"],
+              "default": "all"
+            },
+            "description": "Time period for summary data"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Financial summary data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string"
+                    },
+                    "period": {
+                      "type": "string"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/FinancialSummary"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          }
+        }
+      }
+    },
+    "/financial/{id}": {
+      "put": {
+        "tags": ["Financial"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Update financial transaction",
+        "description": "Update a financial transaction (requires admin role)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Transaction ID"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinancialTransaction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction updated successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          },
+          "404": {
+            "description": "Transaction not found"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Financial"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Delete financial transaction",
+        "description": "Delete a financial transaction (requires admin role)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "description": "Transaction ID"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Transaction deleted successfully"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
+          },
+          "404": {
+            "description": "Transaction not found"
+          }
+        }
+      }
+    },
+    "/auth-logs": {
+      "get": {
+        "tags": ["Authentication Logs"],
+        "security": [{ "bearerAuth": [] }],
+        "summary": "Get authentication logs",
+        "description": "Retrieve a list of authentication logs (requires admin role)",
+        "responses": {
+          "200": {
+            "description": "List of authentication logs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "logs": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/AuthLog"
+                          }
+                        },
+                        "total": {
+                          "type": "integer"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions"
           }
         }
       }

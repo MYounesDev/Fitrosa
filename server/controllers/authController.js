@@ -126,6 +126,7 @@ export const setupPassword = async (req, res) => {
     }
 };
 
+
 export const login = async (req, res) => {
     const { email, password } = req.body;
     const ip_address = req.ip || req.connection.remoteAddress;

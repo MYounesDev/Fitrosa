@@ -22,7 +22,6 @@
         "express": "^4.18.3",
         "jsonwebtoken": "^9.0.2",
         "nodemailer": "^6.10.1",
-        "pg": "^8.14.1",
         "swagger-ui-express": "^5.0.1"
     },
     "devDependencies": {
