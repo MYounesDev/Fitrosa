@@ -21,7 +21,6 @@ import {
   Menu,
   Activity,
   BarChart2,
-  CreditCard,
   DollarSign,
   UserCheck,
   Dumbbell
@@ -92,34 +91,34 @@ export default function Sidebar() {
   const roleSpecificNavItems = isAdmin
     ? [
       /* Student */
-      { name: 'Öğrenciler', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'Manage student profiles' },
+      { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'Manage student profiles' },
       /* Coach */
-      { name: 'Koçlar', href: '/admin/coaches', icon: <UserCheck className="h-5 w-5" />, description: 'Manage coach profiles' },
+      { name: 'Coaches', href: '/admin/coaches', icon: <UserCheck className="h-5 w-5" />, description: 'Manage coach profiles' },
       /* Sports */
-      { name: 'Sporlar', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
+      { name: 'Sports', href: '/admin/sports', icon: <Dumbbell className="h-5 w-5" />, description: 'Manage sports' },
       /* Classes */
-      { name: 'Sınıflar', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage classes' },
+      { name: 'Classes', href: '/admin/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage classes' },
       /* Analytics */
-      { name: 'Analitik', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
+      { name: 'Analytics', href: '/admin/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance reports' },
        /*FinMuhase Transactions */   
-      { name: 'Muhasebe', href: '/admin/financial', icon: <DollarSign className="h-5 w-5" />, description: 'Financial Transactions' },
+      { name: 'Financial', href: '/admin/financial', icon: <DollarSign className="h-5 w-5" />, description: 'Financial Transactions' },
       /* Sign-In Logs */
-      { name: 'Giriş Logları', href: '/admin/signin-logs', icon: <FileText className="h-5 w-5" />, description: 'View system sign-in logs' },
+      { name: 'Sign-In Logs', href: '/admin/signin-logs', icon: <FileText className="h-5 w-5" />, description: 'View system sign-in logs' },
       /* System */
-      { name: 'Sistem', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
+      { name: 'System', href: '/admin/system', icon: <Cog className="h-5 w-5" />, description: 'System settings' }
     ]
     : isCoach
       ? [
         /* Calendar */
-        { name: 'Takvim', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
+        { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
         /* Students */
-        { name: 'Öğrenciler', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'View your students' },
+        { name: 'Students', href: '/students-List', icon: <Users className="h-5 w-5" />, description: 'View your students' },
         /* Attendance */
-        { name: 'Devamsızlık', href: '/coach/attendance', icon: <FileText className="h-5 w-5" />, description: 'Manage student attendance' },
+        { name: 'Attendance', href: '/coach/attendance', icon: <FileText className="h-5 w-5" />, description: 'Manage student attendance' },
         /* Classes */
-        { name: 'Sınıflar', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage your classes' },
+        { name: 'Classes', href: '/coach/classes', icon: <BookOpen className="h-5 w-5" />, description: 'Manage your classes' },
         /* Analytics */
-        { name: 'Analitik', href: '/coach/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance tracking' },
+        { name: 'Analytics', href: '/coach/reports', icon: <BarChart2 className="h-5 w-5" />, description: 'Performance tracking' },
       ]
       : [
         { name: 'Calendar', href: `/${user.role}/calendar`, icon: <Calendar className="h-5 w-5" />, description: 'Schedule and appointments' },
