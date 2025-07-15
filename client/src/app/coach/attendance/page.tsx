@@ -282,7 +282,7 @@ const AttendancePage = () => {
         try {
             setIsLoadingStudents(true);
             const response = await classService.getClass(classId);
-            console.log(response);
+
             
             const studentsWithClassIds = response.data.students.map((student: any) => ({
                 ...student,
@@ -303,11 +303,6 @@ const AttendancePage = () => {
             if (!selectedStudent) return;
             setIsLoadingLogs(true);
             const response = await attendanceService.getStudentAttendance(selectedStudent.classStudentId) as ApiResponse<AttendanceLog>;
-            console.log("!!!!!!!");
-            console.log(response);
-            console.log(response.data);
-            console.log(selectedStudent.classStudentId);
-            console.log("!!!!!!!");
             setAttendanceLogs(response.data || []);
         } catch (error) {
             console.error('Failed to fetch attendance logs:', error);
@@ -353,7 +348,6 @@ const AttendancePage = () => {
             if (selectedLog) {
                 await attendanceService.updateAttendanceLog(selectedLog.id, requestData);
             } else {
-                console.log(selectedStudent.classStudentId);    
                 await attendanceService.createAttendanceLog(selectedStudent.classStudentId, requestData);
             }
             

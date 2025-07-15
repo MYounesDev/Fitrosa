@@ -37,6 +37,7 @@ api.interceptors.request.use(
 
 // Response interceptor to handle errors and responses
 api.interceptors.response.use(
+  
   (response) => {
     return response.data;
   },
@@ -44,11 +45,15 @@ api.interceptors.response.use(
     const { response } = error;
     
     // Handle authentication errors (excluding login failures)
-    console.log('response : ', response);
+
     if (response?.status === 401 && response.data?.message !== 'Invalid email or password') {
       handleSessionExpiration(response.data?.message);
     }
     
+    if (response?.status === 403){
+      handleForbidden();
+    }
+
     // Extract and return error message
     const errorMessage = response?.data?.message || error.message || 'An unknown error occurred';
     return Promise.reject(errorMessage);
@@ -65,10 +70,8 @@ async function handleSessionExpiration(message) {
   // Clear authentication data
   localStorage.removeItem('token');
   localStorage.removeItem('user');
-  
-  // Log for debugging
-  console.log('Session expired:', message);
-  
+
+
   // Build redirect URL
   const { protocol, host } = window.location;
   const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -77,6 +80,21 @@ async function handleSessionExpiration(message) {
   
 
   // Perform redirect
+  window.location.href = `${protocol}//${host}${basePath}${redirectPath}`;
+}
+
+/**
+ * Handles forbidden responses by redirecting to a permission denied page
+ */
+function handleForbidden() {
+  if (typeof window === 'undefined') return;
+  
+  // Build redirect URL
+  const { protocol, host } = window.location;
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+  
+  // Redirect to permission denied (unauthorized) page
+  const redirectPath = '/unauthorized';
   window.location.href = `${protocol}//${host}${basePath}${redirectPath}`;
 }
 
@@ -146,8 +164,6 @@ export const authService = {
     try {
       const response = await api.get('/isAuthenticated');
 
-      console.log(response);
-      
       return !!response.token;
     } catch (error) {
       throw error;

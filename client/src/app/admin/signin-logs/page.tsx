@@ -138,8 +138,7 @@ const SignInLogs: React.FC = () => {
     try {
       setLoading(true);
       const response = await adminService.getAllAuthLogs();
-      console.log('response : ', response);
-      
+
       const logsData = response.data.logs || [];
       setLogs(logsData);
       setFilteredLogs(logsData);
